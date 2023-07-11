@@ -10,7 +10,7 @@ This basic tool is to help with drilling a set group of puzzles (similar to the 
 
 Here is an example PGN created using the analysis board from chess.com with a really basic endgame that was just saved to a file.
 ```
-[Event "Example PGN"]
+[Event "Example 1"]
 [Site "?"]
 [Date "????.??.??"]
 [Round "?"]
@@ -23,6 +23,7 @@ Here is an example PGN created using the analysis board from chess.com with a re
 1. Kf6 Kh7 2. Qf7+ Kh8 3. Qg7# 1-0
 ```
 Use the "Open PGN file" button to open this file and you can practice this puzzle.  
+![screenshot](screenshot2.png)
 
 The PGN file can have any number of puzzles so you can work through a set in one shot.
 
