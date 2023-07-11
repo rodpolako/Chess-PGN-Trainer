@@ -20,7 +20,7 @@ Here is an example PGN created using the analysis board from chess.com with a re
 
 1. Kf6 Kh7 2. Qf7+ Kh8 3. Qg7# 1-0
 ```
-Use the "Load PGN file" button to open this file and you can practice this puzzle.  
+Use the "Open PGN file" button to open this file and you can practice this puzzle.  
 
 The PGN file can have any number of puzzles so you can work through a set in one shot.
 
