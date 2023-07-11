@@ -39,6 +39,13 @@ Once a test group is completed, tool displays the following performance informat
 * Average time per puzzle (Calculated)
 * Error rate (Calculated)
 
+## To Do
+- [ ] Ability to do the set in random order
+- [ ] Add selector for pawn promotion (defaults currently to queen.  Will not work with puzzles requiring pawn promotion to anything other than a queen.)
+
+## Outstanding issues
+- [ ] Need code cleanup to ensure that the app knows when a set is complete.
+- [ ] Update error count tracking to be by PUZZLE, not each individual error (otherwise could make error rate > 100%, related to issue above)
 
 ## References
 Built with the help of the following projects:
