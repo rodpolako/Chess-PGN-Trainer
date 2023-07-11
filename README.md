@@ -1,6 +1,8 @@
 # Chess-PGN-Trainer
 Online tool that opens chess PGN files and allows the user to practice the moves.
 
+![screenshot](screenshot.png)
+
 This basic tool is to help with drilling a set group of puzzles (similar to the Woodpecker method) but with any appropriately configured PGN file.  PGN Files need only three parts:
 * FEN - The representation of the board and associated information
 * The moves for both white and black.
