@@ -41,9 +41,19 @@ Once a test group is completed, tool displays the following performance informat
 * Average time per puzzle (Calculated)
 * Error rate (Calculated)
 
-## Instructions
+## Setup Instructions
 1. Download & extract the zip into a folder and start a web server from there.
 2. In a browser, point to index.html.
+
+## Usage
+1. Click on "Open PGN File"
+2. Navigate to the desired PGN file and then click on OK
+3. Place a checkmark next to any desired features (such as random, flipped, play both sides)
+4. When ready, click on start and the first puzzle in the set will be displayed and you can make your first move.
+5. When the puzzle is finished, the next puzzle in the set will be automatically loaded
+6. When the set of puzzles is complete, your final stats will be displayed.
+
+You can then start a new PGN file by repeating these steps.
 
 ## References
 Built with the help of the following projects:
