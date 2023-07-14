@@ -42,9 +42,8 @@ Once a test group is completed, tool displays the following performance informat
 * Error rate (Calculated)
 
 ## Instructions
-1. Click on "Code" and then "Download ZIP"
-2. Extract the zip into a folder and start a web server from there.
-3. In a browser, point to index.html.
+1. Download & extract the zip into a folder and start a web server from there.
+2. In a browser, point to index.html.
 
 ## References
 Built with the help of the following projects:
