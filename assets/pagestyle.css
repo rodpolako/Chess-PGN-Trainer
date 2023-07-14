@@ -1,0 +1,281 @@
+/* For Table format debugging */
+/*
+th {
+	border: 1px solid rgb(140, 7, 69);
+}
+*/
+
+td {
+	/*border: 1px solid rgb(63, 181, 16);*/
+	font-size: 11pt;
+}
+
+.tdspacer1 {
+	height: 25px;
+}
+
+.tdspacer2 {
+	height: 50px;
+}
+
+.tdspacer3 {
+	height: 75px;
+}
+
+.tdspacer4 {
+	height: 150px;
+}
+
+body {
+	font-family: Arial;
+}
+
+.puzzlenumbers{
+	font-weight: bold;
+	font-size: 14pt;
+}
+
+table {
+	/*border: 1px solid blue;*/
+	width: 80%;
+}
+
+.chessboard {
+	width: 650px
+}
+
+.center {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.maxwidth {
+	width: 100%;
+}
+
+.maxheight {
+	height: 100%;
+}
+
+/* Used https://htmlcolorcodes.com/ to get colors*/
+
+.button {
+	background-color: #335BFF;
+	color: #fff;
+	border: none;
+	border-radius: 7px;
+	padding: 10px;
+	min-height: 30px;
+	min-width: 120px;
+	margin: auto;
+	display: block;
+
+}
+
+button:disabled,
+button[disabled] {
+	border: 7d7d7d;
+	background-color: #7d7d7d;
+	color: #fff;
+}
+
+
+.button:hover {
+	background-color: #6886FF;
+}
+
+.button:focus {
+	outline-color: transparent;
+	outline-style: solid;
+	box-shadow: 0 0 0 2px #0839FF;
+}
+
+.statusarea {
+	width: 100%;
+	height: 150px;
+}
+
+label {
+	font-weight: bold;
+	font-size: 14pt;
+}
+
+div {
+	font-size: 11pt;
+}
+
+
+
+.dotBLACK {
+	height: 10px;
+	width: 10px;
+	background-color: #000000;
+	border-radius: 50%;
+	border: 1px;
+	border-style: solid;
+	border-color: black;
+	display: inline-block;
+}
+
+.dotWHITE {
+	height: 10px;
+	width: 10px;
+	background-color: #ffffff;
+	border-radius: 50%;
+	border: 1px;
+	border-style: solid;
+	border-color: black;
+	display: inline-block;
+}
+
+/* The container */
+.container {
+	display: block;
+	position: relative;
+	padding-left: 35px;
+	margin-bottom: 12px;
+	cursor: pointer;
+	font-size: 14px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.container input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 25px;
+	width: 25px;
+	background-color: #eee;
+}
+
+/* On mouse-over, add a grey background color */
+.container:hover input~.checkmark {
+	background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.container input:checked~.checkmark {
+	background-color: #335BFF;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+	content: "";
+	position: absolute;
+	display: none;
+}
+
+/* Show the checkmark when checked */
+.container input:checked~.checkmark:after {
+	display: block;
+}
+
+/* Style the checkmark/indicator */
+.container .checkmark:after {
+	left: 9px;
+	top: 5px;
+	width: 5px;
+	height: 10px;
+	border: solid white;
+	border-width: 0 3px 3px 0;
+	-webkit-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+
+
+/*
+CSS from pawn promotion example
+-------------------------------
+*/
+#promotion-dialog {
+	display: none;
+}
+
+.ui-dialog {
+	padding: 0 !important;
+	width: 184px !important;
+	border: 0 !important;
+}
+
+.ui-dialog-content {
+	padding: 0 !important;
+	width: 184px !important;
+	border: 0 !important;
+}
+
+.ui-corner-all {
+	border-radius: 0;
+}
+
+.ui-state-default,
+.ui-widget-content .ui-state-default,
+.ui-widget-header .ui-state-default {
+	border: 0 !important;
+}
+
+#promote-to .ui-selecting {
+	background: #FECA40;
+}
+
+#promote-to .ui-selected {
+	background: #F39814;
+	color: white;
+}
+
+#promote-to {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	width: 184px;
+	height: 46px;
+}
+
+#promote-to li {
+	margin: 0;
+	padding: 0;
+	width: 46px;
+	height: 46px;
+	cursor: pointer;
+	float: left !important;
+}
+
+.ui-dialog .ui-dialog-content {
+	padding: 0;
+}
+
+.no-close .ui-dialog-titlebar-close {
+	display: none;
+}
+
+
+.noTitleStuff .ui-dialog-titlebar {
+	display: none;
+}
+
+.promotion-piece {
+	width: 46px;
+	height: 46px;
+}
+
+.piece-name {
+	display: none;
+}
+
+/*
+CSS from pawn promotion example
+-------------------------------
+*/
