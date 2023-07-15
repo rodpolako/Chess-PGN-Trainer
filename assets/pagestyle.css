@@ -5,6 +5,15 @@ th {
 }
 */
 
+.ui-progressbar-value {
+	font-size: 16px;
+	font-weight: bold;
+	line-height: 18px;
+	padding-left: 0px;
+	padding-top: 6px;
+	text-align: center;
+}
+
 td {
 	/*border: 1px solid rgb(63, 181, 16);*/
 	font-size: 11pt;
@@ -30,7 +39,7 @@ body {
 	font-family: Arial;
 }
 
-.puzzlenumbers{
+.puzzlenumbers {
 	font-weight: bold;
 	font-size: 14pt;
 }

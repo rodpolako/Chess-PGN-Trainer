@@ -101,6 +101,8 @@ function showstats() {
 	var AvgTimeSeconds = ElapsedTimeSeconds / puzzleset.length
 	var AvgTimehhmmss = new Date(AvgTimeSeconds * 1000).toISOString().slice(11, 19)
 
+	updateprogressbar(1, 1)
+
 	$('#messagecomplete').html('<h2>Set Complete</h2>')
 
 	$('#elapsedTime').text('Elapsed time (hh:mm:ss): ' + ElapsedTimehhmmss)
@@ -352,12 +354,27 @@ function loadPGNFile() {
 
 }
 
+function updateprogressbar(partial_value, total_value) {
+
+	// Do the math
+	var progress = Math.round((((partial_value) / total_value) * 100))
+
+	// Show the result
+	$("#progressbar")
+		.progressbar({ value: progress })
+		.children('.ui-progressbar-value')
+		.html(progress + '%')
+		.css('display', 'block')
+		.css('background', '#b9c7ff');
+
+}
 
 
 function loadPuzzle(PGNPuzzle) {
 
 	// Display current puzzle number in the sequence
 	$('#puzzleNumber').text(increment + 1);
+	updateprogressbar(increment, puzzleset.length)
 
 	// Set the error flag to false for this puzzle (ie: only count 1 error per puzzle)
 	error = false;
@@ -478,6 +495,8 @@ function resetgame() {
 
 	$('#puzzleNumber').text('0');
 	$('#puzzleNumbertotal').text('0');
+
+	$("#progressbar").progressbar({ value: 0 })
 
 	$('#btn_starttest').prop('disabled', true);
 
