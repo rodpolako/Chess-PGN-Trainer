@@ -1,6 +1,8 @@
 # Chess-PGN-Trainer
 Online tool that opens chess PGN files and allows the user to practice the moves.
 
+[Live demo available here](https://rodpolako.github.io/)
+
 ![screenshot](screenshot.png)
 
 This basic tool is to help with drilling a set group of puzzles but with any appropriately configured PGN file.  
