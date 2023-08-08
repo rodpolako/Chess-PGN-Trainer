@@ -47,20 +47,23 @@ Once a test group is completed, tool displays the following performance informat
 */
 
 
-
 // Define global variables
-var board, game, moveHistory, puzzleset, errorcount, error, setcomplete;
-var piece_theme, promote_to, promoting, promotion_dialog;
+var board, blankboard, game, moveHistory, puzzleset, errorcount, error, setcomplete;
+var piece_theme, promote_to, promoting, promotion_dialog, PauseStartDateTime, PauseendDateTime;
 
 var startDateTime = new Date();
+var pauseDateTimeTotal = 0;
 var puzzlecomplete = false;
+var pauseflag = false;
 var increment = 0;
 var PuzzleOrder = [];
+var version = '1.2.0';
+
+$("#Title").text('Chess PGN Trainer ' + version)
 
 piece_theme = './img/chesspieces/wikipedia/{piece}.png';
 promotion_dialog = $('#promotion-dialog');
 promoting = false;
-
 
 // Initial Board Configuration
 var config = {
@@ -80,6 +83,11 @@ function onDragStart(source, piece, position, orientation) {
 		return false
 	}
 
+	// Don't allow moves if game is paused
+	if (pauseflag) {
+		return false;
+	}
+
 	// only pick up pieces if the move number is odd (player always goes first) and the user is not playing both sides
 	if (!$("#playbothsides").is(':checked')) {
 		if (game.history().length % 2 !== 0) {
@@ -96,7 +104,7 @@ function onDragStart(source, piece, position, orientation) {
 function showstats() {
 
 	var endDateTime = new Date();
-	var ElapsedTimeSeconds = (endDateTime - startDateTime) / 1000
+	var ElapsedTimeSeconds = (endDateTime - startDateTime - pauseDateTimeTotal) / 1000 // Subtracting the paused time from total elapsed time
 	var ElapsedTimehhmmss = new Date(ElapsedTimeSeconds * 1000).toISOString().slice(11, 19)
 	var AvgTimeSeconds = ElapsedTimeSeconds / puzzleset.length
 	var AvgTimehhmmss = new Date(AvgTimeSeconds * 1000).toISOString().slice(11, 19)
@@ -168,6 +176,7 @@ function checkandplaynext() {
 
 		// Disable the start button
 		$('#btn_starttest').prop('disabled', true);
+		$('#btn_pause').prop('disabled', true);
 	}
 
 }
@@ -296,12 +305,10 @@ function updatedotcolor() {
 
 }
 
-
 function flipboard() {
-	board.flip()
+	board.flip();
 	updatedotcolor();
 }
-
 
 // PGN file parser
 function parsepgn(PGNData) {
@@ -333,7 +340,6 @@ function parsepgn(PGNData) {
 	$('#btn_starttest').prop('disabled', false);
 
 }
-
 
 // Feed the PGN file provided by the user here to the PGN Parser and update/enable the controls
 function loadPGNFile() {
@@ -443,12 +449,49 @@ function shuffle(array) {
 }
 
 
+function Pause() {
+
+	// Start a new counter (to then subtract from overall total)
+
+	switch($("#btn_pause").text()) {
+		case 'Pause':
+			$('#btn_pause').text('Resume');
+			pauseflag = true;
+			PauseStartDateTime = new Date();
+			
+			// hide the board
+			$("#myBoard").css('display', 'none')
+			$("#blankboard").css('display', 'block')
+		  break;
+		case 'Resume':
+			$('#btn_pause').text('Pause');
+			pauseflag = false;
+			PauseendDateTime = new Date();
+			
+			// Keep running total of paused time
+			pauseDateTimeTotal += (PauseendDateTime - PauseStartDateTime)
+			
+			// show the board
+			$("#myBoard").css('display', 'block')
+			$("#blankboard").css('display', 'none')
+			
+		  break;
+		default:
+		  // Do nothing
+	  }
+
+}
+
 function startTest() {
 
 	// Check to make sure that a PGN File was loaded
 	if (puzzleset.length === 0) {
 		return
 	}
+
+	// Hide Start button and show "Pause" button 
+	$("#btn_starttest").css('display', 'none')
+	$("#btn_pause").css('display', 'block')
 
 	// Load first puzzle and start counting for errors (for now...)
 	errorcount = 0;
@@ -487,14 +530,22 @@ function resetgame() {
 
 	puzzleset = [];
 	errorcount = 0;
+	pauseDateTimeTotal = 0;
 	error = false;
 	setcomplete = false;
 
 	// Create the board
 	board = Chessboard('myBoard', config);
 
+	blankboard = Chessboard('blankboard')
+
 	$('#puzzleNumber').text('0');
 	$('#puzzleNumbertotal').text('0');
+
+	// Hide Start button and show "Pause" button 
+	$("#btn_pause").css('display', 'none')
+	$("#btn_starttest").css('display', 'block')
+	$('#btn_pause').prop('disabled', false);
 
 	$("#progressbar").progressbar({ value: 0 })
 
@@ -517,6 +568,7 @@ $(function () {
 	$('#openPGN_button').click(function (e) { $('#openPGN').click(); });
 	$('#btn_reset').on('click', resetgame);
 	$('#btn_starttest').on('click', startTest);
+	$('#btn_pause').on('click', Pause);
 
 	// Pawn Promotion
 	$('.promotion-piece-q').attr('src', getImgSrc('q'));

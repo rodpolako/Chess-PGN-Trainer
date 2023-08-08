@@ -48,6 +48,7 @@
 				<table style="width: 662px; height: 650px">
 					<tr>
 						<td>
+							<div id="blankboard" class="chessboard" style="display: none;"></div>
 							<div id="myBoard" class="chessboard"></div>
 
 							<div id="promotion-dialog" style="display: none;">
@@ -89,7 +90,7 @@
 			<td style="width: 338px;">
 
 				<table class="maxwidth">
-					<th colspan="2" style="height: 50px">Chess PGN Trainer</th>
+					<th id='Title' colspan="2" style="height: 50px">Chess PGN Trainer</th>
 
 					<tr>
 						<td colspan="2" class="tdspacer1"> </td>
@@ -166,6 +167,7 @@
 					<tr>
 						<td colspan="2">
 							<button id="btn_starttest" class="button" disabled="true">Start</button>
+							<button id="btn_pause" class="button" style="display: none">Pause</button>
 						</td>
 					</tr>
 
