@@ -57,7 +57,7 @@ var puzzlecomplete = false;
 var pauseflag = false;
 var increment = 0;
 var PuzzleOrder = [];
-var version = '1.2.0';
+var version = '1.3.0';
 
 $("#Title").text('Chess PGN Trainer ' + version)
 
@@ -77,7 +77,7 @@ var config = {
 
 function onDragStart(source, piece, position, orientation) {
 
-	// only pick up pieces for the side to move
+	// Only pick up pieces for the side to move
 	if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
 		(game.turn() === 'b' && piece.search(/^w/) !== -1)) {
 		return false
@@ -88,14 +88,22 @@ function onDragStart(source, piece, position, orientation) {
 		return false;
 	}
 
-	// only pick up pieces if the move number is odd (player always goes first) and the user is not playing both sides
+	// Only pick up pieces if the move number is odd if the player goes first or even if player is going second
+	// AND the user is not playing both sides
 	if (!$("#playbothsides").is(':checked')) {
-		if (game.history().length % 2 !== 0) {
+		
+		// Player is playing first
+		if (!$("#playoppositeside").is(':checked') && game.history().length % 2 !== 0) {
+			return false
+		}
+		
+		// Player is playing second
+		if ($("#playoppositeside").is(':checked') && (game.history().length % 2 === 0 || game.history().length === 0)) {
 			return false
 		}
 	}
 
-	// do not pick up pieces if the puzzle is complete (ie: all the moves of the PGN have been played)
+	// Do not pick up pieces if the puzzle is complete (ie: all the moves of the PGN have been played)
 	if (game.history().length === moveHistory.length) {
 		return false
 	}
@@ -126,7 +134,6 @@ function checkandplaynext() {
 	// Need to go this way since .moveNumber isn't working...
 
 	if (game.history()[game.history().length - 1] === moveHistory[game.history().length - 1]) {
-
 		// correct move
 
 		// play next move if the "Play both sides" box is unchecked
@@ -270,7 +277,6 @@ function onSnapEnd() {
 	updateBoard(board);
 }
 
-
 function updatedotcolor() {
 
 	// Activate the dot to correspond with the player to move (based on game) and orientation of the board
@@ -375,7 +381,6 @@ function updateprogressbar(partial_value, total_value) {
 
 }
 
-
 function loadPuzzle(PGNPuzzle) {
 
 	// Display current puzzle number in the sequence
@@ -422,6 +427,12 @@ function loadPuzzle(PGNPuzzle) {
 
 	// Update the screen with the value of the PGN Event tag (if any)
 	$('#puzzlename').text(PGNPuzzle.Event)
+	
+	// Play the first move if player is playing second and not both sides
+	if ($("#playoppositeside").is(':checked') && !$("#playbothsides").is(':checked')) {
+		game.move(moveHistory[0])
+		board.position(game.fen(), true);
+	}
 
 	// Show the answers in the console (ie: hint mode)
 	console.clear()
@@ -447,7 +458,6 @@ function shuffle(array) {
 
 	return array;
 }
-
 
 function Pause() {
 
@@ -520,7 +530,6 @@ function startTest() {
 
 }
 
-
 function resetgame() {
 	// Reset the current game in memory
 
@@ -561,7 +570,6 @@ function resetgame() {
 	updatedotcolor()
 }
 
-
 // Assign actions to the buttons
 $(function () {
 	// Buttons 
@@ -592,5 +600,4 @@ $(function () {
 			});
 		}
 	});
-
 });
