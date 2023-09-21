@@ -36,6 +36,8 @@ This tool has a couple of other features that you might like:
 * Play both sides - Allows the player to play both sides of the puzzle
 * Randomize - Presents the puzzles in the set in a random order
 * Flipped - Allows you to play the puzzle from the other side of the board.  May help to develop sense when a given tactic is being used on you.
+* **New** - Added ability to pause.  Useful if you are doing a large number of puzzles and need to step away.  Click on the pause button and the board will clear and the timer will stop.  Click Resume in order to continue.  Your computed time will not include the paused time.
+* **New** - Added ability to go second in order to allow the ability to practice opening defenses.  For example, if you want to practice as black, you can now have a PGN that will play as white and play the moves in the PGN while you play the response.  Recommend that you use the Flipped option in conjunction with this one.
   
 Once a test group is completed, tool displays the following performance information:
 * Number of errors
