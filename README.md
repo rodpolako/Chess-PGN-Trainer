@@ -36,8 +36,9 @@ This tool has a couple of other features that you might like:
 * Play both sides - Allows the player to play both sides of the puzzle
 * Randomize - Presents the puzzles in the set in a random order
 * Flipped - Allows you to play the puzzle from the other side of the board.  May help to develop sense when a given tactic is being used on you.
-* **New** - Added ability to pause.  Useful if you are doing a large number of puzzles and need to step away.  Click on the pause button and the board will clear and the timer will stop.  Click Resume in order to continue.  Your computed time will not include the paused time.
-* **New** - Added ability to go second in order to allow the ability to practice opening defenses.  For example, if you want to practice as black, you can now have a PGN that will play as white and play the moves in the PGN while you play the response.  Recommend that you use the Flipped option in conjunction with this one.
+* Play Opposite Side - Added ability to go second in order to allow the ability to practice opening defenses.  For example, if you want to practice as black, you can now have a PGN that will play as white and play the moves in the PGN while you play the response.  Recommend that you use the Flipped option in conjunction with this one.
+* Pause - Useful if you are doing a large number of puzzles and need to step away.  Click on the pause button and the board will clear and the timer will stop.  Click Resume in order to continue.  Your elapsed time will not include the paused time.
+* **New** - Added a hint function.  You can hold down the **h** key at any time during a puzzle to see the expected move.  Just know that if a hint is used, it will be counted as an error in your performance.
   
 Once a test group is completed, tool displays the following performance information:
 * Number of errors
@@ -56,6 +57,8 @@ Once a test group is completed, tool displays the following performance informat
 4. When ready, click on start and the first puzzle in the set will be displayed and you can make your first move.
 5. When the puzzle is finished, the next puzzle in the set will be automatically loaded
 6. When the set of puzzles is complete, your final stats will be displayed.
+7. You can pause any time if you need to step away.
+8. If you get stuck you can get a hint by holding down the **h** key
 
 You can then start a new PGN file by repeating these steps.
 
