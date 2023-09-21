@@ -57,7 +57,7 @@ var puzzlecomplete = false;
 var pauseflag = false;
 var increment = 0;
 var PuzzleOrder = [];
-var version = '1.3.0';
+var version = '1.3.1';
 
 $("#Title").text('Chess PGN Trainer ' + version)
 
@@ -600,4 +600,28 @@ $(function () {
 			});
 		}
 	});
+
+	// Add Hint button function (in case you get stuck, press and hold down the "h" key)
+	$(document).keydown(function (e){
+		if (e.keyCode == 72) {
+			
+			// Only display hint when in a puzzle
+			if (moveHistory.length > 0 ) {
+
+				$('#messagecomplete').text(moveHistory[game.history().length])
+
+				// Set error flag for this puzzle since hint was used.
+				if (error === false) { ++errorcount;}
+				error = true;
+			}
+			
+		}
+	  })
+
+	$(document).keyup(function (e){
+		if (e.keyCode == 72) {
+			$('#messagecomplete').text('')
+		}
+	  })
+
 });
