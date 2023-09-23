@@ -39,6 +39,7 @@ This tool has a couple of other features that you might like:
 * Play Opposite Side - Allows the player to go second and makes the computer play the first move instead from the PGN.  Useful for when you want to practice opening defenses instead of puzzles.  For example, if you wanted to practice a defense as black, load a PGN with the move order you want to practice and this feature will play as white and play the moves in the PGN while you play the response.  Recommended that you use the Flipped option in conjunction with this one.
 * Pause - Useful if you are doing a large number of puzzles and need to step away.  Click on the pause button and the board will clear and the timer will stop.  Click Resume in order to continue.  Your elapsed time will not include the paused time.
 * **New** - Added a hint function.  You can hold down the **h** key at any time during a puzzle to see the expected move.  Just know that if a hint is used, it will be counted as an error in your performance.
+* **New** - Added the ability to restart/replay the current puzzleset upon completion. Useful if you want to try again with the same settings.  When the current set is complete, just click on "Restart" to try the current PGN file again.  You can choose different settings like random, flipped, etc. before trying again.
   
 Once a test group is completed, tool displays the following performance information:
 * Number of errors
