@@ -71,3 +71,8 @@ Built with the help of the following projects:
 * [pawn-promotion](https://github.com/siansell/pawn-promotion) Quick and dirty example showing one approach to pawn promotion with chessboard.js and chess.js.
 
 
+## Possible ideas for improvements/features
+* Add the ability to set the options via tags in the PGN so that if I always want to play a set with specific settings (such as randomized) loading the PGN also sets the options.
+* While the site does work on mobile, it is not optimized for that format.  A UI overhaul with a responsive design would be nice.
+* Add an option to auto-save the results to a hosted file.  Maybe something like adding a row to a google sheet?
+* What would be really nice is if there was a way to organize all the PGNs I want to test as part of a larger structure so that I would be able to choose from a defined list which includes the info on the PGN file to use along with the desired settings.  Not immediately sure how this would work due to security restrictions on the browser preventing direct access to local files.
