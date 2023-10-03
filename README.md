@@ -47,6 +47,30 @@ Once a test group is completed, tool displays the following performance informat
 * Average time per puzzle (Calculated)
 * Error rate (Calculated)
 
+## Known limitations
+* The PGN parser ignores variations in a PGN file.  Attempting to use a PGN with these will not work and will only play the "main-line".  If you want to work a line that has variations, break out each variation into its own entry in the PGN.
+For example, the following PGN shows a position where the black king has two possible moves recorded after Qe5+:
+```
+[Event "?"]
+[FEN "r1r1k3/5p2/3K4/2Q5/8/8/8/8 w - - 1 1"]
+
+1. Qe5+ Kf8 (1... Kd8 2. Qe7#) 2. Qh8# 1-0
+```
+Loading this PGN as-is will result in the tool indicating that there is only 1 puzzle, the main line. To get the tool to test the main line and the variation, copy the entry and show each variation separately.  Like this:
+
+```
+[Event "?"]
+[FEN "r1r1k3/5p2/3K4/2Q5/8/8/8/8 w - - 1 1"]
+
+1. Qe5+ Kf8 2. Qh8# 1-0
+
+[Event "?"]
+[FEN "r1r1k3/5p2/3K4/2Q5/8/8/8/8 w - - 1 1"]
+
+1. Qe5+ Kd8 2. Qe7#
+```
+In this way, the tool will see that there are two puzzles and test both.
+
 ## Setup Instructions
 1. Download & extract the zip into a folder and start a web server from there.
 2. In a browser, point to index.html.
@@ -73,6 +97,7 @@ Built with the help of the following projects:
 
 ## Possible ideas for improvements/features
 * Add the ability to set the options via tags in the PGN so that if I always want to play a set with specific settings (such as randomized) loading the PGN also sets the options.
+* Enhance the PGN-Parser to also read variations and load each variation as another puzzle.
 * While the site does work on mobile, it is not optimized for that format.  A UI overhaul with a responsive design would be nice.
 * Add an option to auto-save the results to a hosted file.  Maybe something like adding a row to a google sheet?
 * What would be really nice is if there was a way to organize all the PGNs I want to test as part of a larger structure so that I would be able to choose from a defined list which includes the info on the PGN file to use along with the desired settings.  Not immediately sure how this would work due to security restrictions on the browser preventing direct access to local files.
