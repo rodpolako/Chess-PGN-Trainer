@@ -16,7 +16,7 @@
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = '1.4.0';
+const version = '1.4.1';
 let board;
 let blankboard;
 let pieceTheme;
@@ -669,6 +669,10 @@ function resetgame() {
 	$('#btn_starttest').css('display', 'block');
 	$('#btn_starttest').prop('disabled', true);
 
+	// show the full board (in case the reset happened during a pause)
+	$('#myBoard').css('display', 'block');
+	$('#blankboard').css('display', 'none');
+
 	// Reset the progress bar
 	$('#progressbar').progressbar({ value: 0 });
 
@@ -725,9 +729,9 @@ $(() => {
 		},
 	});
 
-	// Add Hint button function (in case you get stuck, press and hold down the "h" key)
+	// Add Hint button function (in case you get stuck, press and hold down the spacebar)
 	$(document).keydown((e) => {
-		if (e.keyCode === 72) {
+		if (e.keyCode === 32) {
 			// Only display hint when in a puzzle
 			if (moveHistory.length > 0) {
 				$('#messagecomplete').text(moveHistory[game.history().length]);
@@ -742,7 +746,7 @@ $(() => {
 	});
 
 	$(document).keyup((e) => {
-		if (e.keyCode === 72) {
+		if (e.keyCode === 32) {
 			$('#messagecomplete').text('');
 		}
 	});
