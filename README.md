@@ -83,7 +83,7 @@ In this way, the tool will see that there are two puzzles and test both.
 5. When the puzzle is finished, the next puzzle in the set will be automatically loaded
 6. When the set of puzzles is complete, your final stats will be displayed.
 7. You can pause any time if you need to step away.
-8. If you get stuck you can get a hint by holding down the **h** key
+8. If you get stuck you can get a hint by holding down the **spacebar**
 
 You can then start a new PGN file by repeating these steps.
 
