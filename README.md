@@ -65,7 +65,7 @@ Here is the example PGN with the randomize setting turned on.
 
 1. Kf6 Kh7 2. Qf7+ Kh8 3. Qg7# 1-0
 ```
-Or another use case could be that you want to practice defences as black and you have a PGN that has the move sequences you want to practice.  Ideally you would want to use the flipped and play opposite side options every time so that you see the board from black's perspective and the computer makes the opening move.  You can set that with the ```[PGNTrainerFlipped "1"]``` and ```[PGNTrainerOppositeSide "1"]``` tags in the PGN and every time you load that PGN going forward, those options will automatically be selected.  You can always de-select a setting if you want something different for a particular run.
+Or another use case could be that you want to practice defenses as black and you have a PGN that has the move sequences you want to practice.  Ideally you would want to use the flipped and play opposite side options every time so that you see the board from black's perspective and the computer makes the opening move.  You can set that with the ```[PGNTrainerFlipped "1"]``` and ```[PGNTrainerOppositeSide "1"]``` tags in the PGN and every time you load that PGN going forward, those options will automatically be selected.  You can always de-select a setting if you want something different for a particular run.
 
 The available tags are:
 * ```[PGNTrainerBothSides "1"]``` - This will check the "Play both sides" option
