@@ -44,6 +44,14 @@ body {
 	font-size: 14pt;
 }
 
+.puzzletitle {
+	width: 310px;
+	max-width: 310px;
+	height: 60px;
+	overflow-wrap: break-word; 
+	word-wrap: break-word;
+}
+
 table {
 	/*border: 1px solid blue;*/
 	width: 80%;

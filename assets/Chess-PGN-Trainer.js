@@ -16,12 +16,13 @@
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = '1.4.1';
+const version = '1.5.0';
 let board;
 let blankboard;
 let pieceTheme;
 let game;
 let config;
+let OutputFEN = false;
 
 // Game & Performance variables
 let moveCfg;
@@ -368,6 +369,15 @@ function parsepgn(PGNData) {
 			const { tags } = PgnParser.parse(game.tags, { startRule: 'tags' });
 			const { moves } = PgnParser.parse(game.pgn, { startRule: 'game' });
 
+			// Set the options checkboxes if any of the special tags have a value of 1
+			if (tags.PGNTrainerBothSides === '1') {$( "#playbothsides" ).prop( "checked", true );}
+			if (tags.PGNTrainerOppositeSide === '1') {$( "#playoppositeside" ).prop( "checked", true );}
+			if (tags.PGNTrainerRandomize === '1') {$( "#randomizeSet" ).prop( "checked", true );}
+			if (tags.PGNTrainerFlipped === '1') {$( "#flipped" ).prop( "checked", true );}
+
+			// Set the debug flag if specified in the PGN
+			if (tags.PGNTrainerOutputFEN === '1') {OutputFEN = true;}
+
 			const puzzle = {};
 			puzzle.Event = (tags.Event);
 			puzzle.FEN = (tags.FEN);
@@ -513,6 +523,11 @@ function loadPuzzle(PGNPuzzle) {
 	// Update the screen with the value of the PGN Event tag (if any)
 	$('#puzzlename').text(PGNPuzzle.Event);
 
+	// Output the puzzle's FEN if debugging is set
+	if (OutputFEN) {
+		$('#puzzlename').text(PGNPuzzle.Event + "\n\n" + PGNPuzzle.FEN);
+	}
+
 	// Play the first move if player is playing second and not both sides
 	if ($('#playoppositeside').is(':checked') && !$('#playbothsides').is(':checked')) {
 		game.move(moveHistory[0]);
@@ -650,6 +665,7 @@ function resetgame() {
 	pauseDateTimeTotal = 0;
 	error = false;
 	setcomplete = false;
+	OutputFEN = false;
 
 	// Create the boards
 	board = new Chessboard('myBoard', config);
