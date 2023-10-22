@@ -72,7 +72,7 @@ The available tags are:
 * ```[PGNTrainerOppositeSide "1"]``` - This will check the "Play opposite side" option
 * ```[PGNTrainerRandomize "1"]``` - This will check the "Randomize" option
 * ```[PGNTrainerFlipped "1"]``` - This will check the "Flipped" option
-* ```[PGNTrainerOutputFEN "1"]``` - Useful when you want to find a specific puzzle during a run in order to analyze or troubleshoot.  This will place the FEN below the title of the puzzle which you can then use to find the specific puzzle in the PGN.
+* ```[PGNTrainerOutputFEN "1"]``` - Useful when you want to find a specific puzzle during a run in order to analyze or troubleshoot.  This will place the a link below the title of the puzzle which will open an analysis board in Lichess with the position (in a new tab/window).
 
 The value of the tag has to be 1 in order to activate.  Any other value or omission of the tag entirely will be ignored.
 
