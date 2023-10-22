@@ -530,14 +530,16 @@ function loadPuzzle(PGNPuzzle) {
 
 	if($('#analysisboard').is(':checked')) {AnalysisLink = true;}
 
-	// Output a link to a lichess analysis board for this puzzle (can extract FEN from there if needed)
-	lichessFEN = PGNPuzzle.FEN.replace(/ /g,"_")
-	lichessURL = '<A HREF="https://lichess.org/analysis/' + PGNPuzzle.FEN.replace(/ /g,"_") +'" target="_blank">Analysis</A>'
+	// Output a link to a lichess analysis board for this puzzle if there is one (can extract FEN from there if needed)
+	if (PGNPuzzle.FEN) {
+		lichessFEN = PGNPuzzle.FEN.replace(/ /g,"_")
+		lichessURL = '<A HREF="https://lichess.org/analysis/' + PGNPuzzle.FEN.replace(/ /g,"_") +'" target="_blank">Analysis</A>'
 
-	if (AnalysisLink) {
-		$('#puzzlename').html(PGNPuzzle.Event + "<br><center>" + lichessURL);
+		if (AnalysisLink) {
+			$('#puzzlename').html(PGNPuzzle.Event + "<br><center>" + lichessURL);
+		}
 	}
-
+	
 	// Play the first move if player is playing second and not both sides
 	if ($('#playoppositeside').is(':checked') && !$('#playbothsides').is(':checked')) {
 		game.move(moveHistory[0]);
