@@ -22,7 +22,7 @@ let blankboard;
 let pieceTheme;
 let game;
 let config;
-let OutputFEN = false;
+let AnalysisLink = false;
 
 // Game & Performance variables
 let moveCfg;
@@ -377,9 +377,7 @@ function parsepgn(PGNData) {
 			if (tags.PGNTrainerOppositeSide === '1') {$( "#playoppositeside" ).prop( "checked", true );}
 			if (tags.PGNTrainerRandomize === '1') {$( "#randomizeSet" ).prop( "checked", true );}
 			if (tags.PGNTrainerFlipped === '1') {$( "#flipped" ).prop( "checked", true );}
-
-			// Set the debug flag if specified in the PGN
-			if (tags.PGNTrainerOutputFEN === '1') {OutputFEN = true;}
+			if (tags.PGNTrainerAnalysisLink === '1') {$( "#analysisboard" ).prop( "checked", true );}
 
 			const puzzle = {};
 			puzzle.Event = (tags.Event);
@@ -448,11 +446,15 @@ function setCheckboxSelectability(state) {
 		if ($('#flipped').prop('disabled')) {
 			$('#flipped').removeAttr('disabled');
 		}
+		if ($('#analysisboard').prop('disabled')) {
+			$('#analysisboard').removeAttr('disabled');
+		}
 	} else {
 		$('#playbothsides').attr('disabled', true);
 		$('#playoppositeside').attr('disabled', true);
 		$('#randomizeSet').attr('disabled', true);
 		$('#flipped').attr('disabled', true);
+		$('#analysisboard').attr('disabled', true);
 	}
 }
 
@@ -526,11 +528,13 @@ function loadPuzzle(PGNPuzzle) {
 	// Update the screen with the value of the PGN Event tag (if any)
 	$('#puzzlename').text(PGNPuzzle.Event);
 
+	if($('#analysisboard').is(':checked')) {AnalysisLink = true;}
+
 	// Output a link to a lichess analysis board for this puzzle (can extract FEN from there if needed)
 	lichessFEN = PGNPuzzle.FEN.replace(/ /g,"_")
 	lichessURL = '<A HREF="https://lichess.org/analysis/' + PGNPuzzle.FEN.replace(/ /g,"_") +'" target="_blank">Analysis</A>'
 
-	if (OutputFEN) {
+	if (AnalysisLink) {
 		$('#puzzlename').html(PGNPuzzle.Event + "<br><center>" + lichessURL);
 	}
 
@@ -672,7 +676,7 @@ function resetgame() {
 	pauseDateTimeTotal = 0;
 	error = false;
 	setcomplete = false;
-	OutputFEN = false;
+	AnalysisLink = false;
 
 	// Create the boards
 	board = new Chessboard('myBoard', config);
@@ -707,6 +711,8 @@ function resetgame() {
 	$('#playoppositeside').prop('checked', false);
 	$('#randomizeSet').prop('checked', false);
 	$('#flipped').prop('checked', false);
+	$('#analysisboard').prop('checked', false);
+	
 
 	// Clear any prior results/statistics
 	clearmessages();
