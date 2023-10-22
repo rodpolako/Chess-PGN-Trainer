@@ -37,7 +37,7 @@ This tool has a couple of other features that you might like:
 * Randomize - Presents the puzzles in the set in a random order
 * Flipped - Allows you to play the puzzle from the other side of the board.  May help to develop sense when a given tactic is being used on you.
 * Play Opposite Side - Allows the player to go second instead and makes the computer play the first move from the PGN.  Useful for when you want to practice opening defenses instead of puzzles.  For example, if you wanted to practice a defense as black, load a PGN with the move order you want to practice and this feature will play as white and play the moves in the PGN while you play the response.  Recommended that you use the Flipped option in conjunction with this one.
-* Analysis Board - Generates a link to a Lichess analysis board of the currently displayed puzzle
+* Analysis board - Generates a link to a Lichess analysis board of the currently displayed puzzle. Useful when you want to analyze a specific puzzle during a run in order to analyze or troubleshoot.  This will place the a link below the title of the puzzle which will open an analysis board in Lichess with the position (in a new tab/window).
 * Pause - Useful if you are doing a large number of puzzles and need to step away.  Click on the pause button and the board will clear and the timer will stop.  Click Resume in order to continue.  Your elapsed time will not include the paused time.
 * Hints - You can hold down the **spacebar** at any time during a puzzle to see the next expected move.  Just know that if a hint is used, it will be counted as an error in your performance.
 * Restart/replay - You can repeat the current puzzleset upon completion with a single click. Useful if you want to try again with the same settings.  When the current set is complete, just click on "Restart" to try the current PGN file again.  If you want, you can choose different settings like random, flipped, etc. before restarting.
@@ -73,7 +73,7 @@ The available tags are:
 * ```[PGNTrainerOppositeSide "1"]``` - This will check the "Play opposite side" option
 * ```[PGNTrainerRandomize "1"]``` - This will check the "Randomize" option
 * ```[PGNTrainerFlipped "1"]``` - This will check the "Flipped" option
-* ```[PGNTrainerAnalysisLink "1"]``` - Useful when you want to analyze a specific puzzle during a run in order to analyze or troubleshoot.  This will place the a link below the title of the puzzle which will open an analysis board in Lichess with the position (in a new tab/window).
+* ```[PGNTrainerAnalysisLink "1"]``` - This will check the "Analysis board" option
 
 The value of the tag has to be 1 in order to activate.  Any other value or omission of the tag entirely will be ignored.
 
