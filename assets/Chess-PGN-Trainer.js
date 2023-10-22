@@ -531,7 +531,7 @@ function loadPuzzle(PGNPuzzle) {
 	lichessURL = '<A HREF="https://lichess.org/analysis/' + PGNPuzzle.FEN.replace(/ /g,"_") +'" target="_blank">Analysis</A>'
 
 	if (OutputFEN) {
-		$('#puzzlename').html(PGNPuzzle.Event + "<br><br>" + lichessURL);
+		$('#puzzlename').html(PGNPuzzle.Event + "<br><center>" + lichessURL);
 	}
 
 	// Play the first move if player is playing second and not both sides

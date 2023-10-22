@@ -47,7 +47,8 @@ body {
 .puzzletitle {
 	width: 310px;
 	max-width: 310px;
-	height: 60px;
+	height: 62px;
+	max-height: 62px !important;
 	overflow-wrap: break-word; 
 	word-wrap: break-word;
 }
