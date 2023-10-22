@@ -16,7 +16,7 @@
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = '1.5.0';
+const version = '1.6.0';
 let board;
 let blankboard;
 let pieceTheme;
@@ -54,7 +54,10 @@ let pauseDateTimeTotal = 0;
 $('#Title').text(`Chess PGN Trainer ${version}`);
 
 // Assign details of the board
-pieceTheme = './img/chesspieces/wikipedia/{piece}.png';
+// todo: Figure out how to override the piece theme here instead of needing to modify the chessboardjs.css file.
+
+// Assign theme for the piece promotion popup window
+pieceTheme = './img/chesspieces/staunty/{piece}.svg';
 promotionDialog = $('#promotion-dialog');
 
 // Initial Board Configuration
@@ -523,9 +526,12 @@ function loadPuzzle(PGNPuzzle) {
 	// Update the screen with the value of the PGN Event tag (if any)
 	$('#puzzlename').text(PGNPuzzle.Event);
 
-	// Output the puzzle's FEN if debugging is set
+	// Output a link to a lichess analysis board for this puzzle (can extract FEN from there if needed)
+	lichessFEN = PGNPuzzle.FEN.replace(/ /g,"_")
+	lichessURL = '<A HREF="https://lichess.org/analysis/' + PGNPuzzle.FEN.replace(/ /g,"_") +'" target="_blank">Analysis</A>'
+
 	if (OutputFEN) {
-		$('#puzzlename').text(PGNPuzzle.Event + "\n\n" + PGNPuzzle.FEN);
+		$('#puzzlename').html(PGNPuzzle.Event + "<br><br>" + lichessURL);
 	}
 
 	// Play the first move if player is playing second and not both sides
@@ -620,6 +626,7 @@ function startTest() {
 
 	// Get current date/time
 	startDateTime = new Date();
+	pauseDateTimeTotal = 0;
 	increment = 0;
 
 	// Neat bit here from https://www.freecodecamp.org/news/javascript-range-create-an-array-of-numbers-with-the-from-method/
