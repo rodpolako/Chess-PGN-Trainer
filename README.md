@@ -41,7 +41,7 @@ This tool has a couple of other features that you might like:
 * Pause - Useful if you are doing a large number of puzzles and need to step away.  Click on the pause button and the board will clear and the timer will stop.  Click Resume in order to continue.  Your elapsed time will not include the paused time.
 * Hints - You can hold down the **spacebar** at any time during a puzzle to see the next expected move.  Just know that if a hint is used, it will be counted as an error in your performance.
 * Restart/replay - You can repeat the current puzzleset upon completion with a single click. Useful if you want to try again with the same settings.  When the current set is complete, just click on "Restart" to try the current PGN file again.  If you want, you can choose different settings like random, flipped, etc. before restarting.
-* Feature settings via PGN Tags - You can configure a PGN to set a default combination of features by adding the relevant tag to the first puzzle in the PGN.  Details below.
+* Feature settings via PGN Tags - You can configure a PGN to set a default combination of features by adding the relevant tag to the top of the PGN.  Details below.
   
 Once a test group is completed, tool displays the following performance information:
 * Number of errors
@@ -50,9 +50,10 @@ Once a test group is completed, tool displays the following performance informat
 * Error rate (Calculated)
 
 ## Default settings via PGN Tags
-You can set the default options via custom tags in the PGN.  For example, if you have a set of puzzles that you always want to be in random order, you can add a tag to the first puzzle in the PGN and it will automatically check the Randomize box when the file is loaded.
+You can set the default options via custom tags in the PGN.  For example, if you have a set of puzzles that you always want to be in random order, you can add a tag to the top of the PGN and it will automatically check the Randomize box when the file is loaded.
 Here is the example PGN with the randomize setting turned on.
 ```
+[PGNTrainerRandomize "1"]
 [Event "Example 1"]
 [Site "?"]
 [Date "????.??.??"]
@@ -62,7 +63,6 @@ Here is the example PGN with the randomize setting turned on.
 [Result "1-0"]
 [SetUp "1"]
 [FEN "7k/8/8/3Q1K2/8/8/8/8 w - - 0 1"]
-[PGNTrainerRandomize "1"]
 
 1. Kf6 Kh7 2. Qf7+ Kh8 3. Qg7# 1-0
 ```
@@ -77,7 +77,7 @@ The available tags are:
 
 The value of the tag has to be 1 in order to activate.  Any other value or omission of the tag entirely will be ignored.
 
-You can use any combination of the above tags.  Just insert the desired tag in the first puzzle.
+You can use any combination of the above tags.  Just insert the desired tag(s) at the top of the PGN.
 
 ## Known limitations
 * The PGN parser ignores variations in a PGN file.  Attempting to use a PGN with these will not work and will only play the "main-line".  If you want to work a line that has variations, break out each variation into its own entry in the PGN.
