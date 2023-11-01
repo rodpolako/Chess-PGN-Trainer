@@ -16,7 +16,7 @@
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = '1.6.0';
+const version = '1.6.1';
 let board;
 let blankboard;
 let pieceTheme;
@@ -532,8 +532,8 @@ function loadPuzzle(PGNPuzzle) {
 
 	// Output a link to a lichess analysis board for this puzzle if there is one (can extract FEN from there if needed)
 	if (PGNPuzzle.FEN) {
-		lichessFEN = PGNPuzzle.FEN.replace(/ /g,"_")
-		lichessURL = '<A HREF="https://lichess.org/analysis/' + PGNPuzzle.FEN.replace(/ /g,"_") +'" target="_blank">Analysis</A>'
+		lichessFEN = PGNPuzzle.FEN.replace(/ /g,"_");
+		lichessURL = '<A HREF="https://lichess.org/analysis/' + PGNPuzzle.FEN.replace(/ /g,"_") +'" target="_blank">Analysis</A>';
 
 		if (AnalysisLink) {
 			$('#puzzlename').html(PGNPuzzle.Event + "<br><center>" + lichessURL);
@@ -589,6 +589,9 @@ function Pause() {
 		// hide the board
 		$('#myBoard').css('display', 'none');
 		$('#blankboard').css('display', 'block');
+
+		// Remove focus on the pause/resume button
+		$('#btn_pause').blur();
 		break;
 	case 'Resume':
 		$('#btn_pause').text('Pause');
@@ -602,6 +605,8 @@ function Pause() {
 		$('#myBoard').css('display', 'block');
 		$('#blankboard').css('display', 'none');
 
+		// Remove focus on the pause/resume button 
+		$('#btn_pause').blur();
 		break;
 	}
 }
@@ -726,9 +731,10 @@ function resetgame() {
 // Assign actions to the buttons
 $(() => {
 	// Buttons
-	$('#openPGN_button').click((e) => {
+	$('#openPGN_button').click(() => {
 		$('#openPGN').click();
 	});
+	
 	$('#btn_reset').on('click', resetgame);
 	$('#btn_starttest').on('click', startTest);
 	$('#btn_restart').on('click', startTest);
