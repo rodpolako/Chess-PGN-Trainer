@@ -16,7 +16,7 @@
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = '1.6.1';
+const version = '1.6.2';
 let board;
 let blankboard;
 let pieceTheme;
@@ -405,7 +405,7 @@ function loadPGNFile() {
 		'load',
 		() => {
 			PGNFile = reader.result;
-			parsepgn(PGNFile);
+			parsepgn(PGNFile.trim());  // Clean up the file prior to processing
 
 			// File is now loaded
 			// Update the range of the puzzle counters to the size of the puzzleset
