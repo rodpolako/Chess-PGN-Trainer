@@ -197,6 +197,10 @@ function checkandplaynext() {
 		$('#btn_starttest').css('display', 'none');
 		$('#btn_pause').css('display', 'none');
 		$('#btn_restart').css('display', 'block');
+
+		// Clear the move indicator
+		$('#moveturn').text('');
+
 	}
 }
 
@@ -271,6 +275,7 @@ function DropPiece(source, target) {
 		});
 		// the actual move is made after the piece to promote to
 		// has been selected, in the stop event of the promotion piece selectable
+		
 		return;
 	}
 
@@ -287,7 +292,6 @@ function DropPiece(source, target) {
 	if (setcomplete && puzzlecomplete) {
 		$('#moveturn').text('');
 	}
-
 }
 
 /**
@@ -333,7 +337,6 @@ function indicatemove() {
 	if (game.turn() === 'b') {
 		$('#moveturn').text('Black to move');
 	}
-
 }
 
 /**
