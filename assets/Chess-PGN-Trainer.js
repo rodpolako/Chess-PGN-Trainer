@@ -16,7 +16,7 @@
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = '1.6.3';
+const version = '1.6.4';
 let board;
 let blankboard;
 let pieceTheme;
@@ -710,6 +710,8 @@ function resetgame() {
 	$('#flipped').prop('checked', false);
 	$('#analysisboard').prop('checked', false);
 
+	// Remove focus on the reset button
+	$('#btn_reset').blur();
 
 	// Clear any prior results/statistics
 	clearmessages();
