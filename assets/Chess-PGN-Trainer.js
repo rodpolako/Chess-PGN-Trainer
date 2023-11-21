@@ -280,8 +280,14 @@ function DropPiece(source, target) {
 	// Check if the move played is the expected one and play the next one if it was
 	checkandplaynext();
 
-	// Update the color of the dot indicating whose turn it is to play
-	updatedotcolor();
+	// Indicate the player to move
+	indicatemove();
+
+	// Clear the move indicator if everything is done
+	if (setcomplete && puzzlecomplete) {
+		$('#moveturn').text('');
+	}
+
 }
 
 /**
@@ -319,41 +325,15 @@ function SnapEnd() {
 }
 
 /**
- * Activate the dot to correspond with the player to move (based on game) and orientation of the board
+ * Indicate who's turn it is to move
  */
-function updatedotcolor() {
-	if (board.orientation() === 'white') {
-		$('#topmove').removeClass('dotWHITE').addClass('dotBLACK');
-		$('#bottommove').removeClass('dotBLACK').addClass('dotWHITE');
+function indicatemove() {
+	$('#moveturn').text('White to move');
 
-		if (game.turn() === 'w') {
-			$('#topmove').css('visibility', 'hidden');
-			$('#bottommove').css('visibility', 'visible');
-		} else {
-			$('#topmove').css('visibility', 'visible');
-			$('#bottommove').css('visibility', 'hidden');
-		}
-	} else {
-		// Swap position of dots if board is flipped
-		$('#topmove').removeClass('dotBLACK').addClass('dotWHITE');
-		$('#bottommove').removeClass('dotWHITE').addClass('dotBLACK');
-
-		if (game.turn() === 'b') {
-			$('#topmove').css('visibility', 'hidden');
-			$('#bottommove').css('visibility', 'visible');
-		} else {
-			$('#topmove').css('visibility', 'visible');
-			$('#bottommove').css('visibility', 'hidden');
-		}
+	if (game.turn() === 'b') {
+		$('#moveturn').text('Black to move');
 	}
-}
 
-/**
- * Flip the board
- */
-function flipboard() {
-	board.flip();
-	updatedotcolor();
 }
 
 /**
@@ -373,11 +353,11 @@ function parsepgn(PGNData) {
 			const { moves } = PgnParser.parse(game.pgn, { startRule: 'game' });
 
 			// Set the options checkboxes if any of the special tags have a value of 1
-			if (tags.PGNTrainerBothSides === '1') {$( "#playbothsides" ).prop( "checked", true );}
-			if (tags.PGNTrainerOppositeSide === '1') {$( "#playoppositeside" ).prop( "checked", true );}
-			if (tags.PGNTrainerRandomize === '1') {$( "#randomizeSet" ).prop( "checked", true );}
-			if (tags.PGNTrainerFlipped === '1') {$( "#flipped" ).prop( "checked", true );}
-			if (tags.PGNTrainerAnalysisLink === '1') {$( "#analysisboard" ).prop( "checked", true );}
+			if (tags.PGNTrainerBothSides === '1') { $("#playbothsides").prop("checked", true); }
+			if (tags.PGNTrainerOppositeSide === '1') { $("#playoppositeside").prop("checked", true); }
+			if (tags.PGNTrainerRandomize === '1') { $("#randomizeSet").prop("checked", true); }
+			if (tags.PGNTrainerFlipped === '1') { $("#flipped").prop("checked", true); }
+			if (tags.PGNTrainerAnalysisLink === '1') { $("#analysisboard").prop("checked", true); }
 
 			const puzzle = {};
 			puzzle.Event = (tags.Event);
@@ -417,7 +397,7 @@ function loadPGNFile() {
 				$('#btn_starttest').prop('disabled', false);
 			}
 			catch (err) {
-				alert('There is an issue with the PGN file.  Error message is as follows:\n\n' + err 
+				alert('There is an issue with the PGN file.  Error message is as follows:\n\n' + err
 					+ '\n\nPuzzles loaded successfully before error: ' + puzzleset.length);
 				resetgame();
 			}
@@ -526,27 +506,27 @@ function loadPuzzle(PGNPuzzle) {
 
 	// Flip board if Flipped checkbox is checked
 	if ($('#flipped').is(':checked')) {
-		flipboard();
+		board.flip();
 	}
 
 	// Update the status of the game in memory with the new data
-	updatedotcolor();
+	indicatemove();
 
 	// Update the screen with the value of the PGN Event tag (if any)
 	$('#puzzlename').text(PGNPuzzle.Event);
 
-	if($('#analysisboard').is(':checked')) {AnalysisLink = true;}
+	if ($('#analysisboard').is(':checked')) { AnalysisLink = true; }
 
 	// Output a link to a lichess analysis board for this puzzle if there is one (can extract FEN from there if needed)
 	if (PGNPuzzle.FEN) {
-		lichessFEN = PGNPuzzle.FEN.replace(/ /g,"_");
-		lichessURL = '<A HREF="https://lichess.org/analysis/' + PGNPuzzle.FEN.replace(/ /g,"_") +'" target="_blank">Analysis</A>';
+		lichessFEN = PGNPuzzle.FEN.replace(/ /g, "_");
+		lichessURL = '<A HREF="https://lichess.org/analysis/' + PGNPuzzle.FEN.replace(/ /g, "_") + '" target="_blank">Analysis</A>';
 
 		if (AnalysisLink) {
 			$('#puzzlename').html(PGNPuzzle.Event + "<br><center>" + lichessURL);
 		}
 	}
-	
+
 	// Play the first move if player is playing second and not both sides
 	if ($('#playoppositeside').is(':checked') && !$('#playbothsides').is(':checked')) {
 		game.move(moveHistory[0]);
@@ -588,33 +568,33 @@ function Pause() {
 	// Start a new counter (to then subtract from overall total)
 
 	switch ($('#btn_pause').text()) {
-	case 'Pause':
-		$('#btn_pause').text('Resume');
-		pauseflag = true;
-		PauseStartDateTime = new Date();
+		case 'Pause':
+			$('#btn_pause').text('Resume');
+			pauseflag = true;
+			PauseStartDateTime = new Date();
 
-		// hide the board
-		$('#myBoard').css('display', 'none');
-		$('#blankboard').css('display', 'block');
+			// hide the board
+			$('#myBoard').css('display', 'none');
+			$('#blankboard').css('display', 'block');
 
-		// Remove focus on the pause/resume button
-		$('#btn_pause').blur();
-		break;
-	case 'Resume':
-		$('#btn_pause').text('Pause');
-		pauseflag = false;
-		PauseendDateTime = new Date();
+			// Remove focus on the pause/resume button
+			$('#btn_pause').blur();
+			break;
+		case 'Resume':
+			$('#btn_pause').text('Pause');
+			pauseflag = false;
+			PauseendDateTime = new Date();
 
-		// Keep running total of paused time
-		pauseDateTimeTotal += (PauseendDateTime - PauseStartDateTime);
+			// Keep running total of paused time
+			pauseDateTimeTotal += (PauseendDateTime - PauseStartDateTime);
 
-		// show the board
-		$('#myBoard').css('display', 'block');
-		$('#blankboard').css('display', 'none');
+			// show the board
+			$('#myBoard').css('display', 'block');
+			$('#blankboard').css('display', 'none');
 
-		// Remove focus on the pause/resume button 
-		$('#btn_pause').blur();
-		break;
+			// Remove focus on the pause/resume button 
+			$('#btn_pause').blur();
+			break;
 	}
 }
 
@@ -726,13 +706,13 @@ function resetgame() {
 	$('#randomizeSet').prop('checked', false);
 	$('#flipped').prop('checked', false);
 	$('#analysisboard').prop('checked', false);
-	
+
 
 	// Clear any prior results/statistics
 	clearmessages();
 
-	// Reset the dot color
-	updatedotcolor();
+	// Clear the move indicator
+	$('#moveturn').text('');
 }
 
 // Assign actions to the buttons
@@ -741,7 +721,7 @@ $(() => {
 	$('#openPGN_button').click(() => {
 		$('#openPGN').click();
 	});
-	
+
 	$('#btn_reset').on('click', resetgame);
 	$('#btn_starttest').on('click', startTest);
 	$('#btn_restart').on('click', startTest);
