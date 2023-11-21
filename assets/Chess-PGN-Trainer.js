@@ -16,7 +16,7 @@
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = '1.6.2';
+const version = '1.6.3';
 let board;
 let blankboard;
 let pieceTheme;
@@ -405,20 +405,27 @@ function loadPGNFile() {
 		'load',
 		() => {
 			PGNFile = reader.result;
-			parsepgn(PGNFile.trim());  // Clean up the file prior to processing
+			try {
+				parsepgn(PGNFile.trim());  // Clean up the file prior to processing
 
-			// File is now loaded
-			// Update the range of the puzzle counters to the size of the puzzleset
-			$('#puzzleNumber').text('1');
-			$('#puzzleNumbertotal').text(puzzleset.length);
+				// File is now loaded
+				// Update the range of the puzzle counters to the size of the puzzleset
+				$('#puzzleNumber').text('1');
+				$('#puzzleNumbertotal').text(puzzleset.length);
 
-			// Enable the start button
-			$('#btn_starttest').prop('disabled', false);
-
-			// Clear the value of the file input field
-			$('#openPGN').val('');
+				// Enable the start button
+				$('#btn_starttest').prop('disabled', false);
+			}
+			catch (err) {
+				alert('There is an issue with the PGN file.  Error message is as follows:\n\n' + err 
+					+ '\n\nPuzzles loaded successfully before error: ' + puzzleset.length);
+				resetgame();
+			}
+			finally {
+				// Clear the value of the file input field
+				$('#openPGN').val('');
+			}
 		},
-
 		false,
 	);
 
