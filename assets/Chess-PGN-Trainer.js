@@ -16,7 +16,7 @@
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = '1.6.4';
+const version = '1.6.5';
 let board;
 let blankboard;
 let pieceTheme;
@@ -225,6 +225,16 @@ function getImgSrc(piece) {
 }
 
 /**
+ * Populate the pawn promotion popup based on the color of the current player
+ */
+function getpieces() {
+	$('.promotion-piece-q').attr('src', getImgSrc('q'));
+	$('.promotion-piece-r').attr('src', getImgSrc('r'));
+	$('.promotion-piece-n').attr('src', getImgSrc('n'));
+	$('.promotion-piece-b').attr('src', getImgSrc('b'));
+}
+
+/**
  * Description placeholder
  *
  * @param {*} source
@@ -257,6 +267,9 @@ function DropPiece(source, target) {
 
 	if (piece === 'p' && ((source_rank === '7' && target_rank === '8') || (source_rank === '2' && target_rank === '1'))) {
 		promoting = true;
+
+		// Get the correct color pieces for the promotion popup
+		getpieces()
 
 		// Show the select piece promotion dialog screen
 		promotionDialog.dialog({
@@ -720,6 +733,9 @@ function resetgame() {
 	$('#moveturn').text('');
 }
 
+
+
+
 // Assign actions to the buttons
 $(() => {
 	// Buttons
@@ -731,12 +747,6 @@ $(() => {
 	$('#btn_starttest').on('click', startTest);
 	$('#btn_restart').on('click', startTest);
 	$('#btn_pause').on('click', Pause);
-
-	// Pawn Promotion
-	$('.promotion-piece-q').attr('src', getImgSrc('q'));
-	$('.promotion-piece-r').attr('src', getImgSrc('r'));
-	$('.promotion-piece-n').attr('src', getImgSrc('n'));
-	$('.promotion-piece-b').attr('src', getImgSrc('b'));
 
 	$('#promote-to').selectable({
 		stop() {
