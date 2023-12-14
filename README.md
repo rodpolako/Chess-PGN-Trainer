@@ -110,6 +110,9 @@ pgn-extract --output output.pgn input.pgn --splitvariants
 ## Non-standard PGNs
 Some PGNs contain data that the parser does not handle well.  Examples include embedded commands (such as {[%evp]}).  If you are having difficulty opening a file, remove non-essential components and try again.  
 
+## Error loading PGN file
+If you have an issue opening a specific PGN file the app will display a pop up and indicate the issue that the parser has found.  It will also show you how many games/puzzles were successfully loaded prior to the error.  For example, if the app tells you that 5 puzzles were loaded successfully, then the issue is with the sixth puzzle.  Use the error message to help guide you on fixing the issue with the sixth puzzle and then try loading it again.
+
 ## Setup Instructions
 1. Download & extract the zip into a folder and start a web server from there.
 2. In a browser, point to index.html.
