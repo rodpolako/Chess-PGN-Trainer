@@ -81,6 +81,7 @@ You can use any combination of the above tags.  Just insert the desired tag(s) a
 
 ## Known limitations
 * The PGN parser ignores variations in a PGN file.  Attempting to use a PGN with these will not work and will only play the "main-line".  If you want to work a line that has variations, break out each variation into its own entry in the PGN.
+
 For example, the following PGN shows a position where the black king has two possible moves recorded after Qe5+:
 ```
 [Event "?"]
