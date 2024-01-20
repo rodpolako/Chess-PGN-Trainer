@@ -140,8 +140,8 @@ Built with the help of the following projects:
 
 
 ## Possible ideas for improvements/features
-* Enhance the PGN-Parser to also read variations and load each variation as another puzzle and resolve other bugs.
-* While the site does work on mobile, it is not optimized for that format.  A UI overhaul with a responsive design would be nice.
+* Fork the PGN-Parser and extend it to also read variations and load each variation as another puzzle and resolve other bugs.  Alternatively, write my own parser.
+* While the site does work on mobile, it is not optimized for that format.  A UI overhaul with a responsive design would be nice.  I'm looking at possibly incorporating the next major release of chessboardjs which seems to be better suited for use on mobile since it allows things like tapping instead of just dragging pieces.
 * Enable the ability to specify custom colors and piece sets.
-* Add an option to auto-save the results to a hosted file.  Maybe something like adding a row to a google sheet?
-* What would be really nice is if there was a way to organize all the PGNs I want to test as part of a larger structure so that I would be able to choose from a defined list which includes the info on the PGN file to use along with the desired settings.  Not immediately sure how this would work due to security restrictions on the browser preventing direct access to local files.
+* Add an option to auto-save the results to a file and export to Excel/CSV for analysis in other tools.
+* Add a way to organize all the PGNs I want to test as part of a larger structure so that I would be able to choose from a defined list which includes the info on the PGN file to use along with the desired settings.
