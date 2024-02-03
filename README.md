@@ -13,8 +13,6 @@ Since then, the tool has grown and now be used to:
 
 ![screenshot](screenshot.png)
 
-
-
 PGN Files need only three parts:
 * FEN - The representation of the board and associated information
 * The moves for both white and black.
@@ -39,6 +37,7 @@ Use the "Open PGN file" button to open this file and you can practice this puzzl
 
 The PGN file can have any number of puzzles or games so you can work through a set in one shot.
 
+## Features
 This tool has a couple of other features that you might like:
 * Auto move to next puzzle - Automatically advances to the next puzzle/game upon completion of the current one
 * Play both sides - Allows the player to play both sides of the puzzle/game
