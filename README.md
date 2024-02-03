@@ -14,11 +14,11 @@ Since then, the tool has grown and now be used to:
 ![screenshot](screenshot.png)
 
 PGN Files need only three parts:
-* FEN - The representation of the board and associated information
+* FEN - The representation of the board and associated information. Only needed to set up the board in a specific position.  If practicing games/openings this is not required.
 * The moves for both white and black.
-* (Optional) the "Event" tag so that the puzzle has a label
+* (Optional) the "Event" tag so that the puzzle has a label that shows below the progress bar.
 
-Here is an example PGN created using the analysis board from chess.com with a really basic endgame that was just saved to a file.
+Here is an example PGN created using the analysis board from [chess.com](https://www.chess.com) with a really basic endgame that was just saved to a file.
 ```
 [Event "Example 1"]
 [Site "?"]
@@ -32,8 +32,19 @@ Here is an example PGN created using the analysis board from chess.com with a re
 
 1. Kf6 Kh7 2. Qf7+ Kh8 3. Qg7# 1-0
 ```
+The same puzzle created in [Lichess](https://lichess.org) via the analysis board generates the following file and also works with this tool. 
+
+**Note:** there is no "Event" tag generated so you would need to add this tag if you want to label the puzzle.  Otherwise it works the same.
+```
+[Variant "From Position"]
+[FEN "7k/8/8/3Q1K2/8/8/8/8 w - - 0 1"]
+
+1. Kf6 Kh7 2. Qf7+ Kh8 3. Qg7#
+```
+
 Use the "Open PGN file" button to open this file and you can practice this puzzle.  
 ![screenshot](screenshot2.png)
+
 
 The PGN file can have any number of puzzles or games so you can work through a set in one shot.
 
