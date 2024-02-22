@@ -118,7 +118,7 @@ Loading this PGN as-is will result in the tool indicating that there is only 1 p
 [Event "?"]
 [FEN "r1r1k3/5p2/3K4/2Q5/8/8/8/8 w - - 1 1"]
 
-1. Qe5+ Kd8 2. Qe7#
+1. Qe5+ Kd8 2. Qe7# 1-0
 ```
 In this way, the tool will see that there are two puzzles and test both.
 
