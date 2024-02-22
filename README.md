@@ -4,7 +4,7 @@ Online tool that opens chess PGN files and allows the user to practice the moves
 The original design goal was to help with implementing a learning approach where a player repeatedly completes the same series of puzzles, striving to reduce both errors and time needed with each round.
 The idea for this came from a recommendation by Dan Heisman (https://www.danheisman.com/recommended-books.html) on how to practice tactics puzzles.  In the article, Dan strongly recommends the idea of "repeatedly going through the book faster and faster until you can get 85%+ within 10-15 seconds". You can read about my own results following this approach using this tool [here](https://www.chess.com/forum/view/for-beginners/applying-dan-heismans-guide-to-using-chess-tactics-for-students).
 
-Since then, the tool has grown and now be used to:
+Since then, the tool has grown and can now be used to:
 * Practice puzzles
 * Practice openings for black or white
 * Practice entire games
