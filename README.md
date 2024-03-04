@@ -7,7 +7,7 @@ The idea for this came from a recommendation by Dan Heisman (https://www.danheis
 Since then, the tool has grown and can now be used to:
 * Practice puzzles
 * Practice openings for black or white
-* Practice entire games
+* Practice entire games (useful for learning full games or for playing solitaire chess such as "Guess the Move")
 
 [A live online copy of tool is available here](https://rodpolako.github.io/)
 
@@ -164,3 +164,4 @@ Built with the help of the following projects:
 * Enable the ability to specify custom colors and piece sets.
 * Add an option to auto-save the results to a file and export to Excel/CSV for analysis in other tools.
 * Add a way to organize all the PGNs I want to test as part of a larger structure so that I would be able to choose from a defined list which includes the info on the PGN file to use along with the desired settings.
+* Adding text-to-speech so the app can announce moves and maybe speech recognition in order to play moves
