@@ -133,8 +133,11 @@ Some PGNs contain data that the parser does not handle well.  Examples include e
 If you have an issue opening a specific PGN file the app will display a pop up and indicate the issue that the parser has found.  It will also show you how many games/puzzles were successfully loaded prior to the error.  For example, if the app tells you that 5 puzzles/games were loaded successfully, then the issue is with the sixth puzzle/game in the PGN.  Use the error message to help guide you on fixing the issue with the sixth puzzle/game and then try loading it again.
 
 ## Setup Instructions
+If you just want to use the trainer and and not bother hosting the page yourself, you can just use the live link [here](https://rodpolako.github.io/).  The latest version of the trainer will always be hosted there.
+
+If you want to host a copy on your own environment and/or make changes:
 1. Download & extract the zip into a folder and start a web server from there.
-2. In a browser, point to index.html.
+2. In a browser, point to ```index.html```.  On my own setup, the URL is ```localhost:8000/index.html``` but may be different for your setup.  Refer to your web server for details.
 
 ## Usage
 1. Click on "Open PGN File"
@@ -158,10 +161,16 @@ Built with the help of the following projects:
 
 
 ## Possible ideas for improvements/features/roadmap
-* Fork the PGN-Parser and extend it to also read variations and load each variation as another puzzle and resolve other bugs.  Alternatively, write my own parser.
+
+### Visual/UI ###
+* While the site does work on mobile, it is not optimized for that format.  A UI overhaul with a responsive design would be nice.  I'm looking at possibly incorporating the next major release of chessboardjs which seems to be better suited for use on mobile since it allows things like tapping instead of just dragging pieces.  Also needed would be a "hint" button instead of just a press of the spacebar.
 * Add support for reading more PGN tags like player names and such.  Nice-to-have when working to memorize specific games.
-* While the site does work on mobile, it is not optimized for that format.  A UI overhaul with a responsive design would be nice.  I'm looking at possibly incorporating the next major release of chessboardjs which seems to be better suited for use on mobile since it allows things like tapping instead of just dragging pieces.
 * Enable the ability to specify custom colors and piece sets.
+* Reporting capabilities such as graphs/charts replicating what I'm currently doing in Excel.
+### Functionality ###
 * Add an option to auto-save the results to a file and export to Excel/CSV for analysis in other tools.
 * Add a way to organize all the PGNs I want to test as part of a larger structure so that I would be able to choose from a defined list which includes the info on the PGN file to use along with the desired settings.
-* Adding text-to-speech so the app can announce moves and maybe speech recognition in order to play moves
+* Connected with the point above, maybe introduce some sort of spaced reptition capability or have the tool automatically drill you from the list based on when last drilled or performance.
+* Adding text-to-speech so the app can announce moves and maybe speech recognition in order to play moves.  Not sure about this one yet.
+* Fork the PGN-Parser and extend it to also read variations and load each variation as another puzzle and resolve other bugs.  Alternatively, write my own parser.
+
