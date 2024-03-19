@@ -9,16 +9,16 @@
 /* eslint no-unused-vars: "error"*/
 
 /* global Chess, Chessboard, PgnParser */
-/* exported blankboard, loadPGNFile */
+/* exported blankBoard, loadPGNFile, resizeBoards */
 
 // -----------------------
 // Define global variables
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = '1.6.5';
+const version = '1.7.0';
 let board;
-let blankboard;
+let blankBoard;
 let pieceTheme;
 let game;
 let config;
@@ -50,12 +50,17 @@ let pauseDateTimeTotal = 0;
 // Initial Setup
 // -------------
 
-// Title of the app
-$('#Title').text(`Chess PGN Trainer ${version}`);
+// Version number of the app
+$('#versionnumber').text(`version ${version}`);
+
+// Collection of checkboxes used in the app
+let checkboxlist = ['#playbothsides', '#playoppositeside', '#randomizeSet', '#flipped', '#analysisboard'];
+
+// Collection of text elements
+let messagelist = ['#messagecomplete', '#puzzlename_landscape', '#puzzlename_portrait', '#errors', '#errorRate', '#elapsedTime', '#avgTime'];
 
 // Assign details of the board
-// todo: Figure out how to override the piece theme here instead of needing to modify the chessboardjs.css file.
-
+// TODO: Figure out how to override the piece theme here instead of needing to modify the chessboardjs.css file.
 // Assign theme for the piece promotion popup window
 pieceTheme = './img/chesspieces/staunty/{piece}.svg';
 promotionDialog = $('#promotion-dialog');
@@ -63,9 +68,9 @@ promotionDialog = $('#promotion-dialog');
 // Initial Board Configuration
 config = {
 	draggable: true,
-	onDragStart: DragStart,
-	onDrop: DropPiece,
-	onSnapEnd: SnapEnd,
+	onDragStart: dragStart,
+	onDrop: dropPiece,
+	onSnapEnd: snapEnd,
 	position: 'start',
 };
 
@@ -76,85 +81,20 @@ config = {
 */
 
 /**
- * Handle the start of moving a piece on the board
- *
- * @param {*} piece
- * @returns {boolean}
- */
-function DragStart(source, piece, position, orientation) {
-	// Only pick up pieces for the side to move
-	if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-		(game.turn() === 'b' && piece.search(/^w/) !== -1)) {
-		return false;
-	}
-
-	// Don't allow moves if game is paused
-	if (pauseflag) {
-		return false;
-	}
-
-	// Only pick up pieces if the move number is odd if the player goes first or even if player is going second
-	// AND the user is not playing both sides
-	if (!$('#playbothsides').is(':checked')) {
-		// Player is playing first
-		if (!$('#playoppositeside').is(':checked') && game.history().length % 2 !== 0) {
-			return false;
-		}
-
-		// Player is playing second
-		if ($('#playoppositeside').is(':checked') && (game.history().length % 2 === 0 || game.history().length === 0)) {
-			return false;
-		}
-	}
-
-	// Do not pick up pieces if the puzzle is complete (ie: all the moves of the PGN have been played)
-	if (game.history().length === moveHistory.length) {
-		return false;
-	}
-}
-
-/**
- * Show the final stats after finishing all the puzzles in the set
- */
-function showstats() {
-	const endDateTime = new Date();
-	const ElapsedTimeSeconds = (endDateTime - startDateTime - pauseDateTimeTotal) / 1000; // Subtracting the paused time from total elapsed time
-	const ElapsedTimehhmmss = new Date(ElapsedTimeSeconds * 1000).toISOString().slice(11, 19);
-	const AvgTimeSeconds = ElapsedTimeSeconds / puzzleset.length;
-	const AvgTimehhmmss = new Date(AvgTimeSeconds * 1000).toISOString().slice(11, 19);
-	const ErrorRate = (errorcount / puzzleset.length);
-	const ErrorRate1Dec = ErrorRate.toFixed(3) * 100;
-
-	updateprogressbar(1, 1);
-
-	$('#messagecomplete').html('<h2>Set Complete</h2>');
-
-	$('#elapsedTime').text(`Elapsed time (hh:mm:ss): ${ElapsedTimehhmmss}`);
-	$('#avgTime').text(`Average time/puzzle (hh:mm:ss): ${AvgTimehhmmss}`);
-	$('#errors').text(`Number of errors: ${errorcount}`);
-	$('#errorRate').text(`Error Rate: ${ErrorRate1Dec.toFixed(1)}%`);
-
-	// Re-enable options checkboxes
-	setCheckboxSelectability(true);
-}
-
-/**
  * Compare latest played move to the move in the same position as the PGN
  *
  * @returns {string}
  */
-function checkandplaynext() {
+function checkAndPlayNext() {
 	// Need to go this way since .moveNumber isn't working...
-	if (game.history()[game.history().length - 1] === moveHistory[game.history().length - 1]) {
-		// correct move
-
+	if (game.history()[game.history().length - 1] === moveHistory[game.history().length - 1]) { // correct move
+		
 		// play next move if the "Play both sides" box is unchecked
 		if (!$('#playbothsides').is(':checked')) {
 			// Play the opponent's next move from the PGN
 			game.move(moveHistory[game.history().length]);
 		}
-	} else {
-		// wrong move
+	} else { // wrong move
 
 		if (error === false) { // Add one to the error count for any given puzzle
 			errorcount += 1;
@@ -187,16 +127,15 @@ function checkandplaynext() {
 	// Stop once all the puzzles in the set are done
 	if (setcomplete && puzzlecomplete) {
 		// Show the stats
-		showstats();
+		showStats();
 
-		// Disable the start button
-		$('#btn_starttest').prop('disabled', true);
-		$('#btn_pause').prop('disabled', true);
+		// Hide & disable the "Start" and "Pause" buttons
+		setDisplayAndDisabled(
+			['#btn_starttest_landscape', '#btn_starttest_portrait',
+				'#btn_pause_landscape', '#btn_pause_portrait'], 'none', true);
 
-		// Hide Pause button and show "Restart" button
-		$('#btn_starttest').css('display', 'none');
-		$('#btn_pause').css('display', 'none');
-		$('#btn_restart').css('display', 'block');
+		// Show "Restart" button
+		setDisplayAndDisabled(['#btn_restart_landscape', '#btn_restart_portrait'], 'block', false);
 
 		// Clear the move indicator
 		$('#moveturn').text('');
@@ -205,43 +144,96 @@ function checkandplaynext() {
 }
 
 /**
- * Update the on-screen board with the current status of the game
- *
- * @param {Chessboard} board - The chessboard.js object
+ * Clear all the on-screen messages
  */
-function updateBoard(board) {
-	board.position(game.fen(), false);
-	promoting = false;
+function clearMessages() {
+
+	for (messageelement of messagelist) {
+		$(messageelement).text('');
+	}
 }
 
 /**
- * Get an individual piece image
- *
- * @param {chess} piece - A chess.js game piece
- * @returns {*}
+ * Since it is non-sensical to have both selected, only allow either "Play both sides" or "Play opposite side" 
+ * to be checked but not both.
  */
-function getImgSrc(piece) {
-	return pieceTheme.replace('{piece}', game.turn() + piece.toLocaleUpperCase());
+function confirmOnlyOneOption() {
+
+	// Clear both options if somehow both options get checked (ex: both options enabled via PGN tag)
+	if ($('#playoppositeside').is(':checked') && $('#playbothsides').is(':checked')) {
+		$('#playbothsides').prop('checked', false);
+		$('#playoppositeside').prop('checked', false);
+		$('#playbothsides').prop('disabled', false);
+		$('#playoppositeside').prop('disabled', false);
+	}
+
+	// Enable both options as long as neither option is already checked
+	if (!$('#playoppositeside').is(':checked') && !$('#playbothsides').is(':checked')) {
+		$('#playbothsides').prop('disabled', false);
+		$('#playoppositeside').prop('disabled', false);
+	}
+
+	// Disable "Play opposite side" since "Play both sides" is checked
+	if ($('#playbothsides').is(':checked')) {
+		$('#playoppositeside').prop('disabled', true);
+	}
+
+	// Disable "Play both sides" since "Play opposite side" is checked
+	if ($('#playoppositeside').is(':checked')) {
+		$('#playbothsides').prop('disabled', true);
+	}
+
 }
 
 /**
- * Populate the pawn promotion popup based on the color of the current player
+ * Handle the start of moving a piece on the board
+ *
+ * @param {*} source - The source square from where the piece started
+ * @param {*} piece - A chess.js game piece
+ * @param {*} position - The position of the board
+ * @param {*} orientation - The board orientation
+ * @returns {boolean}
  */
-function getpieces() {
-	$('.promotion-piece-q').attr('src', getImgSrc('q'));
-	$('.promotion-piece-r').attr('src', getImgSrc('r'));
-	$('.promotion-piece-n').attr('src', getImgSrc('n'));
-	$('.promotion-piece-b').attr('src', getImgSrc('b'));
+function dragStart(source, piece, position, orientation) {
+	// Only pick up pieces for the side to move
+	if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+		(game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+		return false;
+	}
+
+	// Don't allow moves if game is paused
+	if (pauseflag) {
+		return false;
+	}
+
+	// Only pick up pieces if the move number is odd if the player goes first or even if player is going second
+	// AND the user is not playing both sides
+	if (!$('#playbothsides').is(':checked')) {
+		// Player is playing first
+		if (!$('#playoppositeside').is(':checked') && game.history().length % 2 !== 0) {
+			return false;
+		}
+
+		// Player is playing second
+		if ($('#playoppositeside').is(':checked') && (game.history().length % 2 === 0 || game.history().length === 0)) {
+			return false;
+		}
+	}
+
+	// Do not pick up pieces if the puzzle is complete (ie: all the moves of the PGN have been played)
+	if (game.history().length === moveHistory.length) {
+		return false;
+	}
 }
 
 /**
- * Description placeholder
+ * Handle the end of moving a piece on the board
  *
- * @param {*} source
- * @param {*} target
+ * @param {*} source - The source square from where the piece started
+ * @param {*} target - The target square to where the piece ended
  * @returns {string}
  */
-function DropPiece(source, target) {
+function dropPiece(source, target) {
 	let move;
 
 	// is it a promotion?
@@ -269,7 +261,7 @@ function DropPiece(source, target) {
 		promoting = true;
 
 		// Get the correct color pieces for the promotion popup
-		getpieces()
+		getPieces();
 
 		// Show the select piece promotion dialog screen
 		promotionDialog.dialog({
@@ -288,7 +280,7 @@ function DropPiece(source, target) {
 		});
 		// the actual move is made after the piece to promote to
 		// has been selected, in the stop event of the promotion piece selectable
-		
+
 		return;
 	}
 
@@ -296,94 +288,50 @@ function DropPiece(source, target) {
 	makeMove(game, moveCfg);
 
 	// Check if the move played is the expected one and play the next one if it was
-	checkandplaynext();
+	checkAndPlayNext();
 
 	// Indicate the player to move
-	indicatemove();
+	indicateMove();
 
 	// Clear the move indicator if everything is done
 	if (setcomplete && puzzlecomplete) {
 		$('#moveturn').text('');
 	}
+
+	// Clear the hint if used
+	$('#btn_hint_landscape').text('Hint');
+	$('#btn_hint_portrait').text('Hint');
 }
 
 /**
- * Set the promotion value in the move config and make the move
- */
-function onDialogClose() {
-	moveCfg.promotion = promoteTo;
-	makeMove(game, moveCfg);
-	checkandplaynext();
-}
-
-/**
- * Attempt to add the chosen move to the current game
+ * Get an individual piece image
  *
- * @param {chess} game - The current chess.js object
- * @param {object} cfg - The configuration of the current move (from, to, promotion)
- * @returns {string}
+ * @param {chess} piece - A chess.js game piece
+ * @returns {*}
  */
-function makeMove(game, cfg) {
-	// see if the move is legal
-	const move = game.move(cfg);
-
-	// illegal move
-	if (move === null) {
-		return 'snapback';
-	}
+function getImgSrc(piece) {
+	return pieceTheme.replace('{piece}', game.turn() + piece.toLocaleUpperCase());
 }
 
 /**
- * Update the board position after the piece snap for castling, en passant, pawn promotion
+ * Populate the pawn promotion popup based on the color of the current player
  */
-function SnapEnd() {
-	board.position(game.fen());
-	updateBoard(board);
+function getPieces() {
+	$('.promotion-piece-q').attr('src', getImgSrc('q'));
+	$('.promotion-piece-r').attr('src', getImgSrc('r'));
+	$('.promotion-piece-n').attr('src', getImgSrc('n'));
+	$('.promotion-piece-b').attr('src', getImgSrc('b'));
 }
 
 /**
  * Indicate who's turn it is to move
  */
-function indicatemove() {
+function indicateMove() {
 	$('#moveturn').text('White to move');
 
 	if (game.turn() === 'b') {
 		$('#moveturn').text('Black to move');
 	}
-}
-
-/**
- * PGN file parser
- *
- * @param {string} PGNData - The PGN text data to parse. Can comprise of one or more games
- */
-function parsepgn(PGNData) {
-	const splitGames = (string) => PgnParser.split(string, { startRule: 'games' });
-	const games = splitGames(PGNData);
-
-	puzzleset = [];
-
-	games.forEach(
-		(game) => {
-			const { tags } = PgnParser.parse(game.tags, { startRule: 'tags' });
-			const { moves } = PgnParser.parse(game.pgn, { startRule: 'game' });
-
-			// Set the options checkboxes if any of the special tags have a value of 1
-			if (tags.PGNTrainerBothSides === '1') { $("#playbothsides").prop("checked", true); }
-			if (tags.PGNTrainerOppositeSide === '1') { $("#playoppositeside").prop("checked", true); }
-			if (tags.PGNTrainerRandomize === '1') { $("#randomizeSet").prop("checked", true); }
-			if (tags.PGNTrainerFlipped === '1') { $("#flipped").prop("checked", true); }
-			if (tags.PGNTrainerAnalysisLink === '1') { $("#analysisboard").prop("checked", true); }
-
-			const puzzle = {};
-			puzzle.Event = (tags.Event);
-			puzzle.FEN = (tags.FEN);
-			puzzle.PGN = (game.pgn);
-			puzzle.Moves = moves;
-
-			puzzleset.push(puzzle);
-		},
-	);
 }
 
 /**
@@ -395,27 +343,30 @@ function loadPGNFile() {
 	const [file] = document.getElementById('openPGN').files;
 	const reader = new FileReader();
 
-	resetgame();
+	resetGame();
 
 	reader.addEventListener(
 		'load',
 		() => {
 			PGNFile = reader.result;
 			try {
-				parsepgn(PGNFile.trim());  // Clean up the file prior to processing
+				parsePGN(PGNFile.trim());  // Clean up the file prior to processing
 
 				// File is now loaded
 				// Update the range of the puzzle counters to the size of the puzzleset
-				$('#puzzleNumber').text('1');
-				$('#puzzleNumbertotal').text(puzzleset.length);
+				$('#puzzleNumber_landscape').text('1');
+				$('#puzzleNumber_portrait').text('1');
+
+				$('#puzzleNumbertotal_landscape').text(puzzleset.length);
+				$('#puzzleNumbertotal_portrait').text(puzzleset.length);
 
 				// Enable the start button
-				$('#btn_starttest').prop('disabled', false);
+				setDisplayAndDisabled(['#btn_starttest_landscape', '#btn_starttest_portrait'], 'block', false);
 			}
 			catch (err) {
 				alert('There is an issue with the PGN file.  Error message is as follows:\n\n' + err
 					+ '\n\nPuzzles loaded successfully before error: ' + puzzleset.length);
-				resetgame();
+				resetGame();
 			}
 			finally {
 				// Clear the value of the file input field
@@ -428,56 +379,9 @@ function loadPGNFile() {
 	if (file) {
 		reader.readAsText(file);
 	}
-}
 
-/**
- * Either turn on or off the ability to select options (ie: don't allow changes while in a game)
- *
- * @param {boolean} state - Set to true to enable the checkboxes. Set to false to disable the checkboxes.
- */
-function setCheckboxSelectability(state) {
-	if (state) {
-		if ($('#playbothsides').prop('disabled')) {
-			$('#playbothsides').removeAttr('disabled');
-		}
-		if ($('#playoppositeside').prop('disabled')) {
-			$('#playoppositeside').removeAttr('disabled');
-		}
-		if ($('#randomizeSet').prop('disabled')) {
-			$('#randomizeSet').removeAttr('disabled');
-		}
-		if ($('#flipped').prop('disabled')) {
-			$('#flipped').removeAttr('disabled');
-		}
-		if ($('#analysisboard').prop('disabled')) {
-			$('#analysisboard').removeAttr('disabled');
-		}
-	} else {
-		$('#playbothsides').attr('disabled', true);
-		$('#playoppositeside').attr('disabled', true);
-		$('#randomizeSet').attr('disabled', true);
-		$('#flipped').attr('disabled', true);
-		$('#analysisboard').attr('disabled', true);
-	}
-}
-
-/**
- * Updates the progres bar on the screen
- *
- * @param {int} partial_value - The number of completed puzzles (numerator)
- * @param {int} total_value - The total number of puzzles (denominator)
- */
-function updateprogressbar(partial_value, total_value) {
-	// Do the math
-	const progress = Math.round((partial_value / total_value) * 100);
-
-	// Show the result
-	$('#progressbar')
-		.progressbar({ value: progress })
-		.children('.ui-progressbar-value')
-		.html(`${progress}%`)
-		.css('display', 'block')
-		.css('background', '#b9c7ff');
+	// Now that file is loaded, enable the ability to select options
+	setCheckboxSelectability(true);
 }
 
 /**
@@ -487,8 +391,10 @@ function updateprogressbar(partial_value, total_value) {
  */
 function loadPuzzle(PGNPuzzle) {
 	// Display current puzzle number in the sequence
-	$('#puzzleNumber').text(increment + 1);
-	updateprogressbar(increment, puzzleset.length);
+	$('#puzzleNumber_landscape').text(increment + 1);
+	$('#puzzleNumber_portrait').text(increment + 1);
+
+	updateProgressBar(increment, puzzleset.length);
 
 	// Set the error flag to false for this puzzle (ie: only count 1 error per puzzle)
 	error = false;
@@ -509,7 +415,7 @@ function loadPuzzle(PGNPuzzle) {
 	while (game.undo() !== null) { game.undo(); }
 
 	// Set the board to the beginning position of the puzzle
-	board.position(game.fen(), false);
+	updateBoard(false);
 
 	// Ensure the orientation is set to match the puzzle
 	// Default is white
@@ -520,18 +426,19 @@ function loadPuzzle(PGNPuzzle) {
 		board.orientation('black');
 	}
 
-	// Flip board if Flipped checkbox is checked
+	// Flip board if "Flipped" checkbox is checked
 	if ($('#flipped').is(':checked')) {
 		board.flip();
 	}
 
 	// Update the status of the game in memory with the new data
-	indicatemove();
+	indicateMove();
 
 	// Update the screen with the value of the PGN Event tag (if any)
-	$('#puzzlename').text(PGNPuzzle.Event);
+	$('#puzzlename_landscape').text(PGNPuzzle.Event);
+	$('#puzzlename_portrait').text(PGNPuzzle.Event);
 
-	if ($('#analysisboard').is(':checked')) { AnalysisLink = true; }
+	if ($('#analysisboard').is(':checked')) { AnalysisLink = true; } else { AnalysisLink = false; }
 
 	// Output a link to a lichess analysis board for this puzzle if there is one (can extract FEN from there if needed)
 	if (PGNPuzzle.FEN) {
@@ -539,15 +446,292 @@ function loadPuzzle(PGNPuzzle) {
 		lichessURL = '<A HREF="https://lichess.org/analysis/' + PGNPuzzle.FEN.replace(/ /g, "_") + '" target="_blank">Analysis</A>';
 
 		if (AnalysisLink) {
-			$('#puzzlename').html(PGNPuzzle.Event + "<br><center>" + lichessURL);
+			$('#puzzlename_landscape').html(PGNPuzzle.Event + "<br><center>" + lichessURL);
+			$('#puzzlename_portrait').html(PGNPuzzle.Event + "<br><center>" + lichessURL);
 		}
 	}
 
 	// Play the first move if player is playing second and not both sides
 	if ($('#playoppositeside').is(':checked') && !$('#playbothsides').is(':checked')) {
 		game.move(moveHistory[0]);
-		board.position(game.fen(), true);
+		updateBoard(true);
 	}
+}
+
+/**
+ * Attempt to add the chosen move to the current game
+ *
+ * @param {chess} game - The current chess.js object
+ * @param {object} cfg - The configuration of the current move (from, to, promotion)
+ * @returns {string}
+ */
+function makeMove(game, cfg) {
+	// see if the move is legal
+	const move = game.move(cfg);
+
+	// illegal move
+	if (move === null) {
+		return 'snapback';
+	}
+}
+
+/**
+ * Set the promotion value in the move config and make the move
+ */
+function onDialogClose() {
+	moveCfg.promotion = promoteTo;
+	makeMove(game, moveCfg);
+	checkAndPlayNext();
+}
+
+/**
+ * PGN file parser
+ *
+ * @param {string} PGNData - The PGN text data to parse. Can comprise of one or more games
+ */
+function parsePGN(PGNData) {
+	const splitGames = (string) => PgnParser.split(string, { startRule: 'games' });
+	const games = splitGames(PGNData);
+
+	puzzleset = [];
+
+	games.forEach(
+		(game) => {
+			const { tags } = PgnParser.parse(game.tags, { startRule: 'tags' });
+			const { moves } = PgnParser.parse(game.pgn, { startRule: 'game' });
+
+			// Set the options checkboxes if any of the special tags have a value of 1
+			if (tags.PGNTrainerBothSides === '1') { $("#playbothsides").prop("checked", true); }
+			if (tags.PGNTrainerOppositeSide === '1') { $("#playoppositeside").prop("checked", true); }
+			if (tags.PGNTrainerRandomize === '1') { $("#randomizeSet").prop("checked", true); }
+			if (tags.PGNTrainerFlipped === '1') { $("#flipped").prop("checked", true); }
+			if (tags.PGNTrainerAnalysisLink === '1') { $("#analysisboard").prop("checked", true); }
+
+			// Make sure that both "Play both sides" and "Play opposite side" are not selected (if yes, clear both)
+			confirmOnlyOneOption();
+
+			const puzzle = {};
+			puzzle.Event = (tags.Event);
+			puzzle.FEN = (tags.FEN);
+			puzzle.PGN = (game.pgn);
+			puzzle.Moves = moves;
+
+			puzzleset.push(puzzle);
+		},
+	);
+}
+
+/**
+ * Handle when a user presses the "pause" button
+ */
+function pauseGame() {
+	// Start a new counter (to then subtract from overall total)
+	$(window).trigger('resize');
+	switch (pauseflag) {
+	case false:
+		$('#btn_pause_landscape').text('Resume');
+		$('#btn_pause_portrait').text('Resume');
+		pauseflag = true;
+		PauseStartDateTime = new Date();
+
+		// hide the board
+		$('#myBoard').css('display', 'none');
+		$('#blankBoard').css('display', 'block');
+
+		// Remove focus on the pause/resume button
+		$('#btn_pause_landscape').blur();
+		$('#btn_pause_portrait').blur();
+		break;
+	case true:
+		$('#btn_pause_landscape').text('Pause');
+		$('#btn_pause_portrait').text('Pause');
+		pauseflag = false;
+		PauseendDateTime = new Date();
+
+		// Keep running total of paused time
+		pauseDateTimeTotal += (PauseendDateTime - PauseStartDateTime);
+
+		// show the board
+		$('#myBoard').css('display', 'block');
+		$('#blankBoard').css('display', 'none');
+
+		// Remove focus on the pause/resume button 
+		$('#btn_pause_landscape').blur();
+		$('#btn_pause_portrait').blur();
+		break;
+	}
+	$(window).trigger('resize');
+}
+
+/**
+ * Reset everything in order to start a new testing session
+ */
+function resetGame() {
+	// Reset the current game in memory
+	board = null;
+	game = new Chess();
+	moveHistory = [];
+	puzzleset = [];
+	errorcount = 0;
+	pauseDateTimeTotal = 0;
+	error = false;
+	setcomplete = false;
+	AnalysisLink = false;
+
+	// Create the boards
+	board = new Chessboard('myBoard', config);
+	blankBoard = new Chessboard('blankBoard', { showNotation: false });
+
+	// Resize the board to the current available space
+	$(window).trigger('resize');
+
+	// Set the counters back to zero
+	$('#puzzleNumber_landscape').text('0');
+	$('#puzzleNumber_portrait').text('0');
+	$('#puzzleNumbertotal_landscape').text('0');
+	$('#puzzleNumbertotal_portrait').text('0');
+
+	// Show Start button and hide "Pause" and "Restart" buttons
+	setDisplayAndDisabled(['#btn_starttest_landscape', '#btn_starttest_portrait'], 'block', true);
+	setDisplayAndDisabled(
+		['#btn_pause_landscape', '#btn_pause_portrait',
+			'#btn_restart_landscape', '#btn_restart_portrait'], 'none', false);
+
+	// Hide & disable the "Hint" and the "Show Results" buttons
+	setDisplayAndDisabled(
+		['#btn_hint_landscape', '#btn_hint_portrait', '#btn_showresults'], 'none', true);
+
+	// Show the full board (in case the reset happened during a pause)
+	$('#myBoard').css('display', 'block');
+	$('#blankBoard').css('display', 'none');
+
+	// Reset the progress bar
+	$('#progressbar_landscape').width("0%");
+	$('#progressbar_landscape').text("0%");
+
+	$('#progressbar_portrait').width("0%");
+	$('#progressbar_portrait').text("0%");
+
+	// Disnable options checkboxes
+	setCheckboxSelectability(false);
+
+	// Clear the checkboxes
+	for (checkboxelement of checkboxlist) {
+		$(checkboxelement).prop('checked', false);
+	}
+
+	// Remove focus on the reset button
+	$('#btn_reset').blur();
+
+	// Clear any prior results/statistics
+	clearMessages();
+
+	// Clear the move indicator
+	$('#moveturn').text('');
+
+	// Close hover
+	w3_close();
+	$(window).trigger('resize');
+}
+
+/**
+ * Resize both boards to available space
+ */
+function resizeBoards() {
+	board.resize();
+	blankBoard.resize();
+}
+
+/**
+ * Either turn on or off the ability to select options (ie: don't allow changes while in a game)
+ *
+ * @param {boolean} state - Set to true to enable the checkboxes. Set to false to disable the checkboxes.
+ */
+function setCheckboxSelectability(state) {
+
+	for (checkboxelement of checkboxlist) {
+		if (state) {
+			if ($(checkboxelement).prop('disabled')) {
+				$(checkboxelement).removeAttr('disabled');
+				confirmOnlyOneOption();
+			}
+		} else {
+			$(checkboxelement).attr('disabled', true);
+		}
+	}
+}
+
+/**
+ * Set the CSS display and disabled properties of a given element
+ * 
+ * @param {array} listofElements - Array of controls to set in JQuery naming format (ie: prefaced with #)
+ * @param {boolean} visible - Set to true to make the control visible. Set to false to hide the control.
+ * @param {boolean} disabled - Set to true to disable the control. Set to false to enable the control.
+ */
+function setDisplayAndDisabled(listofElements, visible, disabled) {
+
+	for (elementName of listofElements) {
+		// Set the visibility of the element
+		if (visible !== undefined) {
+			$(elementName).css('display', visible);
+		}
+
+		// Set the status of the disabled property of the element
+		if (disabled !== undefined) {
+			$(elementName).prop('disabled', disabled);
+		}
+	}
+
+}
+
+/**
+ * Show the hint
+ */
+function showHint() {
+
+	// Change the text of the button to the correct move
+	$('#btn_hint_landscape').text(moveHistory[game.history().length]);
+	$('#btn_hint_portrait').text(moveHistory[game.history().length]);
+
+	// Set error flag for this puzzle since hint was used.
+	if (error === false) {
+		errorcount += 1;
+	}
+	error = true;
+}
+
+/**
+ * Show the final stats after finishing all the puzzles in the set
+ */
+function showStats() {
+	const endDateTime = new Date();
+	const ElapsedTimeSeconds = (endDateTime - startDateTime - pauseDateTimeTotal) / 1000; // Subtracting the paused time from total elapsed time
+	const ElapsedTimehhmmss = new Date(ElapsedTimeSeconds * 1000).toISOString().slice(11, 19);
+	const AvgTimeSeconds = ElapsedTimeSeconds / puzzleset.length;
+	const AvgTimehhmmss = new Date(AvgTimeSeconds * 1000).toISOString().slice(11, 19);
+	const ErrorRate = (errorcount / puzzleset.length);
+	const ErrorRate1Dec = ErrorRate.toFixed(3) * 100;
+
+	updateProgressBar(1, 1);
+
+	// Show & enable "Show Results" button
+	setDisplayAndDisabled(['#btn_showresults'], 'block', false);
+
+	// Hide & disable the "hint" button
+	setDisplayAndDisabled(['#btn_hint_landscape', '#btn_hint_portrait'], 'none', true);
+
+	// Update modal with the details
+	$('#messagecomplete').html('<h2>Set Complete</h2>');
+	$('#elapsedTime').text(`Elapsed time (hh:mm:ss): ${ElapsedTimehhmmss}`);
+	$('#avgTime').text(`Average time/puzzle (hh:mm:ss): ${AvgTimehhmmss}`);
+	$('#errors').text(`Number of errors: ${errorcount}`);
+	$('#errorRate').text(`Error Rate: ${ErrorRate1Dec.toFixed(1)}%`);
+
+	// Display the modal
+	showresults();
+
+	// Re-enable options checkboxes
+	setCheckboxSelectability(true);
 }
 
 /**
@@ -578,39 +762,14 @@ function shuffle(array) {
 }
 
 /**
- * Handle when a user presses the "pause" button
+ * Update the board position after the piece snap for castling, en passant, pawn promotion
  */
-function Pause() {
-	// Start a new counter (to then subtract from overall total)
-
-	switch ($('#btn_pause').text()) {
-		case 'Pause':
-			$('#btn_pause').text('Resume');
-			pauseflag = true;
-			PauseStartDateTime = new Date();
-
-			// hide the board
-			$('#myBoard').css('display', 'none');
-			$('#blankboard').css('display', 'block');
-
-			// Remove focus on the pause/resume button
-			$('#btn_pause').blur();
-			break;
-		case 'Resume':
-			$('#btn_pause').text('Pause');
-			pauseflag = false;
-			PauseendDateTime = new Date();
-
-			// Keep running total of paused time
-			pauseDateTimeTotal += (PauseendDateTime - PauseStartDateTime);
-
-			// show the board
-			$('#myBoard').css('display', 'block');
-			$('#blankboard').css('display', 'none');
-
-			// Remove focus on the pause/resume button 
-			$('#btn_pause').blur();
-			break;
+function snapEnd() {
+	// Update instantly if the puzzle is done
+	if (game.history().length === moveHistory.length) {
+		updateBoard(false);
+	} else {
+		updateBoard(true);
 	}
 }
 
@@ -618,22 +777,29 @@ function Pause() {
  * Starts the test and timer
  */
 function startTest() {
+	// Close hover
+	w3_close();
+	
 	// Check to make sure that a PGN File was loaded
 	if (puzzleset.length === 0) {
 		return;
 	}
 
-	// Hide Start & Restart buttons and show "Pause" button
-	$('#btn_starttest').css('display', 'none');
-	$('#btn_restart').css('display', 'none');
-	$('#btn_pause').css('display', 'block');
-	$('#btn_pause').prop('disabled', false);
+	// Hide "Start", "Restart" & "Show Results" buttons
+	setDisplayAndDisabled(
+		['#btn_starttest_landscape', '#btn_starttest_portrait',
+			'#btn_restart_landscape', '#btn_restart_portrait', '#btn_showresults'], 'none');
+
+	// Show & enable the "Hint" and "Pause" buttons
+	setDisplayAndDisabled(
+		['#btn_pause_landscape', '#btn_pause_portrait',
+			'#btn_hint_landscape', '#btn_hint_portrait'], 'block', false);
 
 	// Disable changing options
 	setCheckboxSelectability(false);
 
 	// Clear any messages
-	clearmessages();
+	clearMessages();
 
 	// Load first puzzle and start counting for errors (for now...)
 	errorcount = 0;
@@ -649,12 +815,13 @@ function startTest() {
 		(value, index) => start + index * step,
 	);
 
-	// Generate numbers between 1 and the number of puzzles in the PGN
-	PuzzleOrder = arrayRange(0, puzzleset.length - 1, 1);
-
 	// Shuffle the set if the box is checked
 	if ($('#randomizeSet').is(':checked')) {
-		shuffle(PuzzleOrder);
+		// Generate numbers between 1 and the number of puzzles in the PGN and then shuffle them
+		PuzzleOrder = shuffle(arrayRange(0, puzzleset.length - 1, 1));
+	} else {
+		// Generate numbers between 1 and the number of puzzles in the PGN in order
+		PuzzleOrder = arrayRange(0, puzzleset.length - 1, 1);
 	}
 
 	// Now just need to send the desired puzzle to the board.
@@ -662,91 +829,59 @@ function startTest() {
 }
 
 /**
- * Clear all the on-screen messages
+ * Update the on-screen board with the current status of the game
+ *
+ * @param {boolean} animate - Set to True to animate the pieces while setting up the position.  
+ * 							  Setting to false sets the pieces instantly.
  */
-function clearmessages() {
-	$('#messagecomplete').text('');
-	$('#puzzlename').text('');
-	$('#errors').text('');
-	$('#errorRate').text('');
-	$('#elapsedTime').text('');
-	$('#avgTime').text('');
+function updateBoard(animate) {
+	board.position(game.fen(), animate);
 }
 
 /**
- * Reset everything in order to start a new testing session
+ * Updates the progres bar on the screen
+ *
+ * @param {int} partial_value - The number of completed puzzles (numerator)
+ * @param {int} total_value - The total number of puzzles (denominator)
  */
-function resetgame() {
-	// Reset the current game in memory
-	board = null;
-	game = new Chess();
-	moveHistory = [];
-	puzzleset = [];
-	errorcount = 0;
-	pauseDateTimeTotal = 0;
-	error = false;
-	setcomplete = false;
-	AnalysisLink = false;
+function updateProgressBar(partial_value, total_value) {
+	// Do the math
+	const progress = Math.round((partial_value / total_value) * 100);
 
-	// Create the boards
-	board = new Chessboard('myBoard', config);
-	blankboard = new Chessboard('blankboard');
+	// Show the result
+	let progresspercent = progress + "%";
+	$('#progressbar_landscape').width(progresspercent);
+	$('#progressbar_landscape').text(progresspercent);
 
-	// Set the counters back to zero
-	$('#puzzleNumber').text('0');
-	$('#puzzleNumbertotal').text('0');
-
-	// Hide Start button and show "Pause" button
-	$('#btn_pause').css('display', 'none');
-	$('#btn_pause').prop('disabled', false);
-
-	$('#btn_restart').css('display', 'none');
-	$('#btn_restart').prop('disabled', false);
-
-	$('#btn_starttest').css('display', 'block');
-	$('#btn_starttest').prop('disabled', true);
-
-	// show the full board (in case the reset happened during a pause)
-	$('#myBoard').css('display', 'block');
-	$('#blankboard').css('display', 'none');
-
-	// Reset the progress bar
-	$('#progressbar').progressbar({ value: 0 });
-
-	// Re-enable options checkboxes
-	setCheckboxSelectability(true);
-
-	// Clear the checkboxes
-	$('#playbothsides').prop('checked', false);
-	$('#playoppositeside').prop('checked', false);
-	$('#randomizeSet').prop('checked', false);
-	$('#flipped').prop('checked', false);
-	$('#analysisboard').prop('checked', false);
-
-	// Remove focus on the reset button
-	$('#btn_reset').blur();
-
-	// Clear any prior results/statistics
-	clearmessages();
-
-	// Clear the move indicator
-	$('#moveturn').text('');
+	$('#progressbar_portrait').width(progresspercent);
+	$('#progressbar_portrait').text(progresspercent);
 }
 
-
-
-
-// Assign actions to the buttons
+/**
+ * Assign actions to the buttons
+ */
 $(() => {
+
 	// Buttons
 	$('#openPGN_button').click(() => {
 		$('#openPGN').click();
 	});
 
-	$('#btn_reset').on('click', resetgame);
-	$('#btn_starttest').on('click', startTest);
-	$('#btn_restart').on('click', startTest);
-	$('#btn_pause').on('click', Pause);
+	$('#btn_reset').on('click', resetGame);
+
+	$('#btn_showresults').on('click', showresults);
+
+	$('#btn_hint_landscape').on('click', showHint);
+	$('#btn_hint_portrait').on('click', showHint);
+
+	$('#btn_starttest_landscape').on('click', startTest);
+	$('#btn_starttest_portrait').on('click', startTest);
+
+	$('#btn_restart_landscape').on('click', startTest);
+	$('#btn_restart_portrait').on('click', startTest);
+
+	$('#btn_pause_landscape').on('click', pauseGame);
+	$('#btn_pause_portrait').on('click', pauseGame);
 
 	$('#promote-to').selectable({
 		stop() {
@@ -763,30 +898,9 @@ $(() => {
 				}
 				promotionDialog.dialog('close');
 				$('.ui-selectee').removeClass('ui-selected');
-				updateBoard(board);
+				updateBoard(false);
+				promoting = false;
 			});
 		},
-	});
-
-	// Add Hint button function (in case you get stuck, press and hold down the spacebar)
-	$(document).keydown((e) => {
-		if (e.keyCode === 32) {
-			// Only display hint when in a puzzle
-			if (moveHistory.length > 0) {
-				$('#messagecomplete').text(moveHistory[game.history().length]);
-
-				// Set error flag for this puzzle since hint was used.
-				if (error === false) {
-					errorcount += 1;
-				}
-				error = true;
-			}
-		}
-	});
-
-	$(document).keyup((e) => {
-		if (e.keyCode === 32) {
-			$('#messagecomplete').text('');
-		}
 	});
 });

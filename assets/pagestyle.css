@@ -5,6 +5,20 @@ th {
 }
 */
 
+/* Custom CSS settings for handling portrait vs. landscape modes
+*/
+@media all and (orientation: portrait) {
+	div.landscapemode {
+		display: none;
+	}
+}
+
+@media all and (orientation: landscape) {
+	div.portraitmode {
+		display: none;
+	}
+}
+
 .ui-progressbar-value {
 	font-size: 16px;
 	font-weight: bold;
