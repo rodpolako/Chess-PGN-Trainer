@@ -168,6 +168,7 @@ Built with the help of the following projects:
 * Add support for reading more PGN tags like player names and such.  Nice-to-have when working to memorize specific games.
 * Enable the ability to specify custom colors and piece sets.
 * Reporting capabilities such as graphs/charts replicating what I'm currently doing in Excel.
+* Sound effects when moving the pieces, capturing, etc.
 ### Functionality ###
 * Add an option to auto-save the results to a file and export to Excel/CSV for analysis in other tools.
 * Add a way to organize all the PGNs I want to test as part of a larger structure so that I would be able to choose from a defined list which includes the info on the PGN file to use along with the desired settings.
