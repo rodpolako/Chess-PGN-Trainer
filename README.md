@@ -57,9 +57,10 @@ This tool has a couple of other features that you might like:
 * Play Opposite Side - Allows the player to go second instead and makes the computer play the first move from the PGN.  Useful for when you want to practice opening defenses instead of puzzles.  For example, if you wanted to practice a defense as black, load a PGN with the move order you want to practice and this feature will play as white and play the moves in the PGN while you play the response.  Recommended that you use the Flipped option in conjunction with this one.
 * Analysis board - More useful for puzzles, this option generates a link to a Lichess analysis board of the currently displayed puzzle as per the PGN. Useful when you want to analyze a specific puzzle during a run in order to analyze or troubleshoot.  This will place a link below the title of the puzzle which if clicked will open an analysis board in Lichess with the position in a new tab.
 * Pause - Useful if you are doing a large number of puzzles/games and need to step away.  Click on the pause button and the board will clear and the timer will stop.  Click Resume in order to continue.  Your elapsed time will not include the paused time.
-* Hints - You can hold down the **spacebar** at any time during a puzzle/game to see the next expected move.  Just know that if a hint is used, it will be counted as an error in your performance.
+* Hints - You can press the hint button at any time during a puzzle/game to see the next expected move.  Just know that if a hint is used, it will be counted as an error in your performance.
 * Restart/replay - You can repeat the current puzzle/game set upon completion with a single click. Useful if you want to try again with the same settings.  When the current set is complete, just click on "Restart" to try the current PGN file again.  If you want, you can choose different settings like random, flipped, etc. before restarting.
 * Feature settings via PGN Tags - You can configure a PGN to set a default combination of features by adding the relevant tag to the top of the PGN.  Details below.
+* Responsive design allows the app to be used in either portrait or landscape mode which means that it is able to be used on phones and tablets along with desktop. 
   
 Once a test group is completed, tool displays the following performance information:
 * Number of errors
@@ -163,7 +164,7 @@ Built with the help of the following projects:
 ## Possible ideas for improvements/features/roadmap
 
 ### Visual/UI ###
-* While the site does work on mobile, it is not optimized for that format.  A UI overhaul with a responsive design would be nice.  I'm looking at possibly incorporating the next major release of chessboardjs which seems to be better suited for use on mobile since it allows things like tapping instead of just dragging pieces.  Also needed would be a "hint" button instead of just a press of the spacebar.
+* I'm looking at possibly incorporating the next major release of chessboardjs which seems to be better suited for use on mobile since it allows things like tapping instead of just dragging pieces.  
 * Add support for reading more PGN tags like player names and such.  Nice-to-have when working to memorize specific games.
 * Enable the ability to specify custom colors and piece sets.
 * Reporting capabilities such as graphs/charts replicating what I'm currently doing in Excel.
