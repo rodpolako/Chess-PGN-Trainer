@@ -148,7 +148,7 @@ If you want to host a copy on your own environment and/or make changes:
 5. When the puzzle/game is finished, the next puzzle/game in the set will be automatically loaded
 6. When the set of puzzles/games is complete, your final stats will be displayed.
 7. You can pause any time if you need to step away.
-8. If you get stuck you can get a hint by holding down the **spacebar**
+8. If you get stuck you can get a hint by clicking the hint button.
 
 You can then start a new PGN file by repeating these steps.
 
