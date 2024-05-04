@@ -16,7 +16,7 @@
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = '1.7.0';
+const version = '1.7.1';
 let board;
 let blankBoard;
 let pieceTheme;
@@ -431,9 +431,6 @@ function loadPuzzle(PGNPuzzle) {
 		board.flip();
 	}
 
-	// Update the status of the game in memory with the new data
-	indicateMove();
-
 	// Update the screen with the value of the PGN Event tag (if any)
 	$('#puzzlename_landscape').text(PGNPuzzle.Event);
 	$('#puzzlename_portrait').text(PGNPuzzle.Event);
@@ -456,6 +453,9 @@ function loadPuzzle(PGNPuzzle) {
 		game.move(moveHistory[0]);
 		updateBoard(true);
 	}
+
+	// Update the status of the game in memory with the new data
+	indicateMove();
 }
 
 /**
