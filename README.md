@@ -96,7 +96,9 @@ The available tags are:
 
 The value of the tag has to be 1 in order to activate.  Any other value or omission of the tag entirely will be ignored.
 
-You can use any combination of the above tags.  Just insert the desired tag(s) at the top of the PGN.
+You can use any combination of the above tags.  Just insert the desired tag(s) at the top of the PGN.  
+
+**Note** The only exception is selecting both "Play both sides" and "Play opposite side" at the same time (which is nonsensical). Any PGN file setting both of these options via the custom tags will have them both ignored. In this situation, update your PGN to remove one of these tags in order to set "Play both sides" **OR** "Play opposite side".
 
 ## Known limitations
 * The PGN parser ignores variations in a PGN file.  Attempting to use a PGN with these will not work and will only play the "main-line".  If you want to work a line that has variations, break out each variation into its own entry in the PGN.
