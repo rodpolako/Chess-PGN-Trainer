@@ -9,6 +9,8 @@ Since then, the tool has grown and can now be used to:
 * Practice openings for black or white
 * Practice entire games (useful for learning full games or for playing solitaire chess such as "Guess the Move")
 
+See the sample PGN files in the /examples folder for more information.  The samples include puzzles, openings for both white and black, as well as the immortal game to practice.
+
 [A live online copy of tool is available here](https://rodpolako.github.io/)
 
 ![screenshot](screenshot.png)
@@ -86,8 +88,6 @@ Here is the example PGN with the randomize setting turned on.
 1. Kf6 Kh7 2. Qf7+ Kh8 3. Qg7# 1-0
 ```
 Or another use case could be that you want to practice defenses as black and you have a PGN that has the move sequences you want to practice.  Ideally you would want to use the "flipped" and "play opposite side" options every time so that you see the board from black's perspective and the computer makes the opening move.  You can set that with the ```[PGNTrainerFlipped "1"]``` and ```[PGNTrainerOppositeSide "1"]``` tags in the PGN and every time you load that PGN going forward, those options will automatically be selected.  You can always de-select a setting if you want something different for a particular run.
-
-See the sample pgn files in the /examples folder for more information.
 
 The available tags are:
 * ```[PGNTrainerBothSides "1"]``` - This will check the "Play both sides" option
