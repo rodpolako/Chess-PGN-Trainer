@@ -175,6 +175,7 @@ Built with the help of the following projects:
 * Sound effects when moving the pieces, capturing, etc.
 ### Functionality ###
 * Add an option to auto-save the results to a file and export to Excel/CSV for analysis in other tools.
+* User data storage to save progress and allow for resuming progress through a set if the browser is closed.
 * Add a way to organize all the PGNs I want to test as part of a larger structure so that I would be able to choose from a defined list which includes the info on the PGN file to use along with the desired settings.
 * Connected with the point above, maybe introduce some sort of spaced reptition capability or have the tool automatically drill you from the list based on when last drilled or performance.
 * Adding text-to-speech so the app can announce moves and maybe speech recognition in order to play moves.  Not sure about this one yet.
