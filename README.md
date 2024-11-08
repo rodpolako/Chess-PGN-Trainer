@@ -45,13 +45,11 @@ The same puzzle created in [Lichess](https://lichess.org) via the analysis board
 ```
 
 Use the "Open PGN file" button to open this file and you can practice this puzzle.  
-![screenshot](screenshot2.png)
-
 
 The PGN file can have any number of puzzles or games so you can work through a set in one shot.
 
 ## Features
-This tool has a couple of other features that you might like:
+This tool has a number of features that you might find useful:
 * Auto move to next puzzle - Automatically advances to the next puzzle/game upon completion of the current one
 * Play both sides - Allows the player to play both sides of the puzzle/game
 * Randomize - Presents the puzzles/games in the set in a random order
@@ -62,13 +60,57 @@ This tool has a couple of other features that you might like:
 * Hints - You can press the hint button at any time during a puzzle/game to see the next expected move.  Just know that if a hint is used, it will be counted as an error in your performance.
 * Restart/replay - You can repeat the current puzzle/game set upon completion with a single click. Useful if you want to try again with the same settings.  When the current set is complete, just click on "Restart" to try the current PGN file again.  If you want, you can choose different settings like random, flipped, etc. before restarting.
 * Feature settings via PGN Tags - You can configure a PGN to set a default combination of features by adding the relevant tag to the top of the PGN.  Details below.
-* Responsive design allows the app to be used in either portrait or landscape mode which means that it is able to be used on phones and tablets along with desktop. 
+* Responsive design allows the app to be used in either portrait or landscape mode which means that it is able to be used on phones and tablets along with desktop.
+* A settings menu which gives the following options:
   
+   * Choice of multiple piece designs - Note this will reset the board so don't chance sets while in the middle of puzzle set.
+   * Ability to specify custom board colors either by manual entry or color picking 
+   * Dark mode
+  
+* Ability to copy results to clipboard ready to paste into a spreadsheet. 
+* Ability to export results to CSV file along with setting to include the headers
+* Ability to add additional piece sets (either PNG for SVG) for hosted instances only.  Not available on github.io page.
+
 Once a test group is completed, tool displays the following performance information:
 * Number of errors
 * Time to completion
 * Average time per puzzle/game (Calculated)
 * Error rate (Calculated)
+
+![screenshot](screenshot2.png)
+
+## Download to CSV
+Upon completion of a set you will have the option to download a CSV file of your performance via the "Download to CSV" button on the results screen.  This file can then be opened up in spreadsheet programs like Excel or Google Sheets and can function as a way to keep track of your progress.  By default, the CSV file will include all the header information so you know what each column contains.  You can disable the headers for subsequent entries via the settings menu.  
+
+The CSV file contains the following columns:
+| Column Name   | Description   |
+|:-------------|:-------------|
+| date | The date the run was completed | 
+| filename | The filename of the PGN | 
+| round | The round for this file (see note below) | 
+| series | The value of the first event tag in the PGN | 
+| mode | Indicates if the puzzles this set were completed in random or sequential order | 
+| setlength | The total number of puzzles in this set | 
+| errors | The number of errors on this set | 
+| totaltime | The total time spent on this set | 
+| avgtime | The average time spent per puzzle | 
+| errorrate | The average error rate | 
+
+Note: The round value is the only field that will require manual entry after pasting. The idea is that you would manually increase the number for each row for a specific PGN file.  For example, if a given PGN is run for the first time, you would set the round value to 1.  On the next run of the same PGN, you would paste the second results below the first set and you would record 2 for the round.  In this way, you would be able to track your progress for a given PGN file over time.
+
+## Copy results to clipboard
+By default, when you complete a set your performance is automatically copied to the clipboard which is useful for pasting into a new row of a spreadsheet containing your prior results.  It is recommended you download the CSV on your first run through and then open in Excel or Google Sheets.  With the spreadsheet open, you can then simply paste your results to a new line.  If needed, you can always re-copy your performace back to the clipboard by clicking on the "Copy results to clipboard" button on the results screen.
+
+You can disable the automatic copying of the data to the clipboard via the settings menu.
+
+## Custom piece sets
+If you are hosting this application on your own server, you can add additional piece sets by following the instructions in the piece-list.js file. 
+
+## Custom board color
+You can specify the exact color you would like for both the light and dark squares via the settings menu. Clicking on either value will display a color picker which you can use to select your color.  Clicking anywhere else will close the color picker.  If you have a specific RGB value in mind, you can simply type or paste it in instead.  
+
+![screenshot](screenshot3.png)
+
 
 ## Default settings via PGN Tags
 You can set the default options via custom tags in the PGN.  For example, if you have a set of puzzles/games that you always want to be in random order, you can add a tag to the top of the PGN and it will automatically check the Randomize box when the file is loaded.
@@ -163,18 +205,18 @@ Built with the help of the following projects:
 * [chessboardjs](https://github.com/oakmac/chessboardjs/) chessboard.js is a standalone JavaScript Chess Board. It is designed to be "just a board" and expose a powerful API so that it can be used in different ways.
 * [pawn-promotion](https://github.com/siansell/pawn-promotion) Quick and dirty example showing one approach to pawn promotion with chessboard.js and chess.js.
 * [lichess-org/lila](https://github.com/lichess-org/lila/tree/master) Lila (li[chess in sca]la) is a free online chess game server focused on realtime gameplay and ease of use.
+* [jquery-wheelcolorpicker](https://github.com/fujaru/jquery-wheelcolorpicker/tree/master) A jQuery plugin to add color picker functionality to HTML form inputs in round color wheel style.
 
 
 ## Possible ideas for improvements/features/roadmap
 
 ### Visual/UI ###
-* I'm looking at possibly incorporating the next major release of chessboardjs which seems to be better suited for use on mobile since it allows things like tapping instead of just dragging pieces.  
-* Add support for reading more PGN tags like player names and such.  Nice-to-have when working to memorize specific games.
-* Enable the ability to specify custom colors and piece sets.
+* I'm looking at possibly incorporating the next major release of chessboardjs which may be better suited for use on mobile since it allows things like tapping instead of just dragging pieces.  
+* Possibly adding support for more PGN tags.
 * Reporting capabilities such as graphs/charts replicating what I'm currently doing in Excel.
 * Sound effects when moving the pieces, capturing, etc.
+
 ### Functionality ###
-* Add an option to auto-save the results to a file and export to Excel/CSV for analysis in other tools.
 * User data storage to save progress and allow for resuming progress through a set if the browser is closed.
 * Add a way to organize all the PGNs I want to test as part of a larger structure so that I would be able to choose from a defined list which includes the info on the PGN file to use along with the desired settings.
 * Connected with the point above, maybe introduce some sort of spaced reptition capability or have the tool automatically drill you from the list based on when last drilled or performance.
