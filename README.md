@@ -63,7 +63,7 @@ This tool has a number of features that you might find useful:
 * Responsive design allows the app to be used in either portrait or landscape mode which means that it is able to be used on phones and tablets along with desktop.
 * A settings menu which gives the following options:
   
-   * Choice of multiple piece designs - Note this will reset the board so don't chance sets while in the middle of puzzle set.
+   * Choice of multiple piece designs - Note this will reset the board so don't change sets while in the middle of puzzle set.
    * Ability to specify custom board colors either by manual entry or color picking 
    * Dark mode
   
