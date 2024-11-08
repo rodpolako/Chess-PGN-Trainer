@@ -26,12 +26,9 @@ Features for this version:
 * Added ability to select board colors and piece theme
 * Added ability to add additional piece sets (either PNG for SVG) for hosted instances only.  Not available on github.io page.
 * Added dark mode feature
-* Added ability to copy results to clipboard ready to paste into spreadsheet
+* Added ability to copy results to clipboard ready to paste into a spreadsheet
 * Added ability to export results to CSV file along with setting to include the headers
 * Added multiple piece sets
-
-* Add attribution for color picker:
-* [jquery-wheelcolorpicker](https://github.com/fujaru/jquery-wheelcolorpicker/tree/master) A jQuery plugin to add color picker functionality to HTML form inputs in round color wheel style.
 
 */
 
