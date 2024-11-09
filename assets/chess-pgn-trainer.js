@@ -18,17 +18,7 @@
 /*
 
 Features for this version:
-* Resolved issue with using open and reset buttons while paused
-* Resolved "Fix code scanning alert - Inclusion of functionality from an untrusted source"
-* Additional PGN Tag support for White and Black Player names
-* Removed dependence on local copy of chessboard CSS to enable custom colors.
-* Removed dependence on local copy of chessboard JS to enable choosing custom piece sets.
-* Added ability to select board colors and piece theme
-* Added ability to add additional piece sets (either PNG for SVG) for hosted instances only.  Not available on github.io page.
-* Added dark mode feature
-* Added ability to copy results to clipboard ready to paste into a spreadsheet
-* Added ability to export results to CSV file along with setting to include the headers
-* Added multiple piece sets
+* Fixed bug which would sometimes lock up the app forcing a page refresh if attempting to load the same PGN consecutively
 
 */
 
@@ -39,7 +29,7 @@ Features for this version:
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = '1.8.0';
+const version = '1.8.01';
 let board;
 let blankBoard;
 let pieceThemePath;
@@ -628,6 +618,10 @@ function resetGame() {
 	error = false;
 	setcomplete = false;
 	AnalysisLink = false;
+	puzzlecomplete = false;
+	pauseflag = false;
+	increment = 0;
+	PuzzleOrder = [];
 
 	// Create the boards
 	board = new Chessboard('myBoard', config);
@@ -1058,12 +1052,12 @@ function onDialogClose() {
  * Feed the PGN file provided by the user here to the PGN Parser and update/enable the controls
  */
 function loadPGNFile() { // eslint-disable-line no-unused-vars
+
+	resetGame();
 	let PGNFile;
 
 	const [file] = document.getElementById('openPGN').files;
 	const reader = new FileReader();
-
-	resetGame();
 
 	reader.addEventListener(
 		'load',
@@ -1101,6 +1095,9 @@ function loadPGNFile() { // eslint-disable-line no-unused-vars
 
 	// Now that file is loaded, enable the ability to select options
 	setCheckboxSelectability(true);
+
+	// Clear the file value in the Open PGN control (to clear for the next file)
+	document.getElementById('openPGN').value = ''
 }
 
 /**
