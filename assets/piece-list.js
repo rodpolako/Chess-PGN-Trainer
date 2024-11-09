@@ -20,7 +20,7 @@
  * As an example, bK would indicate black king while wP would indicate white pawn. See any of the current piece sets for examples.
  * 
  * 
- * To add a a piece set to the application:
+ * To add a piece set to the application:
  * 1. create a folder containing the pieces inside /img/chesspieces 
  * 2. update the object below to add an entry for the new set
  * 3. Refresh the page and the new set will be listed in the drop down
