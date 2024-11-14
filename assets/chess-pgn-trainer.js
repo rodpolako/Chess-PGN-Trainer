@@ -18,7 +18,7 @@
 /*
 
 Features for this version:
-* Fixed bug which would sometimes lock up the app forcing a page refresh if attempting to load the same PGN consecutively
+* Fixed regression bug with move indication when using both flipped and opposite side functions.
 
 */
 
@@ -29,7 +29,7 @@ Features for this version:
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = '1.8.01';
+const version = '1.8.2';
 let board;
 let blankBoard;
 let pieceThemePath;
@@ -618,10 +618,14 @@ function resetGame() {
 	error = false;
 	setcomplete = false;
 	AnalysisLink = false;
+
+
+
 	puzzlecomplete = false;
 	pauseflag = false;
 	increment = 0;
 	PuzzleOrder = [];
+
 
 	// Create the boards
 	board = new Chessboard('myBoard', config);
@@ -843,9 +847,6 @@ function loadPuzzle(PGNPuzzle) {
 		board.flip();
 	}
 
-	// Update the status of the game in memory with the new data
-	indicateMove();
-
 	if ($('#analysisboard').is(':checked')) { AnalysisLink = true; } else { AnalysisLink = false; }
 
 	// Output a link to a lichess analysis board for this puzzle if there is one (can extract FEN from there if needed)
@@ -868,6 +869,9 @@ function loadPuzzle(PGNPuzzle) {
 		game.move(moveHistory[0]);
 		updateBoard(true);
 	}
+
+	// Update the status of the game in memory with the new data
+	indicateMove();
 
 	changecolor();
 }
