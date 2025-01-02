@@ -215,6 +215,7 @@ Built with the help of the following projects:
 * Possibly adding support for more PGN tags.
 * Reporting capabilities such as graphs/charts replicating what I'm currently doing in Excel.
 * Sound effects when moving the pieces, capturing, etc.
+* Annotation support
 
 ### Functionality ###
 * User data storage to save progress and allow for resuming progress through a set if the browser is closed.
