@@ -65,5 +65,5 @@ Once a test group is completed, tool displays the following performance informat
 
 ![screenshot](screenshot2.png)
 
-# Documentation
+## Documentation
 See the [Wiki](https://github.com/rodpolako/Chess-PGN-Trainer/wiki) for a complete documentation.
