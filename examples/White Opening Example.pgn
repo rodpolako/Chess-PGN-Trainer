@@ -7,9 +7,9 @@
 [Black "?"]
 [Result "*"]
 
-1. e4 e5 2. Nf3 Nc6 *
+{ Black develops the Knight to c6, defending the black e5 pawn while also fighting for control of d4. <br><br> White now can choose between several well known openings. Ruy Lopez (Bb5) , Italian (Bc4) and Scotch (d4) are all solid openings that see regular play at all levels. With Ruy Lopez, white seeks to immediately chase the initiative and attacks the defender of the black e5 pawn. While in Italian the Bishop on c4 target's the black f7 pawn, the weakest pawn in the starting position. Scotch with d4, instead often lead to more concrete variations, starting with the pawns getting exchanged right away.} 1. e4 e5 2. Nf3 Nc6 *
 
-[Event "Vienna Game: Max Lange Defense"]
+[Event "Open Sicilian with 2...Nc6"]
 [Site "?"]
 [Date "????.??.??"]
 [Round "?"]
@@ -17,4 +17,4 @@
 [Black "?"]
 [Result "*"]
 
-1. e4 e5 2. Nc3 Nc6 *
+{ The Open Sicilian is a very popular opening. There is a great deal of theory on the opening and it is also typically very tactical. For these two reasons some people who do not play the Sicilian will avoid playing the Open Sicilian to encourage slower maneuvering instead of sharp tactics. } 1. e4 c5 2. Nf3 Nc6 3. d4 *

@@ -1,6 +1,6 @@
 /*
-* Chess-PGN-Trainer
-*/
+ * Chess-PGN-Trainer
+ */
 
 /* eslint linebreak-style: ["error", "unix"] */
 /* eslint indent: ["error", "tab"] */
@@ -9,19 +9,12 @@
 
 /* eslint no-undef: "error"*/
 /* global Chess, Chessboard, PgnParser, FileReader */
-/* global $, document, localStorage, alert, navigator, window */
-/* global w3_close, showresults */
-
-/* eslint no-unused-vars: ["error", { "vars": "all", "args": "none"}] */
+/* global $, document, localStorage, alert, navigator, window, console */
 
 
-/*
-
-Features for this version:
-* Fixed regression bug with move indication when using both flipped and opposite side functions.
-
-*/
-
+/* eslint no-unused-vars: "error"*/
+/* exported deleteItem, resizeBoards, resetSettings, setFlipped, goToNextPuzzle */
+/* exported loadPGNFile, outputStats2CSV */
 
 
 // -----------------------
@@ -29,7 +22,7 @@ Features for this version:
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = '1.8.2';
+const version = "1.9.0";
 let board;
 let blankBoard;
 let pieceThemePath;
@@ -42,6 +35,7 @@ let AnalysisLink = false;
 let moveCfg;
 let moveHistory;
 let puzzleset;
+let currentPuzzle;
 let errorcount;
 let error;
 let ElapsedTimehhmmss;
@@ -64,28 +58,27 @@ let PauseendDateTime;
 let startDateTime = new Date();
 let pauseDateTimeTotal = 0;
 
-
-
 // -------------
 // Initial Setup
 // -------------
 
 // Version number of the app
-$('#versionnumber').text(`version ${version}`);
+$("#versionnumber").text(`${version}`);
+$("#versionnumber_sidebar").text(`${version}`);
 
 // Collection of checkboxes used in the app
-let checkboxlist = ['#playbothsides', '#playoppositeside', '#randomizeSet', '#flipped', '#analysisboard'];
+let checkboxlist = ["#playbothsides", "#playoppositeside", "#randomizeSet", "#flipped", "#analysisboard", "#manualadvance"];
 
 // Collection of text elements
-let messagelist = ['#messagecomplete', '#puzzlename_landscape', '#puzzlename_portrait', '#errors', '#errorRate', '#elapsedTime', '#avgTime'];
+let messagelist = ["#puzzlename", "#errors", "#errorRate", "#elapsedTime", "#avgTime"];
 
 // Assign default configuration of the board
 // Assign default theme for the pieces for both the board and the promotion popup window
 
 //pieceThemePath = 'https://github.com/lichess-org/lila/raw/refs/heads/master/public/piece/alpha/{piece}.svg'
-pieceThemePath = 'img/chesspieces/staunty/{piece}.svg';
+pieceThemePath = "img/chesspieces/staunty/{piece}.svg";
 
-promotionDialog = $('#promotion-dialog');
+promotionDialog = $("#promotion-dialog");
 
 // Initial Board Configuration
 config = {
@@ -94,12 +87,8 @@ config = {
 	onDragStart: dragStart,
 	onDrop: dropPiece,
 	onSnapEnd: snapEnd,
-	position: 'start',
+	position: "start",
 };
-
-
-
-
 
 // -----------------------
 // Local stoarge Functions
@@ -107,10 +96,12 @@ config = {
 
 /**
  * Save a key/value pair to local storage
- * @param {string} key - The name of the key 
+ * @param {string} key - The name of the key
  * @param {string} value - The value of the key
  */
-function saveItem(key, value) { localStorage.setItem(key, value); }
+function saveItem(key, value) {
+	localStorage.setItem(key, value);
+}
 
 /**
  * Read the value of a specific key from local storage
@@ -126,14 +117,17 @@ function readItem(key) {
  * Deletes the specified key from local storage
  * @param {string} key - The key to delete
  */
-function deleteItem(key) { localStorage.removeItem(key); } // eslint-disable-line no-unused-vars
+function deleteItem(key) {
+	 
+	localStorage.removeItem(key);
+} 
 
 /**
  * Clear all items in local storage
  */
-function clearItems() { localStorage.clear(); }
-
-
+function clearItems() {
+	localStorage.clear();
+}
 
 // -----------------------------------
 // Functions for related to appearance
@@ -143,38 +137,33 @@ function clearItems() { localStorage.clear(); }
  * Populate the piece selection drop down with the list of pieces
  */
 function addPieceSetNames() {
-
 	// Clear any pre-existing values
-	$('#piece-select').find('option').remove().end();
+	$("#piece-select").find("option").remove().end();
 
 	// Populate the dropdown with the available options
-	PieceList.forEach(
-		(theme) => {
-			var newOption = $('<option>');
-			newOption.attr('value', theme.DirectoryName).text(theme.Name);
-			$('#piece-select').append(newOption);
-		}
-	);
+	PieceList.forEach((theme) => {
+		var newOption = $("<option>");
+		newOption.attr("value", theme.DirectoryName).text(theme.Name);
+		$("#piece-select").append(newOption);
+	});
 
 	// Set the drop down to the saved value
-	document.getElementById("piece-select").selectedIndex = readItem('pieceIndex');
-
+	$("#piece-select").prop('selectedIndex', readItem("pieceIndex"));
 }
 
 /**
- * Sets the piece theme.  Warming: This will reset the board. Don't use while doing a set.
+ * Sets the piece theme.  Warning: This will reset the board. Don't use while doing a set.
  */
 function changePieces() {
 
-	// TODO: Revisit this to see if I can use the text value instead of the index...
-	saveItem('pieceIndex', document.getElementById("piece-select").selectedIndex);
+	saveItem("pieceIndex", $("#piece-select").prop('selectedIndex'));
 
 	// Load the selected piece theme into a temp object
 	var pieceObject;
-	pieceObject = PieceList.find(x => x.DirectoryName === document.getElementById('piece-select').value);
+	pieceObject = PieceList.find((x) => x.DirectoryName === $("#piece-select").val());
 
 	// Build the path to the piece theme using the object properties
-	pieceThemePath = 'img/chesspieces/' + pieceObject.DirectoryName + '/{piece}.' + pieceObject.Type;
+	pieceThemePath = "img/chesspieces/" + pieceObject.DirectoryName + "/{piece}." + pieceObject.Type;
 
 	config = {
 		draggable: true,
@@ -182,11 +171,11 @@ function changePieces() {
 		onDragStart: dragStart,
 		onDrop: dropPiece,
 		onSnapEnd: snapEnd,
-		position: 'start',
+		position: "start",
 	};
 
 	// Update the board with the new pieces
-	Chessboard('myBoard', config);
+	Chessboard("myBoard", config);
 
 	// Set the colors after the piece change
 	changecolor();
@@ -197,13 +186,13 @@ function changePieces() {
 
 /**
  * Applies the specified color values (RGB) to the board
- * 
+ *
  * @param {string} light - The RGB color value for the light squares (such as h1)
- * @param {string} dark - The RGB color value for the dark squares (such as a1) 
+ * @param {string} dark - The RGB color value for the dark squares (such as a1)
  */
 function setBoardColor(light, dark) {
-	$(".white-1e1d7").css({ "backgroundColor": '#' + light, "color": '#' + dark });
-	$(".black-3c85d").css({ "backgroundColor": '#' + dark, "color": '#' + light });
+	$(".white-1e1d7").css({ backgroundColor: light, color: dark });
+	$(".black-3c85d").css({ backgroundColor: dark, color: light });
 }
 
 /**
@@ -211,59 +200,53 @@ function setBoardColor(light, dark) {
  * and then applies the values to the board
  */
 function changecolor() {
-
 	// Read the values from the color picker inputs
-	var light = document.getElementById('Light-Color').value.replace("#", "").trim();
-	var dark = document.getElementById('Dark-Color').value.replace("#", "").trim();
+	var light = $("#Light-Color").val();
+
+	var dark = $("#Dark-Color").val();
 
 	// Update the board colors based on the values
 	setBoardColor(light, dark);
 
-	// Save updated values
-	saveItem('light', light);
-	saveItem('dark', dark);
+	// Set preview boxes to the colors too
+	$("#light-color-preview").css("background-color", light);
+	$("#dark-color-preview").css("background-color", dark);
 
+	// Save updated values
+	saveItem("light", light);
+	saveItem("dark", dark);
 }
 
 /**
  * Toggles the application between dark and light mode.  Saves current setting to file
  */
 function toggleDarkMode() {
+	// Check current status of the setting, flip it and then save
+	if (document.documentElement.getAttribute("data-bs-theme") == "dark") {
+		document.documentElement.setAttribute("data-bs-theme", "light");
 
-	document.body.classList.toggle("darkmode");
+		saveItem("darkmode", "0");
 
-	var elmWitchChange = document.getElementsByClassName('light-mode');
-	var i;
-
-	for (i = 0; i < elmWitchChange.length; i++) {
-		elmWitchChange[i].classList.toggle('darkmode');
-	}
-
-	elmWitchChange = document.getElementsByClassName('light-mode-control');
-	for (i = 0; i < elmWitchChange.length; i++) {
-		elmWitchChange[i].classList.toggle('darkmode-control');
-	}
-
-	// Check current status of the setting and save 
-	if ($('#title_header').hasClass('darkmode')) {
-		saveItem('darkmode', '1');
-		// change logo
-		$("#img_logo").attr("src", "./img/github-mark-white.svg");
-		$('#chk_darkmode').prop('checked', true);
-
-	} else {
-		saveItem('darkmode', '0');
 		// change logo
 		$("#img_logo").attr("src", "./img/github-mark.svg");
-		$('#chk_darkmode').prop('checked', false);
-	}
+		$("#img_logo2").attr("src", "./img/github-mark.svg");
+		$("#chk_darkmode").prop("checked", false);
+	} else {
+		document.documentElement.setAttribute("data-bs-theme", "dark");
 
+		saveItem("darkmode", "1");
+		// change logo
+		$("#img_logo").attr("src", "./img/github-mark-white.svg");
+		$("#img_logo2").attr("src", "./img/github-mark-white.svg");
+		$("#chk_darkmode").prop("checked", true);
+	}
 }
 
 /**
  * Resize both boards to available space
  */
-function resizeBoards() { // eslint-disable-line no-unused-vars
+function resizeBoards() {
+	 
 	board.resize();
 	blankBoard.resize();
 	changecolor();
@@ -272,14 +255,12 @@ function resizeBoards() { // eslint-disable-line no-unused-vars
 /**
  * Update the on-screen board with the current status of the game
  *
- * @param {boolean} animate - Set to True to animate the pieces while setting up the position.  
+ * @param {boolean} animate - Set to True to animate the pieces while setting up the position.
  * 							  Setting to false sets the pieces instantly.
  */
 function updateBoard(animate) {
 	board.position(game.fen(), animate);
 }
-
-
 
 // ------------------------------------
 // Settings and configuration functions
@@ -289,7 +270,6 @@ function updateBoard(animate) {
  * Initializes the application upon load
  */
 function initalize() {
-
 	loadSettings();
 	addPieceSetNames();
 	changePieces();
@@ -299,84 +279,119 @@ function initalize() {
 /**
  * Sets default values for board color and piece theme
  */
-function resetSettings() { // eslint-disable-line no-unused-vars
+function resetSettings() {
+	 
 
 	clearItems();
 	initalize();
 
 	// Check to see if dark mode is active currently which is not the default and change back to light mode if that is the case
-	if ($('#title_header').hasClass('darkmode') && readItem('darkmode') == "0") { toggleDarkMode(); }
+	if (document.documentElement.getAttribute("data-bs-theme") == "dark" && readItem("darkmode") == "0") {
+		toggleDarkMode();
+	}
 
+	// Set the color pickers to the current values
+	setColorPickers();
 }
 
 /**
  * Load the settings for the application.  Sets defaults if values are not found
  */
 function loadSettings() {
-
 	// Set defaults if running for the first time
 
 	// Default keys and values
-	var defaults = { light: 'DEE3E6', dark: '8CA2AD', pieceIndex: '0', darkmode: '0', copy2clipboard: '1', csvheaders: '1' };
+	var defaults = {
+		light: "#dee3e6",
+		dark: "#8ca2ad",
+		pieceIndex: "0",
+		darkmode: "0",
+		copy2clipboard: "1",
+		csvheaders: "1",
+	};
 
 	// Load defaults if any keys are missing
 	for (const [key, value] of Object.entries(defaults)) {
-		if (readItem(key) == null || readItem(key) == "") { saveItem(key, value); }
+		if (readItem(key) == null || readItem(key) == "") {
+			saveItem(key, value);
+		}
 	}
 
 	// Load color values into the settings modal UI
-	document.getElementById('Light-Color').value = readItem('light');
-	document.getElementById('Dark-Color').value = readItem('dark');
+	$("#Light-Color").val(readItem("light"));
+	$("#Dark-Color").val(readItem("dark"));
 
 	// Toggle dark mode if previously set
-	if (readItem('darkmode') == "1") { toggleDarkMode(); }
+	if (readItem("darkmode") == "1") {
+		toggleDarkMode();
+	}
 
 	// Auto-copy to clipboard setting
-	if (readItem('copy2clipboard') == "1") { $("#chk_clipboard").prop("checked", true); }
+	if (readItem("copy2clipboard") == "1") {
+		$("#chk_clipboard").prop("checked", true);
+	}
 
 	// CSV Headers setting
-	if (readItem('csvheaders') == "1") { $("#chk_csvheaders").prop("checked", true); }
-
+	if (readItem("csvheaders") == "1") {
+		$("#chk_csvheaders").prop("checked", true);
+	}
 }
 
 /**
  * Show the settings modal
  */
-function showSettings() { // eslint-disable-line no-unused-vars
-	document.getElementById('settings-dialog').style.display = 'block';
+function setColorPickers() {
+	 
+
+	var light = $("#Light-Color").val();
+	$("#Light-Color").minicolors("value",light);
+
+	var dark = $("#Dark-Color").val();
+	$("#Dark-Color").minicolors("value", dark);
 }
 
 /**
- * Since it is non-sensical to have both selected, only allow either "Play both sides" or "Play opposite side" 
+ * Since it is non-sensical to have both selected, only allow either "Play both sides" or "Play opposite side"
  * to be checked but not both.
  */
 function confirmOnlyOneOption() {
-
 	// Clear both options if somehow both options get checked (ex: both options enabled via PGN tag)
-	if ($('#playoppositeside').is(':checked') && $('#playbothsides').is(':checked')) {
-		$('#playbothsides').prop('checked', false);
-		$('#playoppositeside').prop('checked', false);
-		$('#playbothsides').prop('disabled', false);
-		$('#playoppositeside').prop('disabled', false);
+	if ($("#playoppositeside").is(":checked") && $("#playbothsides").is(":checked")) {
+		$("#playbothsides").prop("checked", false);
+		$("#playoppositeside").prop("checked", false);
+		$("#playbothsides").prop("disabled", false);
+		$("#playoppositeside").prop("disabled", false);
 	}
 
 	// Enable both options as long as neither option is already checked
-	if (!$('#playoppositeside').is(':checked') && !$('#playbothsides').is(':checked')) {
-		$('#playbothsides').prop('disabled', false);
-		$('#playoppositeside').prop('disabled', false);
+	if (!$("#playoppositeside").is(":checked") && !$("#playbothsides").is(":checked")) {
+		$("#playbothsides").prop("disabled", false);
+		$("#playoppositeside").prop("disabled", false);
 	}
 
 	// Disable "Play opposite side" since "Play both sides" is checked
-	if ($('#playbothsides').is(':checked')) {
-		$('#playoppositeside').prop('disabled', true);
+	if ($("#playbothsides").is(":checked")) {
+		$("#playoppositeside").prop("disabled", true);
 	}
 
 	// Disable "Play both sides" since "Play opposite side" is checked
-	if ($('#playoppositeside').is(':checked')) {
-		$('#playbothsides').prop('disabled', true);
+	if ($("#playoppositeside").is(":checked")) {
+		$("#playbothsides").prop("disabled", true);
 	}
-
 }
+
+/**
+ * Normal usage of "Play Opposite side" involves playing from the other side of the board.  Thus, if this option is
+ * selected, then also turn on "Flipped".  
+ */
+function setFlipped(){
+
+	// If playoppositeside is checkd, also turn on flipped
+	 if ($("#playoppositeside").is(":checked")) {
+		 $("#flipped").prop("checked", true);
+	 }
+}
+
 
 /**
  * Either turn on or off the ability to select options (ie: don't allow changes while in a game)
@@ -384,40 +399,37 @@ function confirmOnlyOneOption() {
  * @param {boolean} state - Set to true to enable the checkboxes. Set to false to disable the checkboxes.
  */
 function setCheckboxSelectability(state) {
-
 	for (var checkboxelement of checkboxlist) {
 		if (state) {
-			if ($(checkboxelement).prop('disabled')) {
-				$(checkboxelement).removeAttr('disabled');
+			if ($(checkboxelement).prop("disabled")) {
+				$(checkboxelement).removeAttr("disabled");
 				confirmOnlyOneOption();
 			}
 		} else {
-			$(checkboxelement).attr('disabled', true);
+			$(checkboxelement).attr("disabled", true);
 		}
 	}
 }
 
 /**
  * Set the CSS display and disabled properties of a given element
- * 
+ *
  * @param {array} listofElements - Array of controls to set in JQuery naming format (ie: prefaced with #)
- * @param {boolean} visible - Set to true to make the control visible. Set to false to hide the control.
+ * @param {string} visible - Set to "block" to make the control visible. Set to "none" to hide the control.
  * @param {boolean} disabled - Set to true to disable the control. Set to false to enable the control.
  */
 function setDisplayAndDisabled(listofElements, visible, disabled) {
-
 	for (var elementName of listofElements) {
 		// Set the visibility of the element
 		if (visible !== undefined) {
-			$(elementName).css('display', visible);
+			$(elementName).css("display", visible);
 		}
 
 		// Set the status of the disabled property of the element
 		if (disabled !== undefined) {
-			$(elementName).prop('disabled', disabled);
+			$(elementName).prop("disabled", disabled);
 		}
 	}
-
 }
 
 /**
@@ -426,21 +438,110 @@ function setDisplayAndDisabled(listofElements, visible, disabled) {
  * @param {string} elementname - The name of the checkbox (pre-pend with a #)
  * @param {string} dataname - The key name of the element in local storage
  */
-function toggleSetting(elementname, dataname) { // eslint-disable-line no-unused-vars
+function toggleSetting(elementname, dataname) {
+	 
 
 	// Default value
-	saveItem(dataname, '0');
+	saveItem(dataname, "0");
 
 	// Set to "1" (aka "True" or "On") if checked
-	if ($(elementname).is(':checked')) { saveItem(dataname, '1'); }
-
+	if ($(elementname).is(":checked")) {
+		saveItem(dataname, "1");
+	}
 }
-
-
 
 // ------------------
 // Gameplay functions
 // ------------------
+
+/**
+ * Update the annotation panel with the supplied text.  Helper function for annotate()
+ * @param {string} annotationText - The content to be added to the annotation panel
+*/
+function addAnnotationComment(annotationText) {
+	
+	$("#comment_annotation").append("<br><br>");
+	$("#comment_annotation").append(annotationText);
+	$("#comment_annotation").append("<br><br>");
+
+}
+
+/**
+ * Read details of the current move along with any avaialble annotations and display them
+*/
+function annotate() {
+	
+	let gameMoveIndex = game.history().length - 1;                              // Last move played
+	let currentMoveTurn = currentPuzzle.moves[gameMoveIndex].turn;              // Color of move
+	let moveNumber = currentPuzzle.moves[gameMoveIndex].moveNumber;             // Number of move in SAN
+	let moveNotation = currentPuzzle.moves[gameMoveIndex].notation.notation;    // SAN move
+
+
+	// This assumes that index 0 ALWAYS has a move number associated with it.  Maybe write a case to handle if index=0 AND moveNumber is null?
+	if (moveNumber == null) {
+		
+		// Assumption is that this is black so use the white number (1 move prior)
+		moveNumber = currentPuzzle.moves[gameMoveIndex - 1].moveNumber;
+	}
+
+	let moveAnnotation = "";
+
+	// Check if we are at the first move (special case in case black goes first)
+
+	// Normal separator after the move #
+	let separator = ". ";
+
+	// Handling the first move depending on who goes first
+	if (gameMoveIndex == 0) {
+		
+		if (currentMoveTurn == "b") {
+			separator = "... ";
+		}
+
+		moveAnnotation = moveNumber + separator + moveNotation + " ";
+		$("#comment_annotation").append($("<strong></strong>").text(moveAnnotation));
+		
+		
+		if (currentPuzzle.moves[gameMoveIndex].commentAfter) {
+			 addAnnotationComment(currentPuzzle.moves[gameMoveIndex].commentAfter);
+		}
+
+		return;
+	}
+
+	// Special: If the move is black but there was a comment prior, then use the continuation dots instead 
+	// (otherwise it would have just been the previous white move)
+	if (currentMoveTurn == "b" && typeof currentPuzzle.moves[gameMoveIndex - 1].commentAfter !== "undefined") {
+		separator = "... ";
+	}
+
+	// Put the move #, separator and a space
+	moveAnnotation = moveNumber + separator + moveNotation + " ";
+
+	// Normal continuation but it is black's move and there wasn't a comment prior so just continue on and don't repeat the move number
+	if (currentMoveTurn == "b" && typeof currentPuzzle.moves[gameMoveIndex - 1].commentAfter === "undefined") {
+		moveAnnotation = moveNotation + " ";
+	}
+
+	$("#comment_annotation").append($("<strong></strong>").text(moveAnnotation));
+
+	// Output the comment after the move is played (if there is a comment)
+	if (currentPuzzle.moves[gameMoveIndex].commentAfter) {
+		addAnnotationComment(currentPuzzle.moves[gameMoveIndex].commentAfter);
+	}
+
+	// Add scroll here to automatically show the bottom of the column
+	document.getElementById("comment_annotation").scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+	
+}
+
+/**
+ * Manually advance to next puzzle (used for the Next button)
+*/
+function goToNextPuzzle() {
+	loadPuzzle(puzzleset[PuzzleOrder[increment]]);
+}
+
 
 /**
  * Compare latest played move to the move in the same position as the PGN
@@ -448,17 +549,33 @@ function toggleSetting(elementname, dataname) { // eslint-disable-line no-unused
  * @returns {string}
  */
 function checkAndPlayNext() {
+	let gameMoveIndex = game.history().length - 1;
 	// Need to go this way since .moveNumber isn't working...
-	if (game.history()[game.history().length - 1] === moveHistory[game.history().length - 1]) { // correct move
 
-		// play next move if the "Play both sides" box is unchecked
-		if (!$('#playbothsides').is(':checked')) {
-			// Play the opponent's next move from the PGN
-			game.move(moveHistory[game.history().length]);
+	if (game.history()[gameMoveIndex] === moveHistory[gameMoveIndex]) {
+		// correct move
+
+		// Output any comment after this move
+		annotate();
+
+		// play next move if the "Play both sides" box is unchecked and there are still moves to play
+		if (!$("#playbothsides").is(":checked")) {
+
+			if (game.history().length !== moveHistory.length) {
+
+				// Play the opponent's next move from the PGN
+				game.move(moveHistory[game.history().length]);
+
+				// Output any comment after this move
+				annotate();
+
+			}
 		}
-	} else { // wrong move
+	} else {
+		// wrong move
 
-		if (error === false) { // Add one to the error count for any given puzzle
+		if (error === false) {
+			// Add one to the error count for any given puzzle
 			errorcount += 1;
 		}
 		error = true;
@@ -468,15 +585,17 @@ function checkAndPlayNext() {
 
 		// Maybe flash the square in red to indicate an error?
 
-
 		// Snap the bad piece back
-		return 'snapback';
+		return "snapback";
 	}
 
 	// Check if all the expected moves have been played
 	if (game.history().length === moveHistory.length) {
 		puzzlecomplete = true;
 
+		// Turn on the next button
+		$("#btn_next").prop("disabled", false);
+		
 		// Check to see if this is the last puzzle
 		if (increment + 1 === puzzleset.length) {
 			setcomplete = true;
@@ -485,9 +604,14 @@ function checkAndPlayNext() {
 		// Are there more puzzles to go?  If yes, load the next one in the sequence
 		if (increment < puzzleset.length - 1) {
 			increment += 1;
-			loadPuzzle(puzzleset[PuzzleOrder[increment]]);
+
+			// Auto advance to the next puzzle if the "Next Button" option is not selected
+			if (!$("#manualadvance").is(":checked")) {
+				loadPuzzle(puzzleset[PuzzleOrder[increment]]);
+			}
 		}
 	}
+
 
 	// Stop once all the puzzles in the set are done
 	if (setcomplete && puzzlecomplete) {
@@ -496,16 +620,13 @@ function checkAndPlayNext() {
 		showStats();
 
 		// Hide & disable the "Start" and "Pause" buttons
-		setDisplayAndDisabled(
-			['#btn_starttest_landscape', '#btn_starttest_portrait',
-				'#btn_pause_landscape', '#btn_pause_portrait'], 'none', true);
+		setDisplayAndDisabled(["#btn_starttest", "#btn_pause", "#btn_next"], "none", true);
 
 		// Show "Restart" button
-		setDisplayAndDisabled(['#btn_restart_landscape', '#btn_restart_portrait'], 'block', false);
+		setDisplayAndDisabled(["#btn_restart"], "inline-block", false);
 
 		// Clear the move indicator
-		$('#moveturn').text('');
-
+		$("#moveturn").text("");
 	}
 }
 
@@ -513,9 +634,8 @@ function checkAndPlayNext() {
  * Clear all the on-screen messages
  */
 function clearMessages() {
-
 	for (var messageelement of messagelist) {
-		$(messageelement).text('');
+		$(messageelement).text("");
 	}
 }
 
@@ -523,11 +643,13 @@ function clearMessages() {
  * Indicate who's turn it is to move
  */
 function indicateMove() {
-	$('#moveturn').text('White to move');
 
-	if (game.turn() === 'b') {
-		$('#moveturn').text('Black to move');
+	$("#moveturn").text("White to move");
+
+	if (game.turn() === "b") {
+		$("#moveturn").text("Black to move");
 	}
+  
 }
 
 /**
@@ -543,7 +665,7 @@ function makeMove(game, cfg) {
 
 	// illegal move
 	if (move === null) {
-		return 'snapback';
+		return "snapback";
 	}
 }
 
@@ -555,51 +677,51 @@ function pauseGame() {
 	//$(window).trigger('resize');
 	switch (pauseflag) {
 	case false:
-		$('#btn_pause_landscape').text('Resume');
-		$('#btn_pause_portrait').text('Resume');
+		$("#btn_pause").text("Resume");
+
 		pauseflag = true;
 		PauseStartDateTime = new Date();
 
 		// hide the board
-		$('#myBoard').css('display', 'none');
-		$('#blankBoard').css('display', 'block');
+		$("#myBoard").css("display", "none");
+		$("#blankBoard").css("display", "block");
 
 		// Remove focus on the pause/resume button
-		$('#btn_pause_landscape').blur();
-		$('#btn_pause_portrait').blur();
+		$("#btn_pause").blur();
 
-		// Disable the Hint, Reset and Open PGN buttons while paused
-		$('#btn_reset').prop('disabled', true);
-		$('#openPGN_button').prop('disabled', true);
-		$('#btn_hint_landscape').prop('disabled', true);
-		$('#btn_hint_portrait').prop('disabled', true);
+		// Disable the Hint, Reset, Next and Open PGN buttons while paused
+		$("#btn_reset").prop("disabled", true);
+		$("#openPGN_button").prop("disabled", true);
+		$("#btn_hint").prop("disabled", true);
+
 		break;
 
 	case true:
-		$('#btn_pause_landscape').text('Pause');
-		$('#btn_pause_portrait').text('Pause');
+		$("#btn_pause").text("Pause");
+
 		pauseflag = false;
 		PauseendDateTime = new Date();
 
 		// Keep running total of paused time
-		pauseDateTimeTotal += (PauseendDateTime - PauseStartDateTime);
+		pauseDateTimeTotal += PauseendDateTime - PauseStartDateTime;
 
 		// show the board
-		$('#myBoard').css('display', 'block');
-		$('#blankBoard').css('display', 'none');
+		$("#myBoard").css("display", "block");
+		$("#blankBoard").css("display", "none");
 
-		// Remove focus on the pause/resume button 
-		$('#btn_pause_landscape').blur();
-		$('#btn_pause_portrait').blur();
+		// Remove focus on the pause/resume button
+		$("#btn_pause").blur();
 
 		// Re-enable the Hint, Reset and Open PGN buttons
-		$('#btn_reset').prop('disabled', false);
-		$('#openPGN_button').prop('disabled', false);
-		$('#btn_hint_landscape').prop('disabled', false);
-		$('#btn_hint_portrait').prop('disabled', false);
+		$("#btn_reset").prop("disabled", false);
+		$("#openPGN_button").prop("disabled", false);
+		$("#btn_hint").prop("disabled", false);
+
+
 		break;
 	}
-	$(window).trigger('resize');
+
+	$(window).trigger("resize");
 	changecolor();
 }
 
@@ -619,78 +741,77 @@ function resetGame() {
 	setcomplete = false;
 	AnalysisLink = false;
 
-
-
 	puzzlecomplete = false;
 	pauseflag = false;
 	increment = 0;
 	PuzzleOrder = [];
 
-
 	// Create the boards
-	board = new Chessboard('myBoard', config);
-	blankBoard = new Chessboard('blankBoard', { showNotation: false });
+	board = new Chessboard("myBoard", config);
+	blankBoard = new Chessboard("blankBoard", { showNotation: false });
 
-	// Resize the board to the current available space
-	$(window).trigger('resize');
+	// chessboardjs-specific additions to center the board in bootstrap
+	// add container class to chessboard-63f37 & board-b72b1 classes
+	$(".board-b72b1").addClass("container p-0");
+	$(".board-b72b1").css("border", "0px");
 
 	// Set the counters back to zero
-	$('#puzzleNumber_landscape').text('0');
-	$('#puzzleNumber_portrait').text('0');
-	$('#puzzleNumbertotal_landscape').text('0');
-	$('#puzzleNumbertotal_portrait').text('0');
+	$("#puzzleNumber").text("0");
+
+	$("#puzzleNumbertotal").text("0");
 
 	// Show Start button and hide "Pause" and "Restart" buttons
-	setDisplayAndDisabled(['#btn_starttest_landscape', '#btn_starttest_portrait'], 'block', true);
-	setDisplayAndDisabled(
-		['#btn_pause_landscape', '#btn_pause_portrait',
-			'#btn_restart_landscape', '#btn_restart_portrait'], 'none', false);
+	setDisplayAndDisabled(["#btn_starttest"], "inline-block", true);
+	setDisplayAndDisabled(["#btn_pause", "#btn_restart", "#btn_next"], "none", false);
 
 	// Hide & disable the "Hint" and the "Show Results" buttons
-	setDisplayAndDisabled(
-		['#btn_hint_landscape', '#btn_hint_portrait', '#btn_showresults'], 'none', true);
+	setDisplayAndDisabled(["#btn_hint", "#btn_showresults"], "none", true);
 
 	// Show the full board (in case the reset happened during a pause)
-	$('#myBoard').css('display', 'block');
-	$('#blankBoard').css('display', 'none');
+	$("#myBoard").css("display", "block");
+	$("#blankBoard").css("display", "none");
 
 	// Reset the progress bar
-	$('#progressbar_landscape').width("0%");
-	$('#progressbar_landscape').text("0%");
-
-	$('#progressbar_portrait').width("0%");
-	$('#progressbar_portrait').text("0%");
+	$("#progressbar").width("0%");
+	$("#progressbar").text("0%");
 
 	// Disable options checkboxes
 	setCheckboxSelectability(false);
 
 	// Clear the checkboxes
 	for (var checkboxelement of checkboxlist) {
-		$(checkboxelement).prop('checked', false);
+		$(checkboxelement).prop("checked", false);
 	}
 
 	// Remove focus on the reset button
-	$('#btn_reset').blur();
+	$("#btn_reset").blur();
 
 	// Clear any prior results/statistics
 	clearMessages();
 
+	// Clear the analysis link
+	$("#analysisDiv").empty();
+
 	// Clear the move indicator
-	$('#moveturn').text('');
+	$("#moveturn").text("");
 
-	// Close hover
-	w3_close();
+	// Close the sidebar
+	 $("#close_sidebar").click();
 
+	changecolor();
+
+	// Clear the content title and window
+	$("#comment_event_name").prop("innerHTML", "");
+	$("#comment_annotation").prop("innerHTML", "");
+	//console.clear();
 }
 
 /**
  * Show the hint
  */
 function showHint() {
-
 	// Change the text of the button to the correct move
-	$('#btn_hint_landscape').text(moveHistory[game.history().length]);
-	$('#btn_hint_portrait').text(moveHistory[game.history().length]);
+	$("#btn_hint").text(moveHistory[game.history().length]);
 
 	// Set error flag for this puzzle since hint was used.
 	if (error === false) {
@@ -700,11 +821,18 @@ function showHint() {
 }
 
 /**
+ * Show the results modal
+*/
+function showresults() {
+	$("#resmodal").modal("show");
+}
+
+/**
  * Starts the test and timer
  */
 function startTest() {
-	// Close hover
-	w3_close();
+
+	//console.clear();
 
 	// Check to make sure that a PGN File was loaded
 	if (puzzleset.length === 0) {
@@ -712,20 +840,26 @@ function startTest() {
 	}
 
 	// Hide "Start", "Restart" & "Show Results" buttons
-	setDisplayAndDisabled(
-		['#btn_starttest_landscape', '#btn_starttest_portrait',
-			'#btn_restart_landscape', '#btn_restart_portrait', '#btn_showresults'], 'none');
+	setDisplayAndDisabled(["#btn_starttest", "#btn_restart", "#btn_showresults"], "none");
 
 	// Show & enable the "Hint" and "Pause" buttons
-	setDisplayAndDisabled(
-		['#btn_pause_landscape', '#btn_pause_portrait',
-			'#btn_hint_landscape', '#btn_hint_portrait'], 'block', false);
+	setDisplayAndDisabled(["#btn_pause", "#btn_hint"], "inline-block", false);
+
+	// Only turn on the next button if the option is selected (at the start it is disabled)
+	if ($("#manualadvance").is(":checked")) {
+		setDisplayAndDisabled(["#btn_next"], "inline-block", true);
+	}
+
 
 	// Disable changing options
 	setCheckboxSelectability(false);
 
 	// Clear any messages
 	clearMessages();
+
+	
+	// Clear the analysis link
+	$("#analysisDiv").empty();
 
 	// Load first puzzle and start counting for errors (for now...)
 	errorcount = 0;
@@ -734,15 +868,13 @@ function startTest() {
 	startDateTime = new Date();
 	pauseDateTimeTotal = 0;
 	increment = 0;
+	setcomplete = false;
 
 	// Neat bit here from https://www.freecodecamp.org/news/javascript-range-create-an-array-of-numbers-with-the-from-method/
-	const arrayRange = (start, stop, step) => Array.from(
-		{ length: (stop - start) / step + 1 },
-		(value, index) => start + index * step,
-	);
+	const arrayRange = (start, stop, step) => Array.from({ length: (stop - start) / step + 1 }, (value, index) => start + index * step);
 
 	// Shuffle the set if the box is checked
-	if ($('#randomizeSet').is(':checked')) {
+	if ($("#randomizeSet").is(":checked")) {
 		// Generate numbers between 1 and the number of puzzles in the PGN and then shuffle them
 		PuzzleOrder = shuffle(arrayRange(0, puzzleset.length - 1, 1));
 	} else {
@@ -773,16 +905,14 @@ function shuffle(array) {
 		currentIndex -= 1;
 
 		// And swap it with the current element.
-		[array[currentIndex], array[randomIndex]] = [
-			array[randomIndex], array[currentIndex],
-		];
+		[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
 	}
 
 	return array;
 }
 
 /**
- * Updates the progres bar on the screen
+ * Updates the progress bar on the screen
  *
  * @param {int} partial_value - The number of completed puzzles (numerator)
  * @param {int} total_value - The total number of puzzles (denominator)
@@ -793,12 +923,10 @@ function updateProgressBar(partial_value, total_value) {
 
 	// Show the result
 	let progresspercent = progress + "%";
-	$('#progressbar_landscape').width(progresspercent);
-	$('#progressbar_landscape').text(progresspercent);
-
-	$('#progressbar_portrait').width(progresspercent);
-	$('#progressbar_portrait').text(progresspercent);
+	$("#progressbar").width(progresspercent);
+	$("#progressbar").text(progresspercent);
 }
+
 
 /**
  * Load the desired puzzle or position from the PGN to the screen
@@ -806,68 +934,134 @@ function updateProgressBar(partial_value, total_value) {
  * @param {object} PGNPuzzle - The object representing a specific position and move sequence
  */
 function loadPuzzle(PGNPuzzle) {
+
+	let moveindex = 0;
+
+	// Clear the content title and window
+	$("#comment_event_name").prop("innerHTML", "");
+	$("#comment_annotation").prop("innerHTML", "");
+	$("#analysisDiv").empty();
+
+	// Update the screen with the value of the PGN Event tag (if any)
+	$("#puzzlename").html(PGNPuzzle.tags.Event);
+	$("#comment_event_name").append(PGNPuzzle.tags.Event);
+	
+
+	// Output a link to a lichess analysis board for this puzzle if there is one (can extract FEN from there if needed)
+	AnalysisLink = false;
+	if ($("#analysisboard").is(":checked")) {
+		AnalysisLink = true;
+	}
+
+	if (PGNPuzzle.tags.FEN) {
+		var lichessURL = '<A id="analysisURL" HREF="https://lichess.org/analysis/' + PGNPuzzle.tags.FEN.replace(/ /g, "_") + '" target="_blank"></A>';
+	}
+
+	if (AnalysisLink && lichessURL) {
+
+		// Add the link under the puzzle name in mobile mode
+		$("#puzzlename").append("<br>");
+		$("#puzzlename").append(lichessURL);
+		$('a#analysisURL').text('Analysis board');
+
+		// Add the link under the event name in the annotation panel
+		$("#analysisDiv").empty();
+		$("#analysisDiv").append(lichessURL);
+		$('a#analysisURL').text('Analysis board');
+		$('#comment_event_name_analysis_link').show();
+		
+	}
+	
+
+	if (PGNPuzzle.gameComment != null) {
+		$("#comment_annotation").prop("innerHTML", PGNPuzzle.gameComment.comment);
+		$("#comment_annotation").append("<br><br>");
+
+		// Scroll to the bottom of the content
+		$("#comment_panel").scrollTop($("#comment_panel").prop("scrollHeight"));
+	}
+
+
+	currentPuzzle = PGNPuzzle; // Use this in order to access the PGN from anywhere
+
 	// Display current puzzle number in the sequence
-	$('#puzzleNumber_landscape').text(increment + 1);
-	$('#puzzleNumber_portrait').text(increment + 1);
+	$("#puzzleNumber").text(increment + 1);
 
 	updateProgressBar(increment, puzzleset.length);
+
+	// Turn off the next button at the start
+	$("#btn_next").prop("disabled", true);
 
 	// Set the error flag to false for this puzzle (ie: only count 1 error per puzzle)
 	error = false;
 	puzzlecomplete = false;
 
 	// Load the board position into memory
-	game = new Chess(PGNPuzzle.FEN);
+	game = new Chess(PGNPuzzle.tags.FEN);
 
 	// Load the moves of the PGN into memory
-	PGNPuzzle.Moves.forEach(
-		(move) => game.move(move.notation.notation),
-	);
+	PGNPuzzle.moves.forEach((move) => game.move(move.notation.notation));
 
 	// Copy the move order from the PGN into memory
 	moveHistory = game.history();
 
 	// Set the board position to the opening in the puzzle (ie: undo all steps in the PGN)
-	while (game.undo() !== null) { game.undo(); }
+	while (game.undo() !== null) {
+		game.undo();
+	}
+
+	// Clear the board
+	board.clear();
+
+	// Set the board orientation based on game.turn()
+	let boardOrientation = game.turn();
+
+	// Check for presense of MoveColor tag and if available use that instead
+	if (typeof PGNPuzzle.tags.MoveColor !== "undefined") {
+		boardOrientation = PGNPuzzle.tags.MoveColor;
+	}
+
+	// Get the current status of the board.  Use it to determine if the board needs to be flipped based on the puzzle.
+	let currentBoardOrientation = board.orientation().substring(0, 1).toLowerCase();
+
+	// Now that orientation is determined, flip the board if the current orientation does not match the determined one
+	if (boardOrientation != currentBoardOrientation) {
+		board.flip();
+	}
 
 	// Set the board to the beginning position of the puzzle
 	updateBoard(false);
 
-	// Ensure the orientation is set to match the puzzle
-	// Default is white
-	board.orientation('white');
+	// Check to see if the computer needs to play the first move due to the conflict between the FEN and the MoveColor tag (unless player is playing both sides)
+	if (PGNPuzzle.tags.MoveColor != game.turn() && typeof PGNPuzzle.tags.MoveColor !== "undefined" && !$("#playbothsides").is(":checked")) {
+		// There is a discrepency, make the first move
+		game.move(moveHistory[moveindex]);
 
-	// Flip the board if Black to play
-	if (game.turn() === 'b') {
-		board.orientation('black');
+		// Set the board to the next position of the puzzle
+		updateBoard(true);
+
+		// Output any comment after this move
+		annotate();
+
+		// Update the index so that if play opposite side is used it plays the NEXT move
+		moveindex = 1;
 	}
 
 	// Flip board if "Flipped" checkbox is checked
-	if ($('#flipped').is(':checked')) {
+	if ($("#flipped").is(":checked")) {
 		board.flip();
 	}
 
-	if ($('#analysisboard').is(':checked')) { AnalysisLink = true; } else { AnalysisLink = false; }
-
-	// Output a link to a lichess analysis board for this puzzle if there is one (can extract FEN from there if needed)
-	if (PGNPuzzle.FEN) {
-		var lichessURL = '<A HREF="https://lichess.org/analysis/' + PGNPuzzle.FEN.replace(/ /g, "_") + '" target="_blank">Analysis</A>';
-
-		if (AnalysisLink) {
-			PGNPuzzle.Event = PGNPuzzle.Event + "<br><center>" + lichessURL;
-		}
-
-	}
-
-	// Update the screen with the value of the PGN Event tag (if any)
-	$('#puzzlename_landscape').html(PGNPuzzle.Event);
-	$('#puzzlename_portrait').html(PGNPuzzle.Event);
-
-
 	// Play the first move if player is playing second and not both sides
-	if ($('#playoppositeside').is(':checked') && !$('#playbothsides').is(':checked')) {
-		game.move(moveHistory[0]);
+	if ($("#playoppositeside").is(":checked") && !$("#playbothsides").is(":checked")) {
+		// Make the move
+		game.move(moveHistory[moveindex]);
+
+		// Set the board to the next position of the puzzle
 		updateBoard(true);
+
+		// Output any comment after this move
+		annotate();
 	}
 
 	// Update the status of the game in memory with the new data
@@ -875,8 +1069,6 @@ function loadPuzzle(PGNPuzzle) {
 
 	changecolor();
 }
-
-
 
 // -----------------------
 // Chessboard JS functions
@@ -891,30 +1083,16 @@ function loadPuzzle(PGNPuzzle) {
  * @param {*} orientation - The board orientation
  * @returns {boolean}
  */
-function dragStart(source, piece, position, orientation) {
+function dragStart(source, piece) {
+	
 	// Only pick up pieces for the side to move
-	if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-		(game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+	if ((game.turn() === "w" && piece.search(/^b/) !== -1) || (game.turn() === "b" && piece.search(/^w/) !== -1)) {
 		return false;
 	}
 
 	// Don't allow moves if game is paused
 	if (pauseflag) {
 		return false;
-	}
-
-	// Only pick up pieces if the move number is odd if the player goes first or even if player is going second
-	// AND the user is not playing both sides
-	if (!$('#playbothsides').is(':checked')) {
-		// Player is playing first
-		if (!$('#playoppositeside').is(':checked') && game.history().length % 2 !== 0) {
-			return false;
-		}
-
-		// Player is playing second
-		if ($('#playoppositeside').is(':checked') && (game.history().length % 2 === 0 || game.history().length === 0)) {
-			return false;
-		}
 	}
 
 	// Do not pick up pieces if the puzzle is complete (ie: all the moves of the PGN have been played)
@@ -942,39 +1120,43 @@ function dropPiece(source, target) {
 	// see if the move is legal
 	moveCfg = {
 		from: source,
-		promotion: 'q',
+		promotion: "q",
 		to: target,
 	};
 
 	move = game.move(moveCfg);
 
 	if (move === null) {
-		return 'snapback';
+		return "snapback";
 	}
+
 
 	game.undo(); // move is ok, now we can go ahead and check for promotion
 
-	if (piece === 'p' && ((source_rank === '7' && target_rank === '8') || (source_rank === '2' && target_rank === '1'))) {
+	if (piece === "p" && ((source_rank === "7" && target_rank === "8") || (source_rank === "2" && target_rank === "1"))) {
 		//promoting = true;
 
 		// Get the correct color pieces for the promotion popup
 		getPieces();
 
 		// Show the select piece promotion dialog screen
-		promotionDialog.dialog({
-			close: onDialogClose,
-			closeOnEscape: false,
-			dialogClass: 'noTitleStuff',
-			draggable: false,
-			height: 50,
-			modal: true,
-			resizable: true,
-			width: 184,
-		}).dialog('widget').position({
-			of: $('#myBoard'),
-			// my: 'center center',
-			// at: 'center center',   //Maybe add code to position near the pawn being promoted?
-		});
+		promotionDialog
+			.dialog({
+				close: onDialogClose,
+				closeOnEscape: false,
+				dialogClass: "noTitleStuff",
+				draggable: false,
+				height: 50,
+				modal: true,
+				resizable: true,
+				width: 184,
+			})
+			.dialog("widget")
+			.position({
+				of: $("#myBoard"),
+				// my: 'center center',
+				// at: 'center center',   //Maybe add code to position near the pawn being promoted?
+			});
 		// the actual move is made after the piece to promote to
 		// has been selected, in the stop event of the promotion piece selectable
 
@@ -991,28 +1173,30 @@ function dropPiece(source, target) {
 	indicateMove();
 
 	// Clear the move indicator if everything is done
-	if (setcomplete && puzzlecomplete) {
-		$('#moveturn').text('');
+	if (setcomplete || puzzlecomplete) {
+		$("#moveturn").text("");
 	}
 
 	// Clear the hint if used
-	$('#btn_hint_landscape').text('Hint');
-	$('#btn_hint_portrait').text('Hint');
+	$("#btn_hint").text("Hint");
 }
 
 /**
  * Update the board position after the piece snap for castling, en passant, pawn promotion
  */
 function snapEnd() {
+
 	// Update instantly if the puzzle is done
+	/*
 	if (game.history().length === moveHistory.length) {
 		updateBoard(false);
 	} else {
 		updateBoard(true);
 	}
+	*/
+	updateBoard(true);
+
 }
-
-
 
 // ------------------------
 // Pawn Promotion functions
@@ -1024,17 +1208,17 @@ function snapEnd() {
  * @returns {*}
  */
 function getImgSrc(piece) {
-	return pieceThemePath.replace('{piece}', game.turn() + piece.toLocaleUpperCase());
+	return pieceThemePath.replace("{piece}", game.turn() + piece.toLocaleUpperCase());
 }
 
 /**
  * Populate the pawn promotion popup based on the color of the current player
  */
 function getPieces() {
-	$('.promotion-piece-q').attr('src', getImgSrc('q'));
-	$('.promotion-piece-r').attr('src', getImgSrc('r'));
-	$('.promotion-piece-n').attr('src', getImgSrc('n'));
-	$('.promotion-piece-b').attr('src', getImgSrc('b'));
+	$(".promotion-piece-q").attr("src", getImgSrc("q"));
+	$(".promotion-piece-r").attr("src", getImgSrc("r"));
+	$(".promotion-piece-n").attr("src", getImgSrc("n"));
+	$(".promotion-piece-b").attr("src", getImgSrc("b"));
 }
 
 /**
@@ -1047,7 +1231,6 @@ function onDialogClose() {
 }
 
 
-
 // ---------------------
 // PGN related Functions
 // ---------------------
@@ -1055,42 +1238,43 @@ function onDialogClose() {
 /**
  * Feed the PGN file provided by the user here to the PGN Parser and update/enable the controls
  */
-function loadPGNFile() { // eslint-disable-line no-unused-vars
+function loadPGNFile() {
+	 
 
 	resetGame();
 	let PGNFile;
 
-	const [file] = document.getElementById('openPGN').files;
+	const [file] = document.getElementById("openPGN").files;
 	const reader = new FileReader();
 
 	reader.addEventListener(
-		'load',
+		"load",
 		() => {
 			PGNFile = reader.result;
 			try {
-				parsePGN(PGNFile.trim());  // Clean up the file prior to processing
+				parsePGN(PGNFile.trim()); // Clean up the file prior to processing
 
 				// File is now loaded
 				// Update the range of the puzzle counters to the size of the puzzleset
-				$('#puzzleNumber_landscape').text('1');
-				$('#puzzleNumber_portrait').text('1');
+				$("#puzzleNumber").text("1");
 
-				$('#puzzleNumbertotal_landscape').text(puzzleset.length);
-				$('#puzzleNumbertotal_portrait').text(puzzleset.length);
+				$("#puzzleNumbertotal").text(puzzleset.length);
 
 				// Enable the start button
-				setDisplayAndDisabled(['#btn_starttest_landscape', '#btn_starttest_portrait'], 'block', false);
-			}
-			catch (err) {
-				alert('There is an issue with the PGN file.  Error message is as follows:\n\n' + err
-					+ '\n\nPuzzles loaded successfully before error: ' + puzzleset.length);
+				setDisplayAndDisabled(["#btn_starttest"], "inline-block", false);
+			} catch (err) {
+				alert(
+					"There is an issue with the PGN file.  Error message is as follows:\n\n" +
+						err +
+						"\n\nPuzzles loaded successfully before error: " +
+						puzzleset.length
+				);
 				resetGame();
-			}
-			finally {
+			} finally {
 				// Do nothing else
 			}
 		},
-		false,
+		false
 	);
 
 	if (file) {
@@ -1101,7 +1285,10 @@ function loadPGNFile() { // eslint-disable-line no-unused-vars
 	setCheckboxSelectability(true);
 
 	// Clear the file value in the Open PGN control (to clear for the next file)
-	document.getElementById('openPGN').value = ''
+	$("#openPGN").val("");
+
+	// Close the sidebar
+	 $("#close_sidebar").click();
 }
 
 /**
@@ -1110,89 +1297,116 @@ function loadPGNFile() { // eslint-disable-line no-unused-vars
  * @param {string} PGNData - The PGN text data to parse. Can comprise of one or more games
  */
 function parsePGN(PGNData) {
-	const splitGames = (string) => PgnParser.split(string, { startRule: 'games' });
-	const games = splitGames(PGNData);
+	puzzleset = PgnParser.parse(PGNData);
+	
+	/*
+		Pulled directly from the PGN Parser source code:
+		The split function expects well formed export format strings (see [8.1 Tag pair section]
+		(https://github.com/mliebelt/pgn-spec-commented/blob/main/pgn-specification.md#81-tag-pair-section), 
+		statement "a single empty line follows the last tag pair"). 
+		So the split function only works when tags are separated from pgn string by an empty line, 
+		and the next game is separated by at least one empty line as well.
+	*/
 
-	puzzleset = [];
+	// Set the options checkboxes if any of the special tags at the top of the PGN have a value of 1
+	if (puzzleset[0].tags.PGNTrainerBothSides === "1") {
+		$("#playbothsides").prop("checked", true);
+	}
 
-	games.forEach(
-		(game) => {
-			const { tags } = PgnParser.parse(game.tags, { startRule: 'tags' });
-			const { moves } = PgnParser.parse(game.pgn, { startRule: 'game' });
+	if (puzzleset[0].tags.PGNTrainerOppositeSide === "1") {
+		$("#playoppositeside").prop("checked", true);
+	}
 
-			// Set the options checkboxes if any of the special tags have a value of 1
-			if (tags.PGNTrainerBothSides === '1') { $("#playbothsides").prop("checked", true); }
-			if (tags.PGNTrainerOppositeSide === '1') { $("#playoppositeside").prop("checked", true); }
-			if (tags.PGNTrainerRandomize === '1') { $("#randomizeSet").prop("checked", true); }
-			if (tags.PGNTrainerFlipped === '1') { $("#flipped").prop("checked", true); }
-			if (tags.PGNTrainerAnalysisLink === '1') { $("#analysisboard").prop("checked", true); }
+	if (puzzleset[0].tags.PGNTrainerRandomize === "1") {
+		$("#randomizeSet").prop("checked", true);
+	}
 
-			// Make sure that both "Play both sides" and "Play opposite side" are not selected (if yes, clear both)
-			confirmOnlyOneOption();
+	if (puzzleset[0].tags.PGNTrainerFlipped === "1") {
+		$("#flipped").prop("checked", true);
+	}
 
-			const puzzle = {};
-			puzzle.Event = (tags.Event);
-			puzzle.Series = (tags.Event);
+	if (puzzleset[0].tags.PGNTrainerAnalysisLink === "1") {
+		$("#analysisboard").prop("checked", true);
+	}
 
-			puzzle.White = (tags.White);
-			puzzle.Black = (tags.Black);
+	if (puzzleset[0].tags.PGNTrainerNextButton === "1") {
+		$("#manualadvance").prop("checked", true);
+	}
 
-			if ((puzzle.White && puzzle.Black) && (puzzle.White !== '?' && puzzle.Black !== '?')) {
-				puzzle.Event = puzzle.Event + '<br><br>White: ' + puzzle.White + '<br>Black: ' + puzzle.Black;
-			}
-
-			puzzle.FEN = (tags.FEN);
-			puzzle.PGN = (game.pgn);
-			puzzle.Moves = moves;
-
-			puzzleset.push(puzzle);
-		},
-	);
+	// Make sure that both "Play both sides" and "Play opposite side" are not selected (if yes, clear both)
+	confirmOnlyOneOption();
 }
-
 
 
 // -------------------------
 // Results related functions
 // -------------------------
+function testClipboard() {
+	try {
+		navigator.clipboard.writeText("Test");
+	} catch (err) {
+		// Cannot write to the clipboard
+		console.log(err);
+
+		// Turn off the setting
+		$("#chk_clipboard").prop("checked", false);
+
+		// Disable the copy to clipboard button on the results modal
+		$("#copyToClipboard").prop("disabled", true);
+
+		// Update the setting save to turn this off
+		saveItem("copy2clipboard") == "0";
+
+		return false;
+	}
+
+	// Since we can copy to the clipboard, go ahead and allow the toggle change
+	toggleSetting("#chk_clipboard", "copy2clipboard");
+
+	return true;
+}
 
 /**
  * Output the stats to the clipboard
  */
 function outputStats2Clipboard() {
-
 	// Copy Tab-delimited version to clipboard for easy pasting to spreadsheets
-	navigator.clipboard.writeText(
-		Object.values(stats).join('\t')
-	);
+
+	if (testClipboard()) {
+		navigator.clipboard.writeText(Object.values(stats).join("\t"));
+	}
 }
 
 /**
  * Output the stats to a csv file
  */
-function outputStats2CSV() { // eslint-disable-line no-unused-vars
+function outputStats2CSV() {
+	 
 
 	// Adapted from https://stackoverflow.com/questions/61339206/how-to-export-data-to-csv-using-javascript
-	let csvHeader = '';
-	let csvBody = Object.values(stats).join(',') + '\n';
-	let datetimestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, -3);
-	var hiddenElement = document.createElement('a');
+	let csvHeader = "";
+	let csvBody = Object.values(stats).join(",") + "\n";
+	let datetimestamp = new Date()
+		.toISOString()
+		.replace(/[^0-9]/g, "")
+		.slice(0, -3);
+	var hiddenElement = document.createElement("a");
 
 	// add the header row if option is selected
-	if (readItem('csvheaders') == "1") { csvHeader = Object.keys(stats).join(',') + '\n'; }
+	if (readItem("csvheaders") == "1") {
+		csvHeader = Object.keys(stats).join(",") + "\n";
+	}
 
-	hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvHeader + csvBody);
-	hiddenElement.target = '_blank';
-	hiddenElement.download = datetimestamp + '.csv';
+	hiddenElement.href = "data:text/csv;charset=utf-8," + encodeURI(csvHeader + csvBody);
+	hiddenElement.target = "_blank";
+	hiddenElement.download = datetimestamp + ".csv";
 	hiddenElement.click();
-
 }
 
 /**
  * Generate the statistics for this run
  */
 function generateStats() {
-
 	// Compute the time and error values
 	const currentDate = new Date().toJSON().slice(0, 10);
 	const endDateTime = new Date();
@@ -1200,30 +1414,32 @@ function generateStats() {
 	ElapsedTimehhmmss = new Date(ElapsedTimeSeconds * 1000).toISOString().slice(11, 19);
 	const AvgTimeSeconds = Math.round(ElapsedTimeSeconds / puzzleset.length);
 	AvgTimehhmmss = new Date(AvgTimeSeconds * 1000).toISOString().slice(11, 19);
-	ErrorRate = (errorcount / puzzleset.length);
+	ErrorRate = errorcount / puzzleset.length;
 
 	// Get the filename of the PGN file
 	// Adapted from https://stackoverflow.com/questions/857618/javascript-how-to-extract-filename-from-a-file-input-control
-	var fullPath = document.getElementById('openPGN').value;
-	var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+	var fullPath = $("#openPGN").val();
+	var startIndex = fullPath.indexOf("\\") >= 0 ? fullPath.lastIndexOf("\\") : fullPath.lastIndexOf("/");
 	var filename = fullPath.substring(startIndex);
 
-	if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) { filename = filename.substring(1); }
+	if (filename.indexOf("\\") === 0 || filename.indexOf("/") === 0) {
+		filename = filename.substring(1);
+	}
 
-	filename = filename.substring(0, filename.lastIndexOf('.'));
-
+	filename = filename.substring(0, filename.lastIndexOf("."));
 
 	// Get the mode (random or sequential)
-	var mode = 'Sequential';
-	if ($('#randomizeSet').is(':checked')) { mode = 'Random'; };
-
+	var mode = "Sequential";
+	if ($("#randomizeSet").is(":checked")) {
+		mode = "Random";
+	}
 
 	// Build the stats object
 	stats = {};
 
-	stats.date = (currentDate);
+	stats.date = currentDate;
 	stats.filename = filename;
-	stats.round = '';
+	stats.round = "";
 	stats.series = puzzleset[0].Series;
 	stats.mode = mode;
 	stats.setlength = puzzleset.length;
@@ -1231,14 +1447,12 @@ function generateStats() {
 	stats.totaltime = ElapsedTimehhmmss;
 	stats.avgtime = AvgTimehhmmss;
 	stats.errorrate = ErrorRate;
-
 }
 
 /**
  * Show the final stats after finishing all the puzzles in the set
  */
 function showStats() {
-
 	// Format the error rate to 1 decimal place
 	const ErrorRate1Dec = stats.errorrate.toFixed(3) * 100;
 
@@ -1246,28 +1460,28 @@ function showStats() {
 	updateProgressBar(1, 1);
 
 	// Show & enable "Show Results" button
-	setDisplayAndDisabled(['#btn_showresults'], 'block', false);
+	setDisplayAndDisabled(["#btn_showresults"], "inline-block", false);
 
 	// Hide & disable the "hint" button
-	setDisplayAndDisabled(['#btn_hint_landscape', '#btn_hint_portrait'], 'none', true);
+	setDisplayAndDisabled(["#btn_hint"], "none", true);
 
 	// Update the results modal with the details
-	$('#messagecomplete').html('<h2>Set Complete</h2>');
-	$('#elapsedTime').text(`Elapsed time (hh:mm:ss): ${stats.totaltime}`);
-	$('#avgTime').text(`Average time/puzzle (hh:mm:ss): ${stats.avgtime}`);
-	$('#errors').text(`Number of errors: ${stats.errors}`);
-	$('#errorRate').text(`Error Rate: ${ErrorRate1Dec.toFixed(1)}%`);
+	$("#elapsedTime").text(`Elapsed time (hh:mm:ss): ${stats.totaltime}`);
+	$("#avgTime").text(`Average time/puzzle (hh:mm:ss): ${stats.avgtime}`);
+	$("#errors").text(`Number of errors: ${stats.errors}`);
+	$("#errorRate").text(`Error Rate: ${ErrorRate1Dec.toFixed(1)}%`);
 
 	// Display the modal
 	showresults();
 
 	// Copy results to clipboard for pasting into spreadsheet
-	if ($('#chk_clipboard').is(':checked')) { outputStats2Clipboard(); };
+	if ($("#chk_clipboard").is(":checked")) {
+		outputStats2Clipboard();
+	}
 
 	// Re-enable options checkboxes
 	setCheckboxSelectability(true);
 }
-
 
 
 // ------------------
@@ -1277,48 +1491,70 @@ function showStats() {
  * Assign actions to the buttons
  */
 $(() => {
-
 	// Buttons
-	$('#openPGN_button').click(() => {
-		$('#openPGN').click();
+	$("#openPGN_button").click(() => {
+		$("#openPGN").click();
 	});
 
-	$('#btn_reset').on('click', resetGame);
+	$("#btn_reset").on("click", resetGame);
 
-	$('#btn_showresults').on('click', showresults);
+	$("#btn_showresults").on("click", showresults);
 
-	$('#btn_hint_landscape').on('click', showHint);
-	$('#btn_hint_portrait').on('click', showHint);
+	$("#btn_hint").on("click", showHint);
 
-	$('#btn_starttest_landscape').on('click', startTest);
-	$('#btn_starttest_portrait').on('click', startTest);
+	$("#btn_starttest").on("click", startTest);
 
-	$('#btn_restart_landscape').on('click', startTest);
-	$('#btn_restart_portrait').on('click', startTest);
+	$("#btn_restart").on("click", startTest);
 
-	$('#btn_pause_landscape').on('click', pauseGame);
-	$('#btn_pause_portrait').on('click', pauseGame);
+	$("#light-color-block").on("colorchange", function () {
+		var color = $(this).wheelColorPicker("value");
+		$("#Light-Color").val(color);
+		changecolor();
+	});
 
-	$('#btn_test').on('click', changecolor);
+	$("#dark-color-block").on("colorchange", function () {
+		var color = $(this).wheelColorPicker("value");
+		$("#dark-color-preview").css("background-color", color);
+		$("#Dark-Color").val(color);
+		changecolor();
+	});
 
-	$('#promote-to').selectable({
+	$("#btn_pause").on("click", pauseGame);
+
+	$(document).ready(function () {
+		$('[data-toggle="tooltip"]').tooltip();
+	});
+
+	$("#promote-to").selectable({
 		stop() {
-			$('.ui-selected', this).each(function () {
-				const selectable = $('#promote-to li');
+			$(".ui-selected", this).each(function () {
+				const selectable = $("#promote-to li");
 				const index = selectable.index(this);
 				let promoteTo_html;
 				let span;
 
 				if (index > -1) {
 					promoteTo_html = selectable[index].innerHTML;
-					span = $(`<div>${promoteTo_html}</div>`).find('span');
+					span = $(`<div>${promoteTo_html}</div>`).find("span");
 					promoteTo = span[0].innerHTML;
 				}
-				promotionDialog.dialog('close');
-				$('.ui-selectee').removeClass('ui-selected');
+				promotionDialog.dialog("close");
+				$(".ui-selectee").removeClass("ui-selected");
 				updateBoard(false);
 				//promoting = false;
 			});
 		},
+	});
+
+	// Set up the color pickers
+	$(document).ready(function () {
+		$(".colorpicker").each(function () {
+			$(this).minicolors({
+				control: "wheel",
+				format: "hex",
+				letterCase: "lowercase",
+				theme: "bootstrap",
+			});
+		});
 	});
 });

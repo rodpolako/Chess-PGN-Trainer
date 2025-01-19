@@ -1,0 +1,82 @@
+/*
+CSS from pawn promotion example
+-------------------------------
+*/
+#promotion-dialog {
+	display: none;
+}
+
+.ui-dialog {
+	padding: 0 !important;
+	width: 184px !important;
+	border: 0 !important;
+}
+
+.ui-dialog-content {
+	padding: 0 !important;
+	width: 184px !important;
+	border: 0 !important;
+}
+
+.ui-corner-all {
+	border-radius: 0;
+}
+
+.ui-state-default,
+.ui-widget-content .ui-state-default,
+.ui-widget-header .ui-state-default {
+	border: 0 !important;
+}
+
+#promote-to .ui-selecting {
+	background: #FECA40;
+}
+
+#promote-to .ui-selected {
+	background: #F39814;
+	color: white;
+}
+
+#promote-to {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	width: 184px;
+	height: 46px;
+}
+
+#promote-to li {
+	margin: 0;
+	padding: 0;
+	width: 46px;
+	height: 46px;
+	cursor: pointer;
+	float: left !important;
+}
+
+.ui-dialog .ui-dialog-content {
+	padding: 0;
+}
+
+.no-close .ui-dialog-titlebar-close {
+	display: none;
+}
+
+
+.noTitleStuff .ui-dialog-titlebar {
+	display: none;
+}
+
+.promotion-piece {
+	width: 46px;
+	height: 46px;
+}
+
+.piece-name {
+	display: none;
+}
+
+/*
+CSS from pawn promotion example
+-------------------------------
+*/

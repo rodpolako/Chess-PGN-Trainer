@@ -8,7 +8,7 @@
  * DirectoryName - The name of the directory which contains the pieces
  * Type - The extension of the piece images (typically SVG or PNG)
  * 
- * A piece folder contains 12 files (6 for white and 6 for black) that start with either b or w (black or white) 
+ * A piece folder contains 12 files (6 for white and 6 for black) that start with either b or w (black or white lowercase) 
  * and then one of the following uppercase letters to indicate the piece:
  *      K - King
  *      Q - Queen
