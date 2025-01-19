@@ -25,11 +25,11 @@ The presence of this tag in a game will override the FEN.  Note:  Unlike the oth
 
 Here is how it goes:
 
-| Position starts with:   | MoveColor states:   | Player makes:   |
+| FEN Position starts with:   | MoveColor states:   | Player makes:   |
 |:-------------|:-------------|:-------------|
 |white | white | 1st move as white |
 |white | black | 2nd move and plays as black and board will flip |
 |black | white | 2nd move and plays as white and board will flip |
 |black | black | 1st move as black |
 
-To use this tag and force who goes first just add a ```[MoveColor "w"]``` (for white) and ```[MoveColor "b"]``` (for black) to any game in a PGN.
+To use this tag and force which side the user plays just add a ```[MoveColor "w"]``` (for white) and ```[MoveColor "b"]``` (for black) to any game in a PGN.
