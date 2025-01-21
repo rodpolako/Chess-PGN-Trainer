@@ -1,15 +1,13 @@
 [PGNTrainerOppositeSide "1"]
 [PGNTrainerRandomize "1"]
 [PGNTrainerFlipped "1"]
-[Event "Caro-Kann - Botvinnik-Carls Defense - 4. c3"]
+[Event "Caro-Kann Defense"]
 [Result "*"]
 
 { The Caro-Kann is considered solid and safe with a better pawn structure (often leading to good endgames). However, White has many possible responses and may develop faster than Black. Out of the Semi-Open games, the opening is thought to be less dynamic than the Sicilian and the French.
 
 In the traditional Open Game (1. e4 e5), many of the big threats that Black may face target the weak f7-square with White's bishop positioned on c4. And, Black often can consider this threat resolved if Black succeeds in pushing their queen pawn to d5. Thus, the idea of the Caro-Kann (as well as the French Defence) is to support a pushed queen pawn on d5 at the early stage in the opening. The Caro-Kann achieves this with 1...c6 (while the French does so via 1...e6).
 
-In choosing the Caro-Kann, Black gives up the centre in exchange for easier development. Black often aims to let White's pawns overextend, or develop a poor structure, and take advantage in the endgame.} 1. e4 c6 2. d4 d5 3. e5 c5 4. c3 Nc6 { White’s most popular response to the Botvinnik-Carls Defense according to the Lichess database, accounting for more than half of white’s moves in the preceding position. While the move is neither the engine’s top choice, nor that of most grandmasters, it still leaves white with a small advantage. The objective of the move is to strengthen the center and enable a recapture with the pawn in the event of <b>4... cxd4</b>. It is best for black to put more pressure on the d4 pawn before taking the pawn, which can best be done with the move <b>4... Nc6.</b> } *
+In choosing the Caro-Kann, Black gives up the centre in exchange for easier development. Black often aims to let White's pawns overextend, or develop a poor structure, and take advantage in the endgame.} 1. e4 c6 2. d4 d5 3. e5 (3. exd5 { White exchanges on d5, and black almost always responds with cxd5. This forms opposite-wing majorities. 
 
-[Event "Caro-Kann Exchange Variation"]
-
-1. e4 c6 2. d4 d5 3. exd5 { White exchanges on d5, and black almost always responds with cxd5. This forms opposite-wing majorities. This usually will lead into a Panov-Botvinnik Attack, although independent lines can arise after <b>4.Bd3</b>. } cxd5 4. Bd3 Nc6 *
+This usually will lead into a Panov-Botvinnik Attack, although independent lines can arise after <b>4.Bd3</b>. } cxd5 4. Bd3 Nc6 ) c5 4. c3 Nc6 { White’s most popular response to the Botvinnik-Carls Defense according to the Lichess database, accounting for more than half of white’s moves in the preceding position. While the move is neither the engine’s top choice, nor that of most grandmasters, it still leaves white with a small advantage. The objective of the move is to strengthen the center and enable a recapture with the pawn in the event of <b>4... cxd4</b>. It is best for black to put more pressure on the d4 pawn before taking the pawn, which can best be done with the move <b>4... Nc6.</b> } *

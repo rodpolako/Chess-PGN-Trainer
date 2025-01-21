@@ -16,13 +16,20 @@
 /* exported deleteItem, resizeBoards, resetSettings, setFlipped, goToNextPuzzle */
 /* exported loadPGNFile, outputStats2CSV */
 
+/*
+
+COMPLETE:
+Variation support
+Add NAG to annotate feature
+
+*/
 
 // -----------------------
 // Define global variables
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = "1.9.0";
+const version = "1.10.0";
 let board;
 let blankBoard;
 let pieceThemePath;
@@ -454,6 +461,25 @@ function toggleSetting(elementname, dataname) {
 // Gameplay functions
 // ------------------
 
+
+/**
+ * Replace CR/LR and LF with <br> for breaks in the annotation window.  Helper function for annotate()
+ * @param {string} sourcetext - The content to have the CR/LF and LF codes swapped with <br> 
+ * 
+ * @returns {string}
+*/
+function stripNewLine(sourcetext) {
+
+	let strippedtext;
+
+	strippedtext = sourcetext.replaceAll('\r\n','<br>'); // Windows CR/LF
+	strippedtext = sourcetext.replaceAll('\n','<br>'); // Linux LF
+	
+	return strippedtext;
+}
+
+
+
 /**
  * Update the annotation panel with the supplied text.  Helper function for annotate()
  * @param {string} annotationText - The content to be added to the annotation panel
@@ -461,10 +487,67 @@ function toggleSetting(elementname, dataname) {
 function addAnnotationComment(annotationText) {
 	
 	$("#comment_annotation").append("<br><br>");
-	$("#comment_annotation").append(annotationText);
+	$("#comment_annotation").append(stripNewLine(annotationText));
 	$("#comment_annotation").append("<br><br>");
 
 }
+
+
+/**
+ * Look up the NAG symbol corresponding to the NAG code provided.  Helper function for annotate()
+ * @param {string} NAGValue - The NAG code to be processed
+ * 
+ * @returns {string}
+*/
+function translateNAG(NAGValue) {
+
+	// based on https://en.wikipedia.org/wiki/Portable_Game_Notation#Numeric_Annotation_Glyphs
+
+	let NAGDictionary = [ 
+		{code: '$0', number: 0, symbol: "", description: ""},
+		{code: '$1', number: 1, symbol: "!", description: "Good move"},
+		{code: '$2', number: 2, symbol: "?", description: "Mistake"},
+		{code: '$3', number: 3, symbol: "!!", description: "Brilliant move"},
+		{code: '$4', number: 4, symbol: "??", description: "Blunder"},
+		{code: '$5', number: 5, symbol: "!?", description: "Interesting move"},
+		{code: '$6', number: 6, symbol: "?!", description: "Dubious move"},
+		{code: '$7', number: 7, symbol: "\u25a1", description: "Only move"},
+		{code: '$8', number: 8, symbol: "\u25a1", description: "Singular move"},
+		{code: '$9', number: 9, symbol: "\u25a1", description: "Worst move"},
+		{code: '$10', number: 10, symbol: "=", description: "Equal position"},
+		{code: '$11', number: 11, symbol: "=", description: "Equal chances, quiet position"},
+		{code: '$12', number: 12, symbol: "=", description: "Equal chances, active position"},
+		{code: '$13', number: 13, symbol: "\u221e", description: "Unclear position"},
+		{code: '$14', number: 14, symbol: "\u2a72", description: "White is slightly better"},
+		{code: '$15', number: 15, symbol: "\u2a71", description: "Black is slightly better"},
+		{code: '$16', number: 16, symbol: "\xb1", description: "White is better"},
+		{code: '$17', number: 17, symbol: "\u2213", description: "Black is better"},
+		{code: '$18', number: 18, symbol: "+-", description: "White is winning"},
+		{code: '$19', number: 19, symbol: "-+", description: "Black is winning"},
+		{code: '$22', number: 22, symbol: "\u2a00", description: "White is in Zugzwang"},
+		{code: '$23', number: 23, symbol: "\u2a00", description: "Black is in Zugzwang"},
+		{code: '$32', number: 32, symbol: "\u27f3", description: "White has development"},
+		{code: '$33', number: 32, symbol: "\u27f3", description: "Black has development"},
+		{code: '$36', number: 36, symbol: "\u2191", description: "White has the initiative"},
+		{code: '$37', number: 37, symbol: "\u2191", description: "Black has the initiative"},
+		{code: '$40', number: 40, symbol: "\u2192", description: "White has the attack"},
+		{code: '$41', number: 41, symbol: "\u2192", description: "White has the attack"},
+		{code: '$44', number: 44, symbol: "=\u221e", description: "White has compensation"}, 
+		{code: '$45', number: 45, symbol: "=\u221e", description: "Black has compensation"}, 
+		{code: '$132', number: 132, symbol: "\u21c6", description: "White has counterplay"},
+		{code: '$133', number: 132, symbol: "\u21c6", description: "Black has counterplay"},
+		{code: '$138', number: 138, symbol: "\u2295", description: "White has time trouble"},
+		{code: '$139', number: 139, symbol: "\u2295", description: "Black has time trouble"},
+		{code: '$140', number: 140, symbol: "\u2206", description: "With the idea"},
+		{code: '$146', number: 146, symbol: "N", description: "Novelty"},
+	];
+
+	// Look up the symbol for the provided code
+	let tag = NAGDictionary.find(({ code }) => code === NAGValue).symbol;
+	
+	return tag;
+}
+
 
 /**
  * Read details of the current move along with any avaialble annotations and display them
@@ -475,8 +558,16 @@ function annotate() {
 	let currentMoveTurn = currentPuzzle.moves[gameMoveIndex].turn;              // Color of move
 	let moveNumber = currentPuzzle.moves[gameMoveIndex].moveNumber;             // Number of move in SAN
 	let moveNotation = currentPuzzle.moves[gameMoveIndex].notation.notation;    // SAN move
+	let nagcode = currentPuzzle.moves[gameMoveIndex].nag;						// NAG of move
 
 
+	let nagAnnotation = '';
+	if (nagcode) {  // Annotation code array found, retrieve each symbol to display next to the move
+		nagcode.forEach(code =>{
+			nagAnnotation += translateNAG(code);
+		});
+   	}
+	
 	// This assumes that index 0 ALWAYS has a move number associated with it.  Maybe write a case to handle if index=0 AND moveNumber is null?
 	if (moveNumber == null) {
 		
@@ -498,7 +589,7 @@ function annotate() {
 			separator = "... ";
 		}
 
-		moveAnnotation = moveNumber + separator + moveNotation + " ";
+		moveAnnotation = moveNumber + separator + moveNotation + nagAnnotation + " ";
 		$("#comment_annotation").append($("<strong></strong>").text(moveAnnotation));
 		
 		
@@ -515,12 +606,12 @@ function annotate() {
 		separator = "... ";
 	}
 
-	// Put the move #, separator and a space
-	moveAnnotation = moveNumber + separator + moveNotation + " ";
+	// Put the move #, separator ,NAG and a space
+	moveAnnotation = moveNumber + separator + moveNotation + nagAnnotation + " ";
 
 	// Normal continuation but it is black's move and there wasn't a comment prior so just continue on and don't repeat the move number
 	if (currentMoveTurn == "b" && typeof currentPuzzle.moves[gameMoveIndex - 1].commentAfter === "undefined") {
-		moveAnnotation = moveNotation + " ";
+		moveAnnotation = moveNotation + nagAnnotation + " ";
 	}
 
 	$("#comment_annotation").append($("<strong></strong>").text(moveAnnotation));
@@ -928,13 +1019,14 @@ function updateProgressBar(partial_value, total_value) {
 }
 
 
+
 /**
  * Load the desired puzzle or position from the PGN to the screen
  *
  * @param {object} PGNPuzzle - The object representing a specific position and move sequence
  */
 function loadPuzzle(PGNPuzzle) {
-
+	
 	let moveindex = 0;
 
 	// Clear the content title and window
@@ -974,7 +1066,8 @@ function loadPuzzle(PGNPuzzle) {
 	
 
 	if (PGNPuzzle.gameComment != null) {
-		$("#comment_annotation").prop("innerHTML", PGNPuzzle.gameComment.comment);
+		
+		$("#comment_annotation").prop('innerHTML',stripNewLine(PGNPuzzle.gameComment.comment));
 		$("#comment_annotation").append("<br><br>");
 
 		// Scroll to the bottom of the content
@@ -1187,13 +1280,6 @@ function dropPiece(source, target) {
 function snapEnd() {
 
 	// Update instantly if the puzzle is done
-	/*
-	if (game.history().length === moveHistory.length) {
-		updateBoard(false);
-	} else {
-		updateBoard(true);
-	}
-	*/
 	updateBoard(true);
 
 }
@@ -1234,6 +1320,57 @@ function onDialogClose() {
 // ---------------------
 // PGN related Functions
 // ---------------------
+
+
+/**
+ * Split the PGN data into unique games based on presense of variants
+ * @param {json} PGNData - The JSON formatted data parsed from the PGN parser
+*/
+function splitvariants(PGNData) {
+        
+	let PGNobjectArray = [];
+
+	function createPGNVariant(myObject, pathlist) {
+
+		let tempObj = [];
+		Object.assign(tempObj,pathlist);
+
+		myObject.forEach(element => {
+			tempObj.push(element); // Add the current step
+
+			if (element.variations.length > 0) { // alternate steps found...
+				tempObj.pop(); // remove the current step that was added (since we are adding more inside)
+				element.variations.forEach(child => createPGNVariant(child, tempObj)); // Explore that alternate path
+				tempObj.push(element);     // Add back the current step to continue in the current path
+			}
+
+		});
+
+		PGNobjectArray.push(tempObj); // Add this to the array of paths
+	}
+
+	// Now create an array of each set of unique moves
+	createPGNVariant(PGNData.moves);
+
+	// Create an array of complete PGN JSON objects each with a unique set of moves taken from PGNobjectArray
+	let PGNExploded = [];
+	
+	// Create a new element in the array for each variant
+	PGNobjectArray.reverse().forEach(variant => {
+		let node = {};
+		node.tags = PGNData.tags; // Copy existing tags data
+		node.gameComment = PGNData.gameComment; // Copy existing comment data
+		node.moves = variant; // Copy this set's unique move order
+		node.messages = PGNData.messages; // Copy existing messages data
+		
+		PGNExploded.push(node); // Add this new node to the collection
+	});
+
+	// Return the collection back
+	return PGNExploded;
+}
+
+
 
 /**
  * Feed the PGN file provided by the user here to the PGN Parser and update/enable the controls
@@ -1297,8 +1434,17 @@ function loadPGNFile() {
  * @param {string} PGNData - The PGN text data to parse. Can comprise of one or more games
  */
 function parsePGN(PGNData) {
-	puzzleset = PgnParser.parse(PGNData);
-	
+
+	puzzleset = [];
+
+	// Get original set of puzzles from the PGN
+	let puzzlesetOriginal = PgnParser.parse(PGNData);
+
+	// Split the variants out and add each puzzle to the final testing set.
+	puzzlesetOriginal.forEach(puzzle => {
+		puzzleset.push(...splitvariants(puzzle));
+	});
+
 	/*
 		Pulled directly from the PGN Parser source code:
 		The split function expects well formed export format strings (see [8.1 Tag pair section]
