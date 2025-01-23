@@ -29,7 +29,7 @@ Add NAG to annotate feature
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = "1.10.0";
+const version = "1.10.1";
 let board;
 let blankBoard;
 let pieceThemePath;
@@ -470,6 +470,8 @@ function toggleSetting(elementname, dataname) {
 */
 function stripNewLine(sourcetext) {
 
+	if (!sourcetext) { return; }
+	
 	let strippedtext;
 
 	strippedtext = sourcetext.replaceAll('\r\n','<br>'); // Windows CR/LF
