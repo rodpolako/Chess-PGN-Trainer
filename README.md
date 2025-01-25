@@ -15,7 +15,7 @@ Also included is a PGN of a slighly modified [Aman Hambleton's reset mate](https
 
 [A live online copy of tool is available here](https://rodpolako.github.io/)
 
-![screenshot](screenshot.png)
+![screenshot](./screenshots/screenshot.png)
 ## Features
 This tool has a number of features that you might find useful:
 * Auto move to next puzzle - Automatically advances to the next puzzle/game upon completion of the current one.  This can be disabled via the use of the "Next button" option.
@@ -65,7 +65,7 @@ Once a test group is completed, tool displays the following performance informat
 * Average time per puzzle/game (Calculated)
 * Error rate (Calculated)
 
-![screenshot](screenshot2.png)
+![screenshot](./screenshots/screenshot2.png)
 
 ## Documentation
 See the [Wiki](https://github.com/rodpolako/Chess-PGN-Trainer/wiki) for a complete documentation.
