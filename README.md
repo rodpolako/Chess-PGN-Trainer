@@ -34,7 +34,7 @@ This tool has a number of features that you might find useful:
 * Dark mode  
 * Ability to copy results to clipboard ready to paste into a spreadsheet. 
 * Ability to export results to CSV file along with setting to include the headers
-* Ability to add additional piece sets (either PNG for SVG) for hosted instances only.  Not available on github.io page.
+* Ability to add additional piece sets (either PNG for SVG) for hosted instances only.  Not available on the online version.
 * Support for annotations - Comments in PGN files will display in the annotation panel to the left of the board.  Annotations can use HTML tags so the PGN comments can be fully featured with things like headings, bullets, bold, italics, links, thumbnails, video, etc. If present, annotations will display while completing the puzzle.  This includes board-level annotations, like circles and arrows.  
 **Note:** The annotation panel will only be available on screens wider than 992 pixels (1024 or higher recommended).
 * Ability to set the piece movement speed
