@@ -3,14 +3,17 @@
 [Event "Example 1"]
 [FEN "r1r1k3/5p2/3K4/2Q5/8/8/8/8 w - - 1 1"]
 
-1. Qe5+ Kf8 (1... Kd8 2. Qe7#) 2. Qh8# 1-0
+{ [%csl Re8,Rc8,Ra8][%cal Gc5e5] }
+1. Qe5+ Kf8 { [%csl Rf8][%cal Be5h8,Bh8a8] } (1... Kd8 { [%csl Re7] } 2. Qe7#) 2. Qh8# { 1-0 White wins. } 1-0
 
 [Event "Example 2"]
 [FEN "r3k2r/ppp2ppp/8/8/4q3/8/PPP2PPP/R2Q1RK1 w kq - 0 1"]
 
+{ [%csl Re4,Re8][%cal Re1e8] }
 1. Re1 Qxe1+ (1... O-O 2. Rxe4) 2. Qxe1+ *
 
 [Event "Example 3"]
 [FEN "8/5bp1/5k2/8/4R3/8/7P/7K b - - 0 1"]
 
+{ [%csl Re4,Rh1][%cal Gf7d5] }
 1... Bd5 2. Kg1 (2. h3 Bxe4+) 2... Bxe4 *

@@ -37,7 +37,6 @@ This tool has a number of features that you might find useful:
 * Ability to add additional piece sets (either PNG for SVG) for hosted instances only.  Not available on github.io page.
 * Support for annotations - Comments in PGN files will display in the annotation panel to the left of the board.  Annotations can use HTML tags so the PGN comments can be fully featured with things like headings, bullets, bold, italics, links, thumbnails, video, etc. If present, annotations will display while completing the puzzle.  Board-level annotations, like circles and arrows is not yet available, but planned.  
 **Note:** The annotation panel will only be available on screens wider than 992 pixels (1024 or higher recommended).
-* Support for variations.  PGN files can have any number of variations within and the tool will treat each one as a separate puzzle.  This is useful for puzzles with multiple responses by the opponent as well as for practicing openings.  See the example PGN files for more information.
 
 ## Setup Instructions
 If you just want to use the trainer and and not bother hosting the page yourself, you can just use the live link [here](https://rodpolako.github.io/).  The latest version of the trainer will always be hosted there.

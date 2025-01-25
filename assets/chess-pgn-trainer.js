@@ -8,19 +8,25 @@
 /* eslint semi: ["error"] */
 
 /* eslint no-undef: "error"*/
-/* global Chess, Chessboard, PgnParser, FileReader */
-/* global $, document, localStorage, alert, navigator, window, console */
-
+/* global Chess, Chessboard, PieceList, annotateShapes, annotate */
+/* global $, document, localStorage, navigator, window, console,  */
+/* global markError, deleteAllShapeAnnotations, stripNewLine, promotionSquare:writeable */
+/* global drawDot, clearAllDots, getPieces, onPromotionDialogClose*/
 
 /* eslint no-unused-vars: "error"*/
 /* exported deleteItem, resizeBoards, resetSettings, setFlipped, goToNextPuzzle */
-/* exported loadPGNFile, outputStats2CSV */
+/* exported loadPGNFile, outputStats2CSV, currentPuzzle, promotionSquare,  */
 
 /*
+TODO: 
 
 COMPLETE:
-Variation support
-Add NAG to annotate feature
+* Added the ability for Circles & Arrows in the PGN annotation to be shown on the board.  
+* Added ability for the app to show dots for legal moves (can be managed via settings)
+* Incorrect moves will now briefly flash the incorrect square red
+* Update the legacy pawn promotion code to bootstrap and drop Jquery-UI
+* Code cleanup
+* Added ability to set the movement speed of the pieces.
 
 */
 
@@ -29,13 +35,12 @@ Add NAG to annotate feature
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = "1.10.1";
+const version = "1.11.0";
 let board;
 let blankBoard;
 let pieceThemePath;
 let game;
 let config;
-let PieceList;
 let AnalysisLink = false;
 
 // Game & Performance variables
@@ -54,10 +59,6 @@ let puzzlecomplete = false;
 let pauseflag = false;
 let increment = 0;
 let PuzzleOrder = [];
-
-// Promotion variables
-let promoteTo;
-let promotionDialog;
 
 // Time-related variables
 let PauseStartDateTime;
@@ -84,18 +85,6 @@ let messagelist = ["#puzzlename", "#errors", "#errorRate", "#elapsedTime", "#avg
 
 //pieceThemePath = 'https://github.com/lichess-org/lila/raw/refs/heads/master/public/piece/alpha/{piece}.svg'
 pieceThemePath = "img/chesspieces/staunty/{piece}.svg";
-
-promotionDialog = $("#promotion-dialog");
-
-// Initial Board Configuration
-config = {
-	draggable: true,
-	pieceTheme: pieceThemePath,
-	onDragStart: dragStart,
-	onDrop: dropPiece,
-	onSnapEnd: snapEnd,
-	position: "start",
-};
 
 // -----------------------
 // Local stoarge Functions
@@ -125,9 +114,8 @@ function readItem(key) {
  * @param {string} key - The key to delete
  */
 function deleteItem(key) {
-	 
 	localStorage.removeItem(key);
-} 
+}
 
 /**
  * Clear all items in local storage
@@ -155,15 +143,14 @@ function addPieceSetNames() {
 	});
 
 	// Set the drop down to the saved value
-	$("#piece-select").prop('selectedIndex', readItem("pieceIndex"));
+	$("#piece-select").prop("selectedIndex", readItem("pieceIndex"));
 }
 
 /**
  * Sets the piece theme.  Warning: This will reset the board. Don't use while doing a set.
  */
 function changePieces() {
-
-	saveItem("pieceIndex", $("#piece-select").prop('selectedIndex'));
+	saveItem("pieceIndex", $("#piece-select").prop("selectedIndex"));
 
 	// Load the selected piece theme into a temp object
 	var pieceObject;
@@ -172,14 +159,8 @@ function changePieces() {
 	// Build the path to the piece theme using the object properties
 	pieceThemePath = "img/chesspieces/" + pieceObject.DirectoryName + "/{piece}." + pieceObject.Type;
 
-	config = {
-		draggable: true,
-		pieceTheme: pieceThemePath,
-		onDragStart: dragStart,
-		onDrop: dropPiece,
-		onSnapEnd: snapEnd,
-		position: "start",
-	};
+	// Set the updated board configuration
+	setBoardConfig();
 
 	// Update the board with the new pieces
 	Chessboard("myBoard", config);
@@ -253,10 +234,13 @@ function toggleDarkMode() {
  * Resize both boards to available space
  */
 function resizeBoards() {
-	 
 	board.resize();
 	blankBoard.resize();
 	changecolor();
+	if (puzzleset.length === 0) {
+		return;
+	}
+	annotateShapes();
 }
 
 /**
@@ -268,6 +252,7 @@ function resizeBoards() {
 function updateBoard(animate) {
 	board.position(game.fen(), animate);
 }
+
 
 // ------------------------------------
 // Settings and configuration functions
@@ -281,14 +266,13 @@ function initalize() {
 	addPieceSetNames();
 	changePieces();
 	resetGame();
+	resizeBoards();
 }
 
 /**
  * Sets default values for board color and piece theme
  */
 function resetSettings() {
-	 
-
 	clearItems();
 	initalize();
 
@@ -315,6 +299,8 @@ function loadSettings() {
 		darkmode: "0",
 		copy2clipboard: "1",
 		csvheaders: "1",
+		legalmoves: "1",
+		speed: 200,
 	};
 
 	// Load defaults if any keys are missing
@@ -342,16 +328,28 @@ function loadSettings() {
 	if (readItem("csvheaders") == "1") {
 		$("#chk_csvheaders").prop("checked", true);
 	}
+
+	// Legal Moves setting
+	if (readItem("legalmoves") == "1") {
+		$("#chk_legalMoves").prop("checked", true);
+	}
+
+	$("#speedRange").val(readItem("speed"));
+}
+
+function adjustspeedslider() {
+	saveItem("speed", $("#speedRange").val());
+
+	// Reset the game
+	resetGame();
 }
 
 /**
  * Show the settings modal
  */
 function setColorPickers() {
-	 
-
 	var light = $("#Light-Color").val();
-	$("#Light-Color").minicolors("value",light);
+	$("#Light-Color").minicolors("value", light);
 
 	var dark = $("#Dark-Color").val();
 	$("#Dark-Color").minicolors("value", dark);
@@ -389,16 +387,14 @@ function confirmOnlyOneOption() {
 
 /**
  * Normal usage of "Play Opposite side" involves playing from the other side of the board.  Thus, if this option is
- * selected, then also turn on "Flipped".  
+ * selected, then also turn on "Flipped".
  */
-function setFlipped(){
-
+function setFlipped() {
 	// If playoppositeside is checkd, also turn on flipped
-	 if ($("#playoppositeside").is(":checked")) {
-		 $("#flipped").prop("checked", true);
-	 }
+	if ($("#playoppositeside").is(":checked")) {
+		$("#flipped").prop("checked", true);
+	}
 }
-
 
 /**
  * Either turn on or off the ability to select options (ie: don't allow changes while in a game)
@@ -446,8 +442,6 @@ function setDisplayAndDisabled(listofElements, visible, disabled) {
  * @param {string} dataname - The key name of the element in local storage
  */
 function toggleSetting(elementname, dataname) {
-	 
-
 	// Default value
 	saveItem(dataname, "0");
 
@@ -461,187 +455,19 @@ function toggleSetting(elementname, dataname) {
 // Gameplay functions
 // ------------------
 
-
-/**
- * Replace CR/LR and LF with <br> for breaks in the annotation window.  Helper function for annotate()
- * @param {string} sourcetext - The content to have the CR/LF and LF codes swapped with <br> 
- * 
- * @returns {string}
-*/
-function stripNewLine(sourcetext) {
-
-	if (!sourcetext) { return; }
-	
-	let strippedtext;
-
-	strippedtext = sourcetext.replaceAll('\r\n','<br>'); // Windows CR/LF
-	strippedtext = sourcetext.replaceAll('\n','<br>'); // Linux LF
-	
-	return strippedtext;
-}
-
-
-
-/**
- * Update the annotation panel with the supplied text.  Helper function for annotate()
- * @param {string} annotationText - The content to be added to the annotation panel
-*/
-function addAnnotationComment(annotationText) {
-	
-	$("#comment_annotation").append("<br><br>");
-	$("#comment_annotation").append(stripNewLine(annotationText));
-	$("#comment_annotation").append("<br><br>");
-
-}
-
-
-/**
- * Look up the NAG symbol corresponding to the NAG code provided.  Helper function for annotate()
- * @param {string} NAGValue - The NAG code to be processed
- * 
- * @returns {string}
-*/
-function translateNAG(NAGValue) {
-
-	// based on https://en.wikipedia.org/wiki/Portable_Game_Notation#Numeric_Annotation_Glyphs
-
-	let NAGDictionary = [ 
-		{code: '$0', number: 0, symbol: "", description: ""},
-		{code: '$1', number: 1, symbol: "!", description: "Good move"},
-		{code: '$2', number: 2, symbol: "?", description: "Mistake"},
-		{code: '$3', number: 3, symbol: "!!", description: "Brilliant move"},
-		{code: '$4', number: 4, symbol: "??", description: "Blunder"},
-		{code: '$5', number: 5, symbol: "!?", description: "Interesting move"},
-		{code: '$6', number: 6, symbol: "?!", description: "Dubious move"},
-		{code: '$7', number: 7, symbol: "\u25a1", description: "Only move"},
-		{code: '$8', number: 8, symbol: "\u25a1", description: "Singular move"},
-		{code: '$9', number: 9, symbol: "\u25a1", description: "Worst move"},
-		{code: '$10', number: 10, symbol: "=", description: "Equal position"},
-		{code: '$11', number: 11, symbol: "=", description: "Equal chances, quiet position"},
-		{code: '$12', number: 12, symbol: "=", description: "Equal chances, active position"},
-		{code: '$13', number: 13, symbol: "\u221e", description: "Unclear position"},
-		{code: '$14', number: 14, symbol: "\u2a72", description: "White is slightly better"},
-		{code: '$15', number: 15, symbol: "\u2a71", description: "Black is slightly better"},
-		{code: '$16', number: 16, symbol: "\xb1", description: "White is better"},
-		{code: '$17', number: 17, symbol: "\u2213", description: "Black is better"},
-		{code: '$18', number: 18, symbol: "+-", description: "White is winning"},
-		{code: '$19', number: 19, symbol: "-+", description: "Black is winning"},
-		{code: '$22', number: 22, symbol: "\u2a00", description: "White is in Zugzwang"},
-		{code: '$23', number: 23, symbol: "\u2a00", description: "Black is in Zugzwang"},
-		{code: '$32', number: 32, symbol: "\u27f3", description: "White has development"},
-		{code: '$33', number: 32, symbol: "\u27f3", description: "Black has development"},
-		{code: '$36', number: 36, symbol: "\u2191", description: "White has the initiative"},
-		{code: '$37', number: 37, symbol: "\u2191", description: "Black has the initiative"},
-		{code: '$40', number: 40, symbol: "\u2192", description: "White has the attack"},
-		{code: '$41', number: 41, symbol: "\u2192", description: "White has the attack"},
-		{code: '$44', number: 44, symbol: "=\u221e", description: "White has compensation"}, 
-		{code: '$45', number: 45, symbol: "=\u221e", description: "Black has compensation"}, 
-		{code: '$132', number: 132, symbol: "\u21c6", description: "White has counterplay"},
-		{code: '$133', number: 132, symbol: "\u21c6", description: "Black has counterplay"},
-		{code: '$138', number: 138, symbol: "\u2295", description: "White has time trouble"},
-		{code: '$139', number: 139, symbol: "\u2295", description: "Black has time trouble"},
-		{code: '$140', number: 140, symbol: "\u2206", description: "With the idea"},
-		{code: '$146', number: 146, symbol: "N", description: "Novelty"},
-	];
-
-	// Look up the symbol for the provided code
-	let tag = NAGDictionary.find(({ code }) => code === NAGValue).symbol;
-	
-	return tag;
-}
-
-
-/**
- * Read details of the current move along with any avaialble annotations and display them
-*/
-function annotate() {
-	
-	let gameMoveIndex = game.history().length - 1;                              // Last move played
-	let currentMoveTurn = currentPuzzle.moves[gameMoveIndex].turn;              // Color of move
-	let moveNumber = currentPuzzle.moves[gameMoveIndex].moveNumber;             // Number of move in SAN
-	let moveNotation = currentPuzzle.moves[gameMoveIndex].notation.notation;    // SAN move
-	let nagcode = currentPuzzle.moves[gameMoveIndex].nag;						// NAG of move
-
-
-	let nagAnnotation = '';
-	if (nagcode) {  // Annotation code array found, retrieve each symbol to display next to the move
-		nagcode.forEach(code =>{
-			nagAnnotation += translateNAG(code);
-		});
-   	}
-	
-	// This assumes that index 0 ALWAYS has a move number associated with it.  Maybe write a case to handle if index=0 AND moveNumber is null?
-	if (moveNumber == null) {
-		
-		// Assumption is that this is black so use the white number (1 move prior)
-		moveNumber = currentPuzzle.moves[gameMoveIndex - 1].moveNumber;
-	}
-
-	let moveAnnotation = "";
-
-	// Check if we are at the first move (special case in case black goes first)
-
-	// Normal separator after the move #
-	let separator = ". ";
-
-	// Handling the first move depending on who goes first
-	if (gameMoveIndex == 0) {
-		
-		if (currentMoveTurn == "b") {
-			separator = "... ";
-		}
-
-		moveAnnotation = moveNumber + separator + moveNotation + nagAnnotation + " ";
-		$("#comment_annotation").append($("<strong></strong>").text(moveAnnotation));
-		
-		
-		if (currentPuzzle.moves[gameMoveIndex].commentAfter) {
-			 addAnnotationComment(currentPuzzle.moves[gameMoveIndex].commentAfter);
-		}
-
-		return;
-	}
-
-	// Special: If the move is black but there was a comment prior, then use the continuation dots instead 
-	// (otherwise it would have just been the previous white move)
-	if (currentMoveTurn == "b" && typeof currentPuzzle.moves[gameMoveIndex - 1].commentAfter !== "undefined") {
-		separator = "... ";
-	}
-
-	// Put the move #, separator ,NAG and a space
-	moveAnnotation = moveNumber + separator + moveNotation + nagAnnotation + " ";
-
-	// Normal continuation but it is black's move and there wasn't a comment prior so just continue on and don't repeat the move number
-	if (currentMoveTurn == "b" && typeof currentPuzzle.moves[gameMoveIndex - 1].commentAfter === "undefined") {
-		moveAnnotation = moveNotation + nagAnnotation + " ";
-	}
-
-	$("#comment_annotation").append($("<strong></strong>").text(moveAnnotation));
-
-	// Output the comment after the move is played (if there is a comment)
-	if (currentPuzzle.moves[gameMoveIndex].commentAfter) {
-		addAnnotationComment(currentPuzzle.moves[gameMoveIndex].commentAfter);
-	}
-
-	// Add scroll here to automatically show the bottom of the column
-	document.getElementById("comment_annotation").scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
-	
-}
-
 /**
  * Manually advance to next puzzle (used for the Next button)
-*/
+ */
 function goToNextPuzzle() {
 	loadPuzzle(puzzleset[PuzzleOrder[increment]]);
 }
-
 
 /**
  * Compare latest played move to the move in the same position as the PGN
  *
  * @returns {string}
  */
-function checkAndPlayNext() {
+function checkAndPlayNext(target) {
 	let gameMoveIndex = game.history().length - 1;
 	// Need to go this way since .moveNumber isn't working...
 
@@ -653,15 +479,12 @@ function checkAndPlayNext() {
 
 		// play next move if the "Play both sides" box is unchecked and there are still moves to play
 		if (!$("#playbothsides").is(":checked")) {
-
 			if (game.history().length !== moveHistory.length) {
-
 				// Play the opponent's next move from the PGN
 				game.move(moveHistory[game.history().length]);
 
 				// Output any comment after this move
 				annotate();
-
 			}
 		}
 	} else {
@@ -673,10 +496,11 @@ function checkAndPlayNext() {
 		}
 		error = true;
 
+		// Flash the square in red to indicate an error
+		markError(target);
+
 		// Undo that move from the game
 		game.undo();
-
-		// Maybe flash the square in red to indicate an error?
 
 		// Snap the bad piece back
 		return "snapback";
@@ -688,7 +512,7 @@ function checkAndPlayNext() {
 
 		// Turn on the next button
 		$("#btn_next").prop("disabled", false);
-		
+
 		// Check to see if this is the last puzzle
 		if (increment + 1 === puzzleset.length) {
 			setcomplete = true;
@@ -704,7 +528,6 @@ function checkAndPlayNext() {
 			}
 		}
 	}
-
 
 	// Stop once all the puzzles in the set are done
 	if (setcomplete && puzzlecomplete) {
@@ -736,29 +559,10 @@ function clearMessages() {
  * Indicate who's turn it is to move
  */
 function indicateMove() {
-
 	$("#moveturn").text("White to move");
 
 	if (game.turn() === "b") {
 		$("#moveturn").text("Black to move");
-	}
-  
-}
-
-/**
- * Attempt to add the chosen move to the current game
- *
- * @param {chess} game - The current chess.js object
- * @param {object} cfg - The configuration of the current move (from, to, promotion)
- * @returns {string}
- */
-function makeMove(game, cfg) {
-	// see if the move is legal
-	const move = game.move(cfg);
-
-	// illegal move
-	if (move === null) {
-		return "snapback";
 	}
 }
 
@@ -810,12 +614,28 @@ function pauseGame() {
 		$("#openPGN_button").prop("disabled", false);
 		$("#btn_hint").prop("disabled", false);
 
-
 		break;
 	}
 
 	$(window).trigger("resize");
 	changecolor();
+}
+
+function setBoardConfig() {
+	if (readItem("speed") == null || readItem("speed") == "") {
+		saveItem("speed", 200);
+	}
+
+	// Initial Board Configuration
+	config = {
+		draggable: true,
+		pieceTheme: pieceThemePath,
+		onDragStart: dragStart,
+		onDrop: dropPiece,
+		onSnapEnd: snapEnd,
+		moveSpeed: parseInt(readItem("speed")),
+		position: "start",
+	};
 }
 
 /**
@@ -840,13 +660,18 @@ function resetGame() {
 	PuzzleOrder = [];
 
 	// Create the boards
+	setBoardConfig();
 	board = new Chessboard("myBoard", config);
 	blankBoard = new Chessboard("blankBoard", { showNotation: false });
 
-	// chessboardjs-specific additions to center the board in bootstrap
-	// add container class to chessboard-63f37 & board-b72b1 classes
+	// chessboardjs-specific additions and stylings to center the board in bootstrap
 	$(".board-b72b1").addClass("container p-0");
-	$(".board-b72b1").css("border", "0px");
+	$(".board-b72b1").css({
+		border: "0px",
+		"margin-left": "auto",
+		"margin-right": "auto",
+	});
+	$(".chessboard-63f37").css("position", "relative");
 
 	// Set the counters back to zero
 	$("#puzzleNumber").text("0");
@@ -889,7 +714,7 @@ function resetGame() {
 	$("#moveturn").text("");
 
 	// Close the sidebar
-	 $("#close_sidebar").click();
+	$("#close_sidebar").click();
 
 	changecolor();
 
@@ -915,7 +740,7 @@ function showHint() {
 
 /**
  * Show the results modal
-*/
+ */
 function showresults() {
 	$("#resmodal").modal("show");
 }
@@ -924,7 +749,6 @@ function showresults() {
  * Starts the test and timer
  */
 function startTest() {
-
 	//console.clear();
 
 	// Check to make sure that a PGN File was loaded
@@ -943,14 +767,14 @@ function startTest() {
 		setDisplayAndDisabled(["#btn_next"], "inline-block", true);
 	}
 
-
 	// Disable changing options
 	setCheckboxSelectability(false);
 
 	// Clear any messages
 	clearMessages();
 
-	
+	deleteAllShapeAnnotations();
+
 	// Clear the analysis link
 	$("#analysisDiv").empty();
 
@@ -1020,15 +844,13 @@ function updateProgressBar(partial_value, total_value) {
 	$("#progressbar").text(progresspercent);
 }
 
-
-
 /**
  * Load the desired puzzle or position from the PGN to the screen
  *
  * @param {object} PGNPuzzle - The object representing a specific position and move sequence
  */
 function loadPuzzle(PGNPuzzle) {
-	
+	//console.log(PGNPuzzle);
 	let moveindex = 0;
 
 	// Clear the content title and window
@@ -1036,10 +858,12 @@ function loadPuzzle(PGNPuzzle) {
 	$("#comment_annotation").prop("innerHTML", "");
 	$("#analysisDiv").empty();
 
+	// Clear any current drawings on the board
+	deleteAllShapeAnnotations();
+
 	// Update the screen with the value of the PGN Event tag (if any)
 	$("#puzzlename").html(PGNPuzzle.tags.Event);
 	$("#comment_event_name").append(PGNPuzzle.tags.Event);
-	
 
 	// Output a link to a lichess analysis board for this puzzle if there is one (can extract FEN from there if needed)
 	AnalysisLink = false;
@@ -1052,30 +876,17 @@ function loadPuzzle(PGNPuzzle) {
 	}
 
 	if (AnalysisLink && lichessURL) {
-
 		// Add the link under the puzzle name in mobile mode
 		$("#puzzlename").append("<br>");
 		$("#puzzlename").append(lichessURL);
-		$('a#analysisURL').text('Analysis board');
+		$("a#analysisURL").text("Analysis board");
 
 		// Add the link under the event name in the annotation panel
 		$("#analysisDiv").empty();
 		$("#analysisDiv").append(lichessURL);
-		$('a#analysisURL').text('Analysis board');
-		$('#comment_event_name_analysis_link').show();
-		
+		$("a#analysisURL").text("Analysis board");
+		$("#comment_event_name_analysis_link").show();
 	}
-	
-
-	if (PGNPuzzle.gameComment != null) {
-		
-		$("#comment_annotation").prop('innerHTML',stripNewLine(PGNPuzzle.gameComment.comment));
-		$("#comment_annotation").append("<br><br>");
-
-		// Scroll to the bottom of the content
-		$("#comment_panel").scrollTop($("#comment_panel").prop("scrollHeight"));
-	}
-
 
 	currentPuzzle = PGNPuzzle; // Use this in order to access the PGN from anywhere
 
@@ -1127,6 +938,18 @@ function loadPuzzle(PGNPuzzle) {
 	// Set the board to the beginning position of the puzzle
 	updateBoard(false);
 
+	// If there is commentary before the first move, show it in the annotation panel
+	if (PGNPuzzle.gameComment != null) {
+		$("#comment_annotation").prop("innerHTML", stripNewLine(PGNPuzzle.gameComment.comment));
+		$("#comment_annotation").append("<br><br>");
+
+		// Scroll to the bottom of the content
+		$("#comment_panel").scrollTop($("#comment_panel").prop("scrollHeight"));
+
+		// Draw any shapes if present
+		annotateShapes();
+	}
+
 	// Check to see if the computer needs to play the first move due to the conflict between the FEN and the MoveColor tag (unless player is playing both sides)
 	if (PGNPuzzle.tags.MoveColor != game.turn() && typeof PGNPuzzle.tags.MoveColor !== "undefined" && !$("#playbothsides").is(":checked")) {
 		// There is a discrepency, make the first move
@@ -1165,6 +988,23 @@ function loadPuzzle(PGNPuzzle) {
 	changecolor();
 }
 
+/**
+ * Attempt to add the chosen move to the current game
+ *
+ * @param {chess} game - The current chess.js object
+ * @param {object} cfg - The configuration of the current move (from, to, promotion)
+ * @returns {string}
+ */
+function makeMove(game, cfg) {
+	// see if the move is legal
+	let move = game.move(cfg);
+
+	// illegal move
+	if (move === null) {
+		return "snapback";
+	}
+}
+
 // -----------------------
 // Chessboard JS functions
 // -----------------------
@@ -1179,7 +1019,6 @@ function loadPuzzle(PGNPuzzle) {
  * @returns {boolean}
  */
 function dragStart(source, piece) {
-	
 	// Only pick up pieces for the side to move
 	if ((game.turn() === "w" && piece.search(/^b/) !== -1) || (game.turn() === "b" && piece.search(/^w/) !== -1)) {
 		return false;
@@ -1194,6 +1033,22 @@ function dragStart(source, piece) {
 	if (game.history().length === moveHistory.length) {
 		return false;
 	}
+
+	// Get list of available moves from this square?
+	const legalMoves = game.moves({
+		square: source,
+		verbose: true,
+	});
+
+	// Draw dots on the possible target squares (if enabled)
+	if (readItem("legalmoves") == "1") {
+		legalMoves.forEach((move) => {
+			drawDot(move.to);
+		});
+	}
+
+	// Clear last error element
+	$(".error").remove();
 }
 
 /**
@@ -1204,7 +1059,8 @@ function dragStart(source, piece) {
  * @returns {string}
  */
 function dropPiece(source, target) {
-	let move;
+	// remove all legal move dots from the board
+	clearAllDots();
 
 	// is it a promotion?
 	const source_rank = source.substring(2, 1);
@@ -1219,50 +1075,31 @@ function dropPiece(source, target) {
 		to: target,
 	};
 
-	move = game.move(moveCfg);
-
-	if (move === null) {
-		return "snapback";
+	if (makeMove(game, moveCfg) === "snapback") {
+		return "snapback"; // Not a legal move (including dropping it where you started).  Go back.
 	}
-
 
 	game.undo(); // move is ok, now we can go ahead and check for promotion
 
+	// Check is this is a promotion
 	if (piece === "p" && ((source_rank === "7" && target_rank === "8") || (source_rank === "2" && target_rank === "1"))) {
-		//promoting = true;
+		// Define the target square for move evaluation
+		promotionSquare = target;
 
 		// Get the correct color pieces for the promotion popup
 		getPieces();
 
 		// Show the select piece promotion dialog screen
-		promotionDialog
-			.dialog({
-				close: onDialogClose,
-				closeOnEscape: false,
-				dialogClass: "noTitleStuff",
-				draggable: false,
-				height: 50,
-				modal: true,
-				resizable: true,
-				width: 184,
-			})
-			.dialog("widget")
-			.position({
-				of: $("#myBoard"),
-				// my: 'center center',
-				// at: 'center center',   //Maybe add code to position near the pawn being promoted?
-			});
-		// the actual move is made after the piece to promote to
-		// has been selected, in the stop event of the promotion piece selectable
+		$("#pawnPromotion").modal("show");
 
 		return;
 	}
 
-	// No promotion, go ahead and move
+	// Not a promotion, go ahead and move
 	makeMove(game, moveCfg);
 
 	// Check if the move played is the expected one and play the next one if it was
-	checkAndPlayNext();
+	checkAndPlayNext(target);
 
 	// Indicate the player to move
 	indicateMove();
@@ -1280,211 +1117,9 @@ function dropPiece(source, target) {
  * Update the board position after the piece snap for castling, en passant, pawn promotion
  */
 function snapEnd() {
-
 	// Update instantly if the puzzle is done
 	updateBoard(true);
-
 }
-
-// ------------------------
-// Pawn Promotion functions
-// ------------------------
-/**
- * Get an individual piece image
- *
- * @param {chess} piece - A chess.js game piece
- * @returns {*}
- */
-function getImgSrc(piece) {
-	return pieceThemePath.replace("{piece}", game.turn() + piece.toLocaleUpperCase());
-}
-
-/**
- * Populate the pawn promotion popup based on the color of the current player
- */
-function getPieces() {
-	$(".promotion-piece-q").attr("src", getImgSrc("q"));
-	$(".promotion-piece-r").attr("src", getImgSrc("r"));
-	$(".promotion-piece-n").attr("src", getImgSrc("n"));
-	$(".promotion-piece-b").attr("src", getImgSrc("b"));
-}
-
-/**
- * Set the promotion value in the move config and make the move
- */
-function onDialogClose() {
-	moveCfg.promotion = promoteTo;
-	makeMove(game, moveCfg);
-	checkAndPlayNext();
-}
-
-
-// ---------------------
-// PGN related Functions
-// ---------------------
-
-
-/**
- * Split the PGN data into unique games based on presense of variants
- * @param {json} PGNData - The JSON formatted data parsed from the PGN parser
-*/
-function splitvariants(PGNData) {
-        
-	let PGNobjectArray = [];
-
-	function createPGNVariant(myObject, pathlist) {
-
-		let tempObj = [];
-		Object.assign(tempObj,pathlist);
-
-		myObject.forEach(element => {
-			tempObj.push(element); // Add the current step
-
-			if (element.variations.length > 0) { // alternate steps found...
-				tempObj.pop(); // remove the current step that was added (since we are adding more inside)
-				element.variations.forEach(child => createPGNVariant(child, tempObj)); // Explore that alternate path
-				tempObj.push(element);     // Add back the current step to continue in the current path
-			}
-
-		});
-
-		PGNobjectArray.push(tempObj); // Add this to the array of paths
-	}
-
-	// Now create an array of each set of unique moves
-	createPGNVariant(PGNData.moves);
-
-	// Create an array of complete PGN JSON objects each with a unique set of moves taken from PGNobjectArray
-	let PGNExploded = [];
-	
-	// Create a new element in the array for each variant
-	PGNobjectArray.reverse().forEach(variant => {
-		let node = {};
-		node.tags = PGNData.tags; // Copy existing tags data
-		node.gameComment = PGNData.gameComment; // Copy existing comment data
-		node.moves = variant; // Copy this set's unique move order
-		node.messages = PGNData.messages; // Copy existing messages data
-		
-		PGNExploded.push(node); // Add this new node to the collection
-	});
-
-	// Return the collection back
-	return PGNExploded;
-}
-
-
-
-/**
- * Feed the PGN file provided by the user here to the PGN Parser and update/enable the controls
- */
-function loadPGNFile() {
-	 
-
-	resetGame();
-	let PGNFile;
-
-	const [file] = document.getElementById("openPGN").files;
-	const reader = new FileReader();
-
-	reader.addEventListener(
-		"load",
-		() => {
-			PGNFile = reader.result;
-			try {
-				parsePGN(PGNFile.trim()); // Clean up the file prior to processing
-
-				// File is now loaded
-				// Update the range of the puzzle counters to the size of the puzzleset
-				$("#puzzleNumber").text("1");
-
-				$("#puzzleNumbertotal").text(puzzleset.length);
-
-				// Enable the start button
-				setDisplayAndDisabled(["#btn_starttest"], "inline-block", false);
-			} catch (err) {
-				alert(
-					"There is an issue with the PGN file.  Error message is as follows:\n\n" +
-						err +
-						"\n\nPuzzles loaded successfully before error: " +
-						puzzleset.length
-				);
-				resetGame();
-			} finally {
-				// Do nothing else
-			}
-		},
-		false
-	);
-
-	if (file) {
-		reader.readAsText(file);
-	}
-
-	// Now that file is loaded, enable the ability to select options
-	setCheckboxSelectability(true);
-
-	// Clear the file value in the Open PGN control (to clear for the next file)
-	$("#openPGN").val("");
-
-	// Close the sidebar
-	 $("#close_sidebar").click();
-}
-
-/**
- * PGN file parser
- *
- * @param {string} PGNData - The PGN text data to parse. Can comprise of one or more games
- */
-function parsePGN(PGNData) {
-
-	puzzleset = [];
-
-	// Get original set of puzzles from the PGN
-	let puzzlesetOriginal = PgnParser.parse(PGNData);
-
-	// Split the variants out and add each puzzle to the final testing set.
-	puzzlesetOriginal.forEach(puzzle => {
-		puzzleset.push(...splitvariants(puzzle));
-	});
-
-	/*
-		Pulled directly from the PGN Parser source code:
-		The split function expects well formed export format strings (see [8.1 Tag pair section]
-		(https://github.com/mliebelt/pgn-spec-commented/blob/main/pgn-specification.md#81-tag-pair-section), 
-		statement "a single empty line follows the last tag pair"). 
-		So the split function only works when tags are separated from pgn string by an empty line, 
-		and the next game is separated by at least one empty line as well.
-	*/
-
-	// Set the options checkboxes if any of the special tags at the top of the PGN have a value of 1
-	if (puzzleset[0].tags.PGNTrainerBothSides === "1") {
-		$("#playbothsides").prop("checked", true);
-	}
-
-	if (puzzleset[0].tags.PGNTrainerOppositeSide === "1") {
-		$("#playoppositeside").prop("checked", true);
-	}
-
-	if (puzzleset[0].tags.PGNTrainerRandomize === "1") {
-		$("#randomizeSet").prop("checked", true);
-	}
-
-	if (puzzleset[0].tags.PGNTrainerFlipped === "1") {
-		$("#flipped").prop("checked", true);
-	}
-
-	if (puzzleset[0].tags.PGNTrainerAnalysisLink === "1") {
-		$("#analysisboard").prop("checked", true);
-	}
-
-	if (puzzleset[0].tags.PGNTrainerNextButton === "1") {
-		$("#manualadvance").prop("checked", true);
-	}
-
-	// Make sure that both "Play both sides" and "Play opposite side" are not selected (if yes, clear both)
-	confirmOnlyOneOption();
-}
-
 
 // -------------------------
 // Results related functions
@@ -1529,8 +1164,6 @@ function outputStats2Clipboard() {
  * Output the stats to a csv file
  */
 function outputStats2CSV() {
-	 
-
 	// Adapted from https://stackoverflow.com/questions/61339206/how-to-export-data-to-csv-using-javascript
 	let csvHeader = "";
 	let csvBody = Object.values(stats).join(",") + "\n";
@@ -1631,7 +1264,6 @@ function showStats() {
 	setCheckboxSelectability(true);
 }
 
-
 // ------------------
 // Button assignments
 // ------------------
@@ -1673,27 +1305,6 @@ $(() => {
 		$('[data-toggle="tooltip"]').tooltip();
 	});
 
-	$("#promote-to").selectable({
-		stop() {
-			$(".ui-selected", this).each(function () {
-				const selectable = $("#promote-to li");
-				const index = selectable.index(this);
-				let promoteTo_html;
-				let span;
-
-				if (index > -1) {
-					promoteTo_html = selectable[index].innerHTML;
-					span = $(`<div>${promoteTo_html}</div>`).find("span");
-					promoteTo = span[0].innerHTML;
-				}
-				promotionDialog.dialog("close");
-				$(".ui-selectee").removeClass("ui-selected");
-				updateBoard(false);
-				//promoting = false;
-			});
-		},
-	});
-
 	// Set up the color pickers
 	$(document).ready(function () {
 		$(".colorpicker").each(function () {
@@ -1704,5 +1315,13 @@ $(() => {
 				theme: "bootstrap",
 			});
 		});
+	});
+
+	$(".promo-button").on("click", function () {
+		onPromotionDialogClose($(this));
+	});
+
+	$("#speedRange").on("change", function () {
+		adjustspeedslider();
 	});
 });

@@ -11,4 +11,4 @@ However, 2...e6 also blocks the c8-h3 diagonal for Black's light-squared bishop.
 
 <h4>Theory table</h4><b>1. d4 d5 2. c4 e6</b>
 
-<h4>References</h4><ul><li>Kasparov, Garry, &amp; Keene, Raymond 1989 <i>Batsford chess openings 2</i>. ISBN 0-8050-3409-9.</li></ul><a target="_blank" href="https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._d4/1...d5/2._c4/2...e6">Read more on WikiBooks</a> } 1. d4 d5 2. c4 e6 *
+<h4>References</h4><ul><li>Kasparov, Garry, &amp; Keene, Raymond 1989 <i>Batsford chess openings 2</i>. ISBN 0-8050-3409-9.</li></ul><a target="_blank" href="https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._d4/1...d5/2._c4/2...e6">Read more on WikiBooks</a> } 1. d4 { [%cal Yd7d5] } 1... d5 2. c4 { [%csl Ye6,Yd5][%cal Ye6d5,Rd5c4] } 2... e6 *
