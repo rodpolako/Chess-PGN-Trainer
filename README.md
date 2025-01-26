@@ -50,7 +50,7 @@ If you want to host a copy on your own environment and/or make changes:
 ## Usage
 1. Click on "Open PGN File"
 2. Navigate to the desired PGN file and then click on OK
-3. Place a checkmark next to any desired features (such as random, flipped, play both sides)
+3. Activate any desired features (such as random, flipped, play both sides)
 4. When ready, click on start and the first puzzle in the set will be displayed and you can make your first move.
 5. When the puzzle/game is finished, the next puzzle/game in the set will be automatically loaded. This is the default action unless you select the "next button" option.  If you used the "next button" option, click on the next button to proceed to the next puzzle.
 6. When the set of puzzles/games is complete, your final stats will be displayed.
