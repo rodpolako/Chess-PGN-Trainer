@@ -14,6 +14,7 @@
 function splitvariants(PGNData) {
     let PGNobjectArray = [];
 
+    // Recursive function to follow a variation path
     function createPGNVariant(myObject, pathlist) {
         let tempObj = [];
         Object.assign(tempObj, pathlist);
@@ -72,11 +73,27 @@ function loadPGNFile() {
             PGNFile = PGNFile.trim(); // Remove extra blank lines before and after the content
 
             // Remove double-hyphen notation if present (causes exception otherwise)
+
+            // Original fix (just remove the -- altogether)
+            // PGNFile = PGNFile.replace(/ (\d*)[.] --/g, ""); // White
+            // PGNFile = PGNFile.replaceAll("-- ", ""); // Black
+
             // Opened issue @ https://github.com/mliebelt/pgn-parser/issues/641
+            // Potential fix due to https://github.com/mliebelt/pgn-parser/issues/436 
+            // Replace other null identifiers with Z0 notation which is already supported by the parser as a null move.  
 
-            PGNFile = PGNFile.replace(/ (\d*)[.] --/g, ""); // White
-            PGNFile = PGNFile.replaceAll("-- ", ""); // Black
+            // See: https://chess.stackexchange.com/questions/14072/san-for-nullmove for list of possible null move indicators
 
+            PGNFile = PGNFile
+                .replaceAll("0000", "Z0")
+                .replaceAll("00-00", "Z0")
+                .replaceAll("--", "Z0")
+                .replaceAll("@@@@", "Z0")
+                .replaceAll("<>", "Z0")
+                .replaceAll("pass", "Z0")
+                .replaceAll("(null)", "Z0")
+                .replaceAll("null", "Z0");
+            
             try {
                 parsePGN(PGNFile);
 

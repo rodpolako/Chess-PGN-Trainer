@@ -18,15 +18,11 @@
 /* exported loadPGNFile, outputStats2CSV, currentPuzzle, promotionSquare,  */
 
 /*
-TODO: 
 
 COMPLETE:
-* Added the ability for Circles & Arrows in the PGN annotation to be shown on the board.  
-* Added ability for the app to show dots for legal moves (can be managed via settings)
-* Incorrect moves will now briefly flash the incorrect square red
-* Update the legacy pawn promotion code to bootstrap and drop Jquery-UI
-* Code cleanup
-* Added ability to set the movement speed of the pieces.
+* Update analysis link to always send current position instead of puzzle beginning.
+* Update the handling of null moves
+* Fixed a bug where moving a piece from a square that had a circle would require a double-click to drop in new location
 
 */
 
@@ -35,7 +31,7 @@ COMPLETE:
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = "1.11.0";
+const version = "1.11.1";
 let board;
 let blankBoard;
 let pieceThemePath;
@@ -337,6 +333,10 @@ function loadSettings() {
 	$("#speedRange").val(readItem("speed"));
 }
 
+
+/**
+ * Adjust the saved speed value based on the slider setting
+ */
 function adjustspeedslider() {
 	saveItem("speed", $("#speedRange").val());
 
@@ -473,18 +473,19 @@ function checkAndPlayNext(target) {
 
 	if (game.history()[gameMoveIndex] === moveHistory[gameMoveIndex]) {
 		// correct move
-
-		// Output any comment after this move
-		annotate();
+	
+		// Post-move functions
+		moveMade(); 
 
 		// play next move if the "Play both sides" box is unchecked and there are still moves to play
 		if (!$("#playbothsides").is(":checked")) {
 			if (game.history().length !== moveHistory.length) {
+
 				// Play the opponent's next move from the PGN
 				game.move(moveHistory[game.history().length]);
 
-				// Output any comment after this move
-				annotate();
+				// Post-move functions
+				moveMade(); 
 			}
 		}
 	} else {
@@ -621,6 +622,10 @@ function pauseGame() {
 	changecolor();
 }
 
+
+/**
+ * Set the configuration for the board prior to creating/re-creating the board(s)
+ */
 function setBoardConfig() {
 	if (readItem("speed") == null || readItem("speed") == "") {
 		saveItem("speed", 200);
@@ -844,6 +849,43 @@ function updateProgressBar(partial_value, total_value) {
 	$("#progressbar").text(progresspercent);
 }
 
+
+/**
+ * Create a link of the current position to lichess analysis board
+ */
+function updateAnalysisLink() {
+	
+	if (game.fen()) {
+		var lichessURL = '<A id="analysisURL" HREF="https://lichess.org/analysis/' + game.fen().replace(/ /g, "_") + '" target="_blank" ></A>';
+	}
+
+	if (AnalysisLink && lichessURL) {
+		// Add the link under the puzzle name in mobile mode
+		$("#puzzlename").append("<br>");
+		$("#puzzlename").append(lichessURL);
+		$("a#analysisURL").text("Analysis board");
+
+		// Add the link under the event name in the annotation panel
+		$("#analysisDiv").empty();
+		$("#analysisDiv").append(lichessURL);
+		$("a#analysisURL").text("Analysis board");
+		$("#comment_event_name_analysis_link").show();
+	}
+	
+}
+
+/**
+ * Common functions required after making a move
+ */
+function moveMade() { 
+
+	// Output any comment after this move
+	annotate();
+
+	// Update the analysis link (if enabled)
+	updateAnalysisLink();
+}
+
 /**
  * Load the desired puzzle or position from the PGN to the screen
  *
@@ -869,23 +911,6 @@ function loadPuzzle(PGNPuzzle) {
 	AnalysisLink = false;
 	if ($("#analysisboard").is(":checked")) {
 		AnalysisLink = true;
-	}
-
-	if (PGNPuzzle.tags.FEN) {
-		var lichessURL = '<A id="analysisURL" HREF="https://lichess.org/analysis/' + PGNPuzzle.tags.FEN.replace(/ /g, "_") + '" target="_blank"></A>';
-	}
-
-	if (AnalysisLink && lichessURL) {
-		// Add the link under the puzzle name in mobile mode
-		$("#puzzlename").append("<br>");
-		$("#puzzlename").append(lichessURL);
-		$("a#analysisURL").text("Analysis board");
-
-		// Add the link under the event name in the annotation panel
-		$("#analysisDiv").empty();
-		$("#analysisDiv").append(lichessURL);
-		$("a#analysisURL").text("Analysis board");
-		$("#comment_event_name_analysis_link").show();
 	}
 
 	currentPuzzle = PGNPuzzle; // Use this in order to access the PGN from anywhere
@@ -938,6 +963,8 @@ function loadPuzzle(PGNPuzzle) {
 	// Set the board to the beginning position of the puzzle
 	updateBoard(false);
 
+	$("#comment_annotation").append("<br>");
+
 	// If there is commentary before the first move, show it in the annotation panel
 	if (PGNPuzzle.gameComment != null) {
 		$("#comment_annotation").prop("innerHTML", stripNewLine(PGNPuzzle.gameComment.comment));
@@ -948,18 +975,21 @@ function loadPuzzle(PGNPuzzle) {
 
 		// Draw any shapes if present
 		annotateShapes();
+		
 	}
+
 
 	// Check to see if the computer needs to play the first move due to the conflict between the FEN and the MoveColor tag (unless player is playing both sides)
 	if (PGNPuzzle.tags.MoveColor != game.turn() && typeof PGNPuzzle.tags.MoveColor !== "undefined" && !$("#playbothsides").is(":checked")) {
+		
 		// There is a discrepency, make the first move
 		game.move(moveHistory[moveindex]);
-
+	
 		// Set the board to the next position of the puzzle
 		updateBoard(true);
 
-		// Output any comment after this move
-		annotate();
+		// Post-move functions
+		moveMade(); 
 
 		// Update the index so that if play opposite side is used it plays the NEXT move
 		moveindex = 1;
@@ -972,20 +1002,25 @@ function loadPuzzle(PGNPuzzle) {
 
 	// Play the first move if player is playing second and not both sides
 	if ($("#playoppositeside").is(":checked") && !$("#playbothsides").is(":checked")) {
+		
 		// Make the move
 		game.move(moveHistory[moveindex]);
-
+		
 		// Set the board to the next position of the puzzle
 		updateBoard(true);
 
-		// Output any comment after this move
-		annotate();
+		// Post-move functions
+		moveMade(); 
 	}
 
 	// Update the status of the game in memory with the new data
 	indicateMove();
 
 	changecolor();
+
+	// Put up the analysis link (if enabled)
+	updateAnalysisLink();
+
 }
 
 /**
@@ -1118,6 +1153,10 @@ function dropPiece(source, target) {
  */
 function snapEnd() {
 	// Update instantly if the puzzle is done
+	if (puzzlecomplete) {
+		updateBoard(false);
+		return;
+	}
 	updateBoard(true);
 }
 

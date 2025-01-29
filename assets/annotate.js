@@ -2,7 +2,7 @@
 // Annotation functions
 // ---------------------
 
-/* global $, game, document, currentPuzzle */
+/* global $, game, document, currentPuzzle, moveHistory */
 /* exported drawDot, clearAllDots, markError, annotate */
 
 // Annotation Color-related data
@@ -27,11 +27,17 @@ function drawDot(square) {
     $(".square-" + square).append('<div class="dot"></div>');
 }
 
+/**
+ * Draw a dot in the center of the square (used for showing legal moves)
+ */
 function clearAllDots() {
     // Delete the legal move dots
     $(".dot").remove();
 }
 
+/**
+ * Flash a sqaure red
+ */
 function markError(square) {
     if (!validateSquare(square)) {
         return;
@@ -47,8 +53,14 @@ function markError(square) {
     $(".error").fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100).fadeOut(100);
 }
 
-function annotateShapes() {
-    let gameMoveIndex = game.history().length - 1; // Last move played
+/** 
+ * Draw any recorded shape data for this move (circles or arrows)
+ * 
+ * @param {int} offset  - Value to increase the move index (so you can draw shapes from moves ahead of the game if present)
+ */
+function annotateShapes(offset) {
+    offset = offset || 0;
+    let gameMoveIndex = game.history().length - 1 + offset; // Last move played
 
     try {
         drawAnnotationCircle(currentPuzzle.moves[gameMoveIndex].commentDiag.colorFields);
@@ -79,6 +91,12 @@ function annotateShapes() {
     }
 }
 
+/**
+ * Validate input square
+ * 
+ * @param {*} square    - The square needing validation
+ * @returns true if square is valid, false if not
+ */
 function validateSquare(square) {
     // Input must be 2 characters
     if (square.length !== 2) {
@@ -100,6 +118,12 @@ function validateSquare(square) {
     return true;
 }
 
+/**
+ * Validate drawing annotation
+ * 
+ * @param {*} inputtext     - The drawing instruction from the PGN
+ * @returns true if drawing annotation is valid, false if not
+ */
 function validateInput(inputtext) {
     // Input has to be either 3 or 5 characters long
     if (inputtext.length !== 3 && inputtext.length !== 5) {
@@ -124,6 +148,12 @@ function validateInput(inputtext) {
     return true;
 }
 
+/**
+ * Prepare drawing instructions
+ * 
+ * @param {*} inputtext - Drawing instruction
+ * @returns object with details necessary to draw circles and arrows according to the drawing instruction
+ */
 function generateDrawingData(inputtext) {
     // First validate that the input is good:
     if (!validateInput(inputtext)) {
@@ -144,10 +174,14 @@ function generateDrawingData(inputtext) {
         squareObject.destinationxy = getSquareCenterCoordinates(squareObject.destination);
     }
 
-    //console.log(squareObject);
     return squareObject;
 }
 
+/**
+ * 
+ * @param {array} circleArray   - Array of square and color data needing circles drawn
+ * @returns 
+ */
 function drawAnnotationCircle(circleArray) {
     if (!circleArray) {
         return;
@@ -171,11 +205,14 @@ function drawAnnotationCircle(circleArray) {
         let target = $(squarePath + annotationdata.origin);
 
         // Draw the circle on top of anything else on that square
-        let circleDetails = '<div class="circleannotation" style="border-color: ' + colorname + ';"></div>';
+        let circleDetails = '<div class="circleannotation" style="border-color: ' + colorname + ';pointer-events: none;"></div>';
         $(target).append(circleDetails);
     });
 }
 
+/**
+ * Deletes any currently visible circles or arrows
+ */
 function deleteAllShapeAnnotations() {
     // Delete the circles
     $(".circleannotation").remove();
@@ -208,9 +245,12 @@ function stripNewLine(sourcetext) {
  * @param {string} annotationText - The content to be added to the annotation panel
  */
 function addAnnotationComment(annotationText) {
-    $("#comment_annotation").append("<br><br>");
-    $("#comment_annotation").append(stripNewLine(annotationText));
-    $("#comment_annotation").append("<br><br>");
+    if(annotationText){
+        $("#comment_annotation").append("<br><br>");
+        $("#comment_annotation").append(stripNewLine(annotationText));
+        $("#comment_annotation").append("<br><br>");
+    }
+    
 }
 
 /**
@@ -272,6 +312,36 @@ function translateNAG(NAGValue) {
 }
 
 /**
+ * Add annotations for null moves (if present)
+ * 
+ * @param {int} moveindex   - The move index of the game to test for null moves
+ */
+function checkForNullMove(moveindex) {
+    
+    // Have we reached end of game?  Game cannot proceed beyond a null move.
+    if (game.history().length === moveHistory.length){
+        
+        // Check to see if the parser has more moves than the game.  
+        // If it does, this means that the parser found a null move and has recorded it AFTER the last move of the game.
+        if(currentPuzzle.moves.length > game.history().length){ 
+            
+            // Add any annotations if present
+            try {
+                addAnnotationComment(currentPuzzle.moves[moveindex + 1].commentAfter);
+            } catch (e) {
+              // Object doesn't exist, therefore don't do anything
+            }
+
+            // If the null move has any shape data as well, draw it.
+            annotateShapes(1);
+        }
+
+    }
+
+}
+
+
+/**
  * Read details of the current move along with any avaialble annotations and display them
  */
 function annotate() {
@@ -321,6 +391,9 @@ function annotate() {
             addAnnotationComment(currentPuzzle.moves[gameMoveIndex].commentAfter);
         }
 
+        // Check for null move
+        checkForNullMove(gameMoveIndex) 
+
         // Draw any shapes if present.
         annotateShapes();
 
@@ -348,18 +421,29 @@ function annotate() {
         addAnnotationComment(currentPuzzle.moves[gameMoveIndex].commentAfter);
     }
 
+    // Check for null move
+    checkForNullMove(gameMoveIndex) 
+
     // Add scroll here to automatically show the bottom of the column
     document.getElementById("comment_annotation").scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
 
     // Draw any shapes that accompany this position
     annotateShapes();
+
 }
 
+/**
+ * Get the XY coordinates indicating the center of a target square.
+ * 
+ * @param {string} square   - The square requiring coordinate data
+ * @returns coordinate data
+ */
 function getSquareCenterCoordinates(square) {
-    // Define the target square
 
+    // Define the target square
     let target = $(squarePath + square);
 
+    // Find the center coordinates for the square relative to its container
     var centerX = target[0].offsetLeft + target[0].clientWidth / 2 - target[0].parentElement.parentElement.offsetLeft;
     var centerY = target[0].offsetTop + target[0].clientHeight / 2 - target[0].parentElement.parentElement.offsetTop;
 
@@ -371,7 +455,20 @@ function getSquareCenterCoordinates(square) {
     return coordinates;
 }
 
-// Credit for this neat function belongs to https://stackoverflow.com/questions/808826/drawing-an-arrow-using-html-canvas
+/**
+ * Arrow drawing function
+ * 
+ * @param {*} ctx        - Canvas context
+ * @param {*} fromx      - X coordinate of starting point
+ * @param {*} fromy      - Y coordinate of starting point
+ * @param {*} tox        - X coordinate of ending point
+ * @param {*} toy        - Y coordinate of ending point
+ * @param {*} arrowWidth - thickness of arrow
+ * @param {*} color      - color of arrow
+ * @param {*} alpha      - opacity of arrow
+ * 
+ * Credit for this neat function belongs to https://stackoverflow.com/questions/808826/drawing-an-arrow-using-html-canvas
+ */
 function drawArrow(ctx, fromx, fromy, tox, toy, arrowWidth, color, alpha) {
     //variables to be used when creating the arrow
     var headlen = 10;
@@ -410,6 +507,13 @@ function drawArrow(ctx, fromx, fromy, tox, toy, arrowWidth, color, alpha) {
     ctx.restore();
 }
 
+
+/**
+ * Draws all arrows as instructed
+ * 
+ * @param {array} ArrowArray  - Arraay of drawing instructions
+ * @returns 
+ */
 function drawAnnotationArrow(ArrowArray) {
     // Exit immediately if there are issues with the input
     if (!ArrowArray) {
@@ -446,6 +550,10 @@ function drawAnnotationArrow(ArrowArray) {
     });
 }
 
+
+/**
+ * Create a 2d drawing surface for the arrows
+ */
 function createCanvas() {
     // Credit for this function goes to https://stackoverflow.com/questions/10214873/make-canvas-as-wide-and-as-high-as-parent
     function fitToContainer(canvas) {
