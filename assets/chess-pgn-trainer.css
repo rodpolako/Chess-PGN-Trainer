@@ -10,3 +10,6 @@ img {
     height: auto;
 }
 
+a.disabled {
+    pointer-events: none;
+}

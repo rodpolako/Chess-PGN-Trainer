@@ -1,4 +1,3 @@
-
 div.circleannotation {
     border-radius: 50%;
     width: 100%;
@@ -9,6 +8,8 @@ div.circleannotation {
     border-width: 5px;
     border-style: solid;
     opacity: 0.5;
+    pointer-events: none;
+    z-index: 2;
 }
 
 div.dot {
@@ -20,6 +21,7 @@ div.dot {
     background-color: dimgrey;
     border-radius: 50%;
     opacity: 0.4;
+    z-index: 2;
 }
 
 div.error {
@@ -32,15 +34,28 @@ div.error {
 
 
 div.canvas {
-    position: absolute; top:0px; width: 100%;height:100%;
+    position: absolute; 
+    top:0px; 
+    width: 100%;
+    height:100%;
+    pointer-events: none;
+    z-index: 2;
 }
 
-/*
-.chesscanvas {
+
+img{
     position: relative; 
-    top:0px; 
-    left: 0px;
-    width: auto; 
-    height: auto;
+    z-index: 1;
 }
-*/
+
+
+div.kingcheckormate {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    pointer-events: none;
+    opacity: 1;
+    z-index: 0
+ }

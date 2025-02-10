@@ -11,33 +11,24 @@
 /* global Chess, Chessboard, PieceList, annotateShapes, annotate */
 /* global $, document, localStorage, navigator, window, console,  */
 /* global markError, deleteAllShapeAnnotations, stripNewLine, promotionSquare:writeable */
-/* global drawDot, clearAllDots, getPieces, onPromotionDialogClose*/
+/* global drawDot, clearAllDots, getPieces, onPromotionDialogClose, KingCheckorMate */
 
 /* eslint no-unused-vars: "error"*/
 /* exported deleteItem, resizeBoards, resetSettings, setFlipped, goToNextPuzzle */
 /* exported loadPGNFile, outputStats2CSV, currentPuzzle, promotionSquare,  */
 
-/*
-
-COMPLETE:
-* Update analysis link to always send current position instead of puzzle beginning.
-* Update the handling of null moves
-* Fixed a bug where moving a piece from a square that had a circle would require a double-click to drop in new location
-
-*/
 
 // -----------------------
 // Define global variables
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = "1.11.1";
+const version = "1.11.2";
 let board;
 let blankBoard;
 let pieceThemePath;
 let game;
 let config;
-let AnalysisLink = false;
 
 // Game & Performance variables
 let moveCfg;
@@ -81,6 +72,7 @@ let messagelist = ["#puzzlename", "#errors", "#errorRate", "#elapsedTime", "#avg
 
 //pieceThemePath = 'https://github.com/lichess-org/lila/raw/refs/heads/master/public/piece/alpha/{piece}.svg'
 pieceThemePath = "img/chesspieces/staunty/{piece}.svg";
+
 
 // -----------------------
 // Local stoarge Functions
@@ -215,6 +207,9 @@ function toggleDarkMode() {
 		$("#img_logo").attr("src", "./img/github-mark.svg");
 		$("#img_logo2").attr("src", "./img/github-mark.svg");
 		$("#chk_darkmode").prop("checked", false);
+
+		// update the color of the analysis button
+		$("#img_anaylsis").attr("src", "./img/magnifier-black.png");
 	} else {
 		document.documentElement.setAttribute("data-bs-theme", "dark");
 
@@ -223,6 +218,9 @@ function toggleDarkMode() {
 		$("#img_logo").attr("src", "./img/github-mark-white.svg");
 		$("#img_logo2").attr("src", "./img/github-mark-white.svg");
 		$("#chk_darkmode").prop("checked", true);
+
+		// update the color of the analysis button
+		$("#img_anaylsis").attr("src", "./img/magnifier-white.png");
 	}
 }
 
@@ -237,6 +235,7 @@ function resizeBoards() {
 		return;
 	}
 	annotateShapes();
+	checkKing();
 }
 
 /**
@@ -248,7 +247,6 @@ function resizeBoards() {
 function updateBoard(animate) {
 	board.position(game.fen(), animate);
 }
-
 
 // ------------------------------------
 // Settings and configuration functions
@@ -297,6 +295,7 @@ function loadSettings() {
 		csvheaders: "1",
 		legalmoves: "1",
 		speed: 200,
+		circlesarrows: "1",
 	};
 
 	// Load defaults if any keys are missing
@@ -315,24 +314,22 @@ function loadSettings() {
 		toggleDarkMode();
 	}
 
-	// Auto-copy to clipboard setting
-	if (readItem("copy2clipboard") == "1") {
-		$("#chk_clipboard").prop("checked", true);
-	}
-
-	// CSV Headers setting
-	if (readItem("csvheaders") == "1") {
-		$("#chk_csvheaders").prop("checked", true);
-	}
-
-	// Legal Moves setting
-	if (readItem("legalmoves") == "1") {
-		$("#chk_legalMoves").prop("checked", true);
-	}
-
 	$("#speedRange").val(readItem("speed"));
-}
 
+	let switchlist = [
+		{ settingname: "copy2clipboard", switchname: "#chk_clipboard" },
+		{ settingname: "csvheaders", switchname: "#chk_csvheaders" },
+		{ settingname: "legalmoves", switchname: "#chk_legalMoves" },
+		{ settingname: "circlesarrows", switchname: "#chk_circlesarrows" },
+	];
+
+	// Load settings to the switches
+	switchlist.forEach((setting) => {
+		if (readItem(setting.settingname) == "1") {
+			$(setting.switchname).prop("checked", true);
+		}
+	});
+}
 
 /**
  * Adjust the saved speed value based on the slider setting
@@ -473,19 +470,18 @@ function checkAndPlayNext(target) {
 
 	if (game.history()[gameMoveIndex] === moveHistory[gameMoveIndex]) {
 		// correct move
-	
+
 		// Post-move functions
-		moveMade(); 
+		moveMade();
 
 		// play next move if the "Play both sides" box is unchecked and there are still moves to play
 		if (!$("#playbothsides").is(":checked")) {
 			if (game.history().length !== moveHistory.length) {
-
 				// Play the opponent's next move from the PGN
 				game.move(moveHistory[game.history().length]);
 
 				// Post-move functions
-				moveMade(); 
+				moveMade();
 			}
 		}
 	} else {
@@ -622,7 +618,6 @@ function pauseGame() {
 	changecolor();
 }
 
-
 /**
  * Set the configuration for the board prior to creating/re-creating the board(s)
  */
@@ -657,7 +652,6 @@ function resetGame() {
 	pauseDateTimeTotal = 0;
 	error = false;
 	setcomplete = false;
-	AnalysisLink = false;
 
 	puzzlecomplete = false;
 	pauseflag = false;
@@ -714,6 +708,12 @@ function resetGame() {
 
 	// Clear the analysis link
 	$("#analysisDiv").empty();
+
+	// Disable the analysis link button
+	$("#analysis_link").addClass("disabled");
+
+	// Set the Analysis Link button to grey
+	$("#img_anaylsis").attr("src", "./img/magnifier-grey.png");
 
 	// Clear the move indicator
 	$("#moveturn").text("");
@@ -849,41 +849,65 @@ function updateProgressBar(partial_value, total_value) {
 	$("#progressbar").text(progresspercent);
 }
 
-
 /**
  * Create a link of the current position to lichess analysis board
  */
 function updateAnalysisLink() {
-	
 	if (game.fen()) {
-		var lichessURL = '<A id="analysisURL" HREF="https://lichess.org/analysis/' + game.fen().replace(/ /g, "_") + '" target="_blank" ></A>';
+		var lichessURL = "https://lichess.org/analysis/" + game.fen().replace(/ /g, "_");
 	}
 
-	if (AnalysisLink && lichessURL) {
-		// Add the link under the puzzle name in mobile mode
-		$("#puzzlename").append("<br>");
-		$("#puzzlename").append(lichessURL);
-		$("a#analysisURL").text("Analysis board");
+	if (lichessURL) {
+		// Enable the button
+		$("#analysis_link").removeClass("disabled");
 
-		// Add the link under the event name in the annotation panel
-		$("#analysisDiv").empty();
-		$("#analysisDiv").append(lichessURL);
-		$("a#analysisURL").text("Analysis board");
-		$("#comment_event_name_analysis_link").show();
+		// Set the image to contrast the theme (light or dark)
+		$("#img_anaylsis").attr("src", "./img/magnifier-black.png");
+		if (document.documentElement.getAttribute("data-bs-theme") == "dark") {
+			$("#img_anaylsis").attr("src", "./img/magnifier-white.png");
+		}
+
+		// Update the link from the magnifying glass
+		$("#analysis_link").attr("href", lichessURL);
 	}
-	
 }
+
+/**
+ * Check the status of the current player's king to determine if it is in Check or Checkmate
+ */
+function checkKing() {
+	// Remove any existing markings
+	$(".kingcheckormate").remove();
+
+	// Check to see if the game in currently in check or checkmate (Works for both)
+	if (Chess(game.fen()).in_check()) {
+		// Go through each square on the board to find the king of the color to move
+		game.SQUARES.forEach((square) => {
+			// find the king in check/checkmate
+			if (game.get(square) === null) {
+				return;
+			}
+
+			if (game.get(square).type === "k" && game.get(square).color === game.turn()) {
+				KingCheckorMate(square);
+			}
+		});
+	}
+}
+
 
 /**
  * Common functions required after making a move
  */
-function moveMade() { 
-
+function moveMade() {
 	// Output any comment after this move
 	annotate();
 
-	// Update the analysis link (if enabled)
+	// Update the analysis link
 	updateAnalysisLink();
+
+	// Check for King status
+	checkKing();
 }
 
 /**
@@ -906,12 +930,6 @@ function loadPuzzle(PGNPuzzle) {
 	// Update the screen with the value of the PGN Event tag (if any)
 	$("#puzzlename").html(PGNPuzzle.tags.Event);
 	$("#comment_event_name").append(PGNPuzzle.tags.Event);
-
-	// Output a link to a lichess analysis board for this puzzle if there is one (can extract FEN from there if needed)
-	AnalysisLink = false;
-	if ($("#analysisboard").is(":checked")) {
-		AnalysisLink = true;
-	}
 
 	currentPuzzle = PGNPuzzle; // Use this in order to access the PGN from anywhere
 
@@ -975,21 +993,21 @@ function loadPuzzle(PGNPuzzle) {
 
 		// Draw any shapes if present
 		annotateShapes();
-		
 	}
 
+	// Check for King status
+	checkKing();
 
 	// Check to see if the computer needs to play the first move due to the conflict between the FEN and the MoveColor tag (unless player is playing both sides)
 	if (PGNPuzzle.tags.MoveColor != game.turn() && typeof PGNPuzzle.tags.MoveColor !== "undefined" && !$("#playbothsides").is(":checked")) {
-		
 		// There is a discrepency, make the first move
 		game.move(moveHistory[moveindex]);
-	
+
 		// Set the board to the next position of the puzzle
 		updateBoard(true);
 
 		// Post-move functions
-		moveMade(); 
+		moveMade();
 
 		// Update the index so that if play opposite side is used it plays the NEXT move
 		moveindex = 1;
@@ -1002,15 +1020,14 @@ function loadPuzzle(PGNPuzzle) {
 
 	// Play the first move if player is playing second and not both sides
 	if ($("#playoppositeside").is(":checked") && !$("#playbothsides").is(":checked")) {
-		
 		// Make the move
 		game.move(moveHistory[moveindex]);
-		
+
 		// Set the board to the next position of the puzzle
 		updateBoard(true);
 
 		// Post-move functions
-		moveMade(); 
+		moveMade();
 	}
 
 	// Update the status of the game in memory with the new data
@@ -1018,9 +1035,8 @@ function loadPuzzle(PGNPuzzle) {
 
 	changecolor();
 
-	// Put up the analysis link (if enabled)
+	// Update the analysis link
 	updateAnalysisLink();
-
 }
 
 /**
@@ -1139,6 +1155,8 @@ function dropPiece(source, target) {
 	// Indicate the player to move
 	indicateMove();
 
+	checkKing();
+
 	// Clear the move indicator if everything is done
 	if (setcomplete || puzzlecomplete) {
 		$("#moveturn").text("");
@@ -1195,7 +1213,14 @@ function outputStats2Clipboard() {
 	// Copy Tab-delimited version to clipboard for easy pasting to spreadsheets
 
 	if (testClipboard()) {
-		navigator.clipboard.writeText(Object.values(stats).join("\t"));
+		let csvHeader = "";
+
+		// add the header row if option is selected
+		if (readItem("csvheaders") == "1") {
+			csvHeader = Object.keys(stats).join("\t") + "\n";
+		}
+
+		navigator.clipboard.writeText(csvHeader + Object.values(stats).join("\t"));
 	}
 }
 
@@ -1362,5 +1387,9 @@ $(() => {
 
 	$("#speedRange").on("change", function () {
 		adjustspeedslider();
+	});
+
+	$('[data-toggle="tooltip"]').tooltip({
+		trigger: "hover",
 	});
 });
