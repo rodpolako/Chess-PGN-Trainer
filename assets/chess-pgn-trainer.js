@@ -23,7 +23,7 @@
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = "1.11.2";
+const version = "1.11.3";
 let board;
 let blankBoard;
 let pieceThemePath;
@@ -1352,6 +1352,7 @@ $(() => {
 
 	$("#light-color-block").on("colorchange", function () {
 		var color = $(this).wheelColorPicker("value");
+		$("#light-color-preview").css("background-color", color);
 		$("#Light-Color").val(color);
 		changecolor();
 	});
@@ -1368,6 +1369,21 @@ $(() => {
 	$(document).ready(function () {
 		$('[data-toggle="tooltip"]').tooltip();
 	});
+
+
+	// Workaround for iOS devices to remove PGN filter for file selection
+	// Issue: https://github.com/rodpolako/Chess-PGN-Trainer/issues/13
+	// See: 
+	// 		https://caniuse.com/input-file-accept
+	// 		https://stackoverflow.com/questions/47386981/input-type-file-attribute-accept-not-working-in-safari-on-macbook
+	// 		https://stackoverflow.com/questions/47664777/javascript-file-input-onchange-not-working-ios-safari-only
+	$(document).ready(function () {
+		var deviceAgent = navigator.userAgent.toLowerCase();
+		if (deviceAgent.match(/(iphone|ipod|ipad|macintosh|intel mac)/)) {
+			$('#openPGN').attr('accept', '');
+		}
+	});
+
 
 	// Set up the color pickers
 	$(document).ready(function () {
