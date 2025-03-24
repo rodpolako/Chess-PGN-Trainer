@@ -30,10 +30,10 @@
 /* exported PieceList */
 
 let PieceList = [
-    { Name: "Alpha", DirectoryName: "alpha", Type: "svg" },
-    { Name: "Cburnett", DirectoryName: "cburnett", Type: "svg" },
-    { Name: "Chessnut", DirectoryName: "chessnut", Type: "svg" },
-    { Name: "Merida", DirectoryName: "merida", Type: "svg" },
-    { Name: "Staunty", DirectoryName: "staunty", Type: "svg" },
-    { Name: "Tatiana", DirectoryName: "tatiana", Type: "svg" },
+	{ Name: 'Alpha', DirectoryName: 'alpha', Type: 'svg' },
+	{ Name: 'Cburnett', DirectoryName: 'cburnett', Type: 'svg' },
+	{ Name: 'Chessnut', DirectoryName: 'chessnut', Type: 'svg' },
+	{ Name: 'Merida', DirectoryName: 'merida', Type: 'svg' },
+	{ Name: 'Staunty', DirectoryName: 'staunty', Type: 'svg' },
+	{ Name: 'Tatiana', DirectoryName: 'tatiana', Type: 'svg' },
 ];

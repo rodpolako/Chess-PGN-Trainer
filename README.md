@@ -39,7 +39,8 @@ This tool has a number of features that you might find useful:
 **Note:** The annotation panel will only be available on screens wider than 992 pixels (1024 or higher recommended).
 * Ability to set the piece movement speed
 * Support for variations.  PGN files can have any number of variations within and the tool will treat each one as a separate puzzle.  This is useful for puzzles with multiple responses by the opponent as well as for practicing openings.  See the example PGN files for more information.
-
+* Sound effects (move, capture, check, checkmate, and error).  By default these are turned off to prevent distraction but can be enabled in the Settings menu
+* **Experimental** text to speech to have the computer say the moves.  It currently has an issue due to the speed of the computer moves where your move won't get said since the computer plays the next move immediately and that will cancel the current speech and start the next one.  Works fine when playing both sides.  By default it is also disabled.  Works best in Chrome.
 
 ## Setup Instructions
 If you just want to use the trainer and and not bother hosting the page yourself, you can just use the live link [here](https://rodpolako.github.io/).  The latest version of the trainer will always be hosted there.

@@ -15,18 +15,18 @@ let promotionSquare;
  * @returns {*}
  */
 function getImgSrc(piece) {
-    return pieceThemePath.replace("{piece}", game.turn() + piece.toLocaleUpperCase());
+	return pieceThemePath.replace('{piece}', game.turn() + piece.toLocaleUpperCase());
 }
 
 /**
  * Populate the pawn promotion modal
  */
 function getPieces() {
-    let piecelist = ["q", "r", "n", "b"];
+	let piecelist = ['q', 'r', 'n', 'b'];
 
-    piecelist.forEach((piece) => {
-        $("#" + piece).attr("src", getImgSrc(piece));
-    });
+	piecelist.forEach((piece) => {
+		$('#' + piece).attr('src', getImgSrc(piece));
+	});
 }
 
 /**
@@ -35,8 +35,8 @@ function getPieces() {
  * @param {button} button   The button that called the function
  */
 function onPromotionDialogClose(button) {
-    moveCfg.promotion = button[0].id;
-    makeMove(game, moveCfg);
-    checkAndPlayNext(promotionSquare);
-    updateBoard(true);
+	moveCfg.promotion = button[0].id;
+	makeMove(game, moveCfg);
+	checkAndPlayNext(promotionSquare);
+	updateBoard(true);
 }

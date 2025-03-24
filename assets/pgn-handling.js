@@ -13,7 +13,7 @@
 /* global confirmOnlyOneOption, FileReader */
 
 /* eslint no-unused-vars: "error" */
-/* exported loadPGNFile *
+/* exported loadPGNFile */
 
 
 
@@ -64,10 +64,9 @@ function splitvariants(PGNData) {
 	return PGNExploded;
 }
 
-
 /**
  * PGN File pre-processing and cleanp prior to parsing
- * 
+ *
  * @param {string} PGNData - The raw text version of the PGN file
  * @returns {string} - The processed text version of the PGN file
  */
@@ -83,11 +82,11 @@ function cleanPGNFile(PGNData) {
 
 	// See: https://chess.stackexchange.com/questions/14072/san-for-nullmove for list of possible null move indicators
 
-	let NullMoveIndicators = ["0000", "00-00", "--", "@@@@", "<>", "(null)"];
+	let NullMoveIndicators = ['0000', '00-00', '--', '@@@@', '<>', '(null)'];
 	// Excluding "null" and "pass" so that it doesn't inadvertently change any annotation text (like "passed pawn" becoming "Z0ed pawn")
 
 	NullMoveIndicators.forEach((nullmove) => {
-		PGNData = PGNData.replaceAll(nullmove, "Z0");
+		PGNData = PGNData.replaceAll(nullmove, 'Z0');
 	});
 
 	return PGNData;
@@ -100,11 +99,11 @@ function loadPGNFile() {
 	resetGame();
 	let PGNFile;
 
-	const [file] = document.getElementById("openPGN").files;
+	const [file] = document.getElementById('openPGN').files;
 	const reader = new FileReader();
 
 	reader.addEventListener(
-		"load",
+		'load',
 		() => {
 			PGNFile = reader.result;
 
@@ -117,19 +116,19 @@ function loadPGNFile() {
 
 				// File is now loaded
 				// Update the range of the puzzle counters to the size of the puzzleset
-				$("#puzzleNumber").text("1");
-				$("#puzzleNumbertotal").text(puzzleset.length);
+				$('#puzzleNumber').text('1');
+				$('#puzzleNumbertotal').text(puzzleset.length);
 
 				// Set any startup options found in the PGN
 				setStartupOptions();
 
 				// Enable the start button
-				setDisplayAndDisabled(["#btn_starttest"], "inline-block", false);
+				setDisplayAndDisabled(['#btn_starttest'], 'inline-block', false);
 			} catch (err) {
 				alert(
-					"There is an issue with the PGN file.  Error message is as follows:\n\n" +
+					'There is an issue with the PGN file.  Error message is as follows:\n\n' +
 						err +
-						"\n\nPuzzles loaded successfully before error: " +
+						'\n\nPuzzles loaded successfully before error: ' +
 						puzzleset.length
 				);
 				console.log(err);
@@ -151,10 +150,10 @@ function loadPGNFile() {
 	setCheckboxSelectability(true);
 
 	// Clear the file value in the Open PGN control (to prepare for the next file)
-	$("#openPGN").val("");
+	$('#openPGN').val('');
 
 	// Close the sidebar
-	$("#close_sidebar").click();
+	$('#close_sidebar').click();
 }
 
 /**
@@ -164,17 +163,17 @@ function setStartupOptions() {
 	// Set the options checkboxes if any of the special tags at the top of the PGN have a value of 1
 
 	let PGNTagList = [
-		{ PGNTagName: "PGNTrainerBothSides", switchname: "#playbothsides" },
-		{ PGNTagName: "PGNTrainerOppositeSide", switchname: "#playoppositeside" },
-		{ PGNTagName: "PGNTrainerRandomize", switchname: "#randomizeSet" },
-		{ PGNTagName: "PGNTrainerFlipped", switchname: "#flipped" },
-		{ PGNTagName: "PGNTrainerNextButton", switchname: "#manualadvance" },
+		{ PGNTagName: 'PGNTrainerBothSides', switchname: '#playbothsides' },
+		{ PGNTagName: 'PGNTrainerOppositeSide', switchname: '#playoppositeside' },
+		{ PGNTagName: 'PGNTrainerRandomize', switchname: '#randomizeSet' },
+		{ PGNTagName: 'PGNTrainerFlipped', switchname: '#flipped' },
+		{ PGNTagName: 'PGNTrainerNextButton', switchname: '#manualadvance' },
 	];
 
 	// Load settings to the switches
 	PGNTagList.forEach((setting) => {
-		if (puzzleset[0].tags[setting.PGNTagName] === "1") {
-			$(setting.switchname).prop("checked", true);
+		if (puzzleset[0].tags[setting.PGNTagName] === '1') {
+			$(setting.switchname).prop('checked', true);
 		}
 	});
 

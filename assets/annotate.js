@@ -13,45 +13,41 @@
 /* eslint no-unused-vars: "error" */
 /* exported drawDot, clearAllDots, markError, annotate, KingCheckorMate */
 
-
 // Annotation Color-related data
 // -----------------------------
 let colorDictionary = [
-	{ letter: "r", name: "red" },
-	{ letter: "b", name: "blue" },
-	{ letter: "y", name: "yellow" },
-	{ letter: "g", name: "green" },
+	{ letter: 'r', name: 'red' },
+	{ letter: 'b', name: 'blue' },
+	{ letter: 'y', name: 'yellow' },
+	{ letter: 'g', name: 'green' },
 ];
 
-const validLetters = "abcdefgh";
-const validNumbers = "12345678";
+const validLetters = 'abcdefgh';
+const validNumbers = '12345678';
 
-const squarePath = "#myBoard > .chessboard-63f37 > .board-b72b1 > .row-5277c > .square-";
+const squarePath = '#myBoard > .chessboard-63f37 > .board-b72b1 > .row-5277c > .square-';
 
 // Credit to https://stackoverflow.com/questions/1740700/how-to-get-hex-color-value-rather-than-rgb-value for this neat RGB to Hex conversion function
 const rgb2hex = (rgb) =>
 	`#${rgb
 		.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/)
 		.slice(1)
-		.map((n) => parseInt(n, 10).toString(16).padStart(2, "0"))
-		.join("")}`;
-
-
-
+		.map((n) => parseInt(n, 10).toString(16).padStart(2, '0'))
+		.join('')}`;
 
 /**
  * Draws a grey dot on the specified square
- * 
+ *
  * @param {string} square - The target square
- * @returns 
- */	
+ * @returns
+ */
 function drawDot(square) {
 	if (!validateSquare(square)) {
 		return;
 	}
 
 	// Draw the dot on top of anything else on that square
-	$(".square-" + square).append('<div class="dot"></div>');
+	$('.square-' + square).append('<div class="dot"></div>');
 }
 
 /**
@@ -59,7 +55,7 @@ function drawDot(square) {
  */
 function clearAllDots() {
 	// Delete the legal move dots
-	$(".dot").remove();
+	$('.dot').remove();
 }
 
 /**
@@ -71,13 +67,13 @@ function markError(square) {
 	}
 
 	// add position relative to container (so the error div is placed on top of the square)
-	$(".square-" + square).css("position", "relative");
+	$('.square-' + square).css('position', 'relative');
 
 	// Make the square red
-	$(".square-" + square).append('<div class="error"></div>');
+	$('.square-' + square).append('<div class="error"></div>');
 
 	// Flash the square red briefly
-	$(".error").fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100).fadeOut(100);
+	$('.error').fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100).fadeOut(100);
 }
 
 /**
@@ -87,7 +83,7 @@ function markError(square) {
  */
 function annotateShapes(offset) {
 	// return if turned off in settings
-	if (readItem("circlesarrows") == "0") {
+	if (readItem('circlesarrows') == '0') {
 		return;
 	}
 
@@ -121,7 +117,6 @@ function annotateShapes(offset) {
 	} catch (e) {
 		// Object doesn't exist yet, therefore don't draw
 	}
-
 }
 
 /**
@@ -202,7 +197,7 @@ function generateDrawingData(inputtext) {
 	squareObject.originxy = getSquareCenterCoordinates(squareObject.origin);
 
 	squareObject.destination = inputtext.substring(3, 5).toLowerCase();
-	squareObject.destinationxy = "";
+	squareObject.destinationxy = '';
 	if (squareObject.destination) {
 		squareObject.destinationxy = getSquareCenterCoordinates(squareObject.destination);
 	}
@@ -244,12 +239,11 @@ function drawAnnotationCircle(circleArray) {
 	});
 }
 
-
 /**
  * Draw a red gradient behind the king (technically any square)
- * 
+ *
  * @param {string} kingsquare - The square that needs the gradient to show (typically the King as that is they only time this would be called)
- * @returns 
+ * @returns
  */
 function KingCheckorMate(kingsquare) {
 	// Ensure a good square first
@@ -259,7 +253,7 @@ function KingCheckorMate(kingsquare) {
 
 	let target = $(squarePath + kingsquare);
 	let checkOrMate =
-		'<div class="kingcheckormate" style="background-image: radial-gradient(circle, red, ' + rgb2hex($(target).css("background-color")) + ');"></div>';
+		'<div class="kingcheckormate" style="background-image: radial-gradient(circle, red, ' + rgb2hex($(target).css('background-color')) + ');"></div>';
 
 	// Add the color
 	$(target).append(checkOrMate);
@@ -270,7 +264,7 @@ function KingCheckorMate(kingsquare) {
  */
 function deleteAllShapeAnnotations() {
 	// Delete the circles
-	$(".circleannotation").remove();
+	$('.circleannotation').remove();
 
 	// Delete the arrows
 	createCanvas();
@@ -289,8 +283,8 @@ function stripNewLine(sourcetext) {
 
 	let strippedtext;
 
-	strippedtext = sourcetext.replaceAll("\r\n", "<br>"); // Windows CR/LF
-	strippedtext = sourcetext.replaceAll("\n", "<br>"); // Linux LF
+	strippedtext = sourcetext.replaceAll('\r\n', '<br>'); // Windows CR/LF
+	strippedtext = sourcetext.replaceAll('\n', '<br>'); // Linux LF
 
 	return strippedtext;
 }
@@ -301,9 +295,9 @@ function stripNewLine(sourcetext) {
  */
 function addAnnotationComment(annotationText) {
 	if (annotationText) {
-		$("#comment_annotation").append("<br><br>");
-		$("#comment_annotation").append(stripNewLine(annotationText));
-		$("#comment_annotation").append("<br><br>");
+		$('#comment_annotation').append('<br><br>');
+		$('#comment_annotation').append(stripNewLine(annotationText));
+		$('#comment_annotation').append('<br><br>');
 	}
 }
 
@@ -317,42 +311,42 @@ function translateNAG(NAGValue) {
 	// based on https://en.wikipedia.org/wiki/Portable_Game_Notation#Numeric_Annotation_Glyphs
 
 	let NAGDictionary = [
-		{ code: "$0", number: 0, symbol: "", description: "" },
-		{ code: "$1", number: 1, symbol: "!", description: "Good move" },
-		{ code: "$2", number: 2, symbol: "?", description: "Mistake" },
-		{ code: "$3", number: 3, symbol: "!!", description: "Brilliant move" },
-		{ code: "$4", number: 4, symbol: "??", description: "Blunder" },
-		{ code: "$5", number: 5, symbol: "!?", description: "Interesting move" },
-		{ code: "$6", number: 6, symbol: "?!", description: "Dubious move" },
-		{ code: "$7", number: 7, symbol: "\u25a1", description: "Only move" },
-		{ code: "$8", number: 8, symbol: "\u25a1", description: "Singular move" },
-		{ code: "$9", number: 9, symbol: "\u25a1", description: "Worst move" },
-		{ code: "$10", number: 10, symbol: "=", description: "Equal position" },
-		{ code: "$11", number: 11, symbol: "=", description: "Equal chances, quiet position" },
-		{ code: "$12", number: 12, symbol: "=", description: "Equal chances, active position" },
-		{ code: "$13", number: 13, symbol: "\u221e", description: "Unclear position" },
-		{ code: "$14", number: 14, symbol: "\u2a72", description: "White is slightly better" },
-		{ code: "$15", number: 15, symbol: "\u2a71", description: "Black is slightly better" },
-		{ code: "$16", number: 16, symbol: "\xb1", description: "White is better" },
-		{ code: "$17", number: 17, symbol: "\u2213", description: "Black is better" },
-		{ code: "$18", number: 18, symbol: "+-", description: "White is winning" },
-		{ code: "$19", number: 19, symbol: "-+", description: "Black is winning" },
-		{ code: "$22", number: 22, symbol: "\u2a00", description: "White is in Zugzwang" },
-		{ code: "$23", number: 23, symbol: "\u2a00", description: "Black is in Zugzwang" },
-		{ code: "$32", number: 32, symbol: "\u27f3", description: "White has development" },
-		{ code: "$33", number: 32, symbol: "\u27f3", description: "Black has development" },
-		{ code: "$36", number: 36, symbol: "\u2191", description: "White has the initiative" },
-		{ code: "$37", number: 37, symbol: "\u2191", description: "Black has the initiative" },
-		{ code: "$40", number: 40, symbol: "\u2192", description: "White has the attack" },
-		{ code: "$41", number: 41, symbol: "\u2192", description: "White has the attack" },
-		{ code: "$44", number: 44, symbol: "=\u221e", description: "White has compensation" },
-		{ code: "$45", number: 45, symbol: "=\u221e", description: "Black has compensation" },
-		{ code: "$132", number: 132, symbol: "\u21c6", description: "White has counterplay" },
-		{ code: "$133", number: 132, symbol: "\u21c6", description: "Black has counterplay" },
-		{ code: "$138", number: 138, symbol: "\u2295", description: "White has time trouble" },
-		{ code: "$139", number: 139, symbol: "\u2295", description: "Black has time trouble" },
-		{ code: "$140", number: 140, symbol: "\u2206", description: "With the idea" },
-		{ code: "$146", number: 146, symbol: "N", description: "Novelty" },
+		{ code: '$0', number: 0, symbol: '', description: '' },
+		{ code: '$1', number: 1, symbol: '!', description: 'Good move' },
+		{ code: '$2', number: 2, symbol: '?', description: 'Mistake' },
+		{ code: '$3', number: 3, symbol: '!!', description: 'Brilliant move' },
+		{ code: '$4', number: 4, symbol: '??', description: 'Blunder' },
+		{ code: '$5', number: 5, symbol: '!?', description: 'Interesting move' },
+		{ code: '$6', number: 6, symbol: '?!', description: 'Dubious move' },
+		{ code: '$7', number: 7, symbol: '\u25a1', description: 'Only move' },
+		{ code: '$8', number: 8, symbol: '\u25a1', description: 'Singular move' },
+		{ code: '$9', number: 9, symbol: '\u25a1', description: 'Worst move' },
+		{ code: '$10', number: 10, symbol: '=', description: 'Equal position' },
+		{ code: '$11', number: 11, symbol: '=', description: 'Equal chances, quiet position' },
+		{ code: '$12', number: 12, symbol: '=', description: 'Equal chances, active position' },
+		{ code: '$13', number: 13, symbol: '\u221e', description: 'Unclear position' },
+		{ code: '$14', number: 14, symbol: '\u2a72', description: 'White is slightly better' },
+		{ code: '$15', number: 15, symbol: '\u2a71', description: 'Black is slightly better' },
+		{ code: '$16', number: 16, symbol: '\xb1', description: 'White is better' },
+		{ code: '$17', number: 17, symbol: '\u2213', description: 'Black is better' },
+		{ code: '$18', number: 18, symbol: '+-', description: 'White is winning' },
+		{ code: '$19', number: 19, symbol: '-+', description: 'Black is winning' },
+		{ code: '$22', number: 22, symbol: '\u2a00', description: 'White is in Zugzwang' },
+		{ code: '$23', number: 23, symbol: '\u2a00', description: 'Black is in Zugzwang' },
+		{ code: '$32', number: 32, symbol: '\u27f3', description: 'White has development' },
+		{ code: '$33', number: 32, symbol: '\u27f3', description: 'Black has development' },
+		{ code: '$36', number: 36, symbol: '\u2191', description: 'White has the initiative' },
+		{ code: '$37', number: 37, symbol: '\u2191', description: 'Black has the initiative' },
+		{ code: '$40', number: 40, symbol: '\u2192', description: 'White has the attack' },
+		{ code: '$41', number: 41, symbol: '\u2192', description: 'White has the attack' },
+		{ code: '$44', number: 44, symbol: '=\u221e', description: 'White has compensation' },
+		{ code: '$45', number: 45, symbol: '=\u221e', description: 'Black has compensation' },
+		{ code: '$132', number: 132, symbol: '\u21c6', description: 'White has counterplay' },
+		{ code: '$133', number: 132, symbol: '\u21c6', description: 'Black has counterplay' },
+		{ code: '$138', number: 138, symbol: '\u2295', description: 'White has time trouble' },
+		{ code: '$139', number: 139, symbol: '\u2295', description: 'Black has time trouble' },
+		{ code: '$140', number: 140, symbol: '\u2206', description: 'With the idea' },
+		{ code: '$146', number: 146, symbol: 'N', description: 'Novelty' },
 	];
 
 	// Look up the symbol for the provided code
@@ -406,7 +400,7 @@ function annotate() {
 	let moveNotation = currentPuzzle.moves[gameMoveIndex].notation.notation; // SAN move
 	let nagcode = currentPuzzle.moves[gameMoveIndex].nag; // NAG of move
 
-	let nagAnnotation = "";
+	let nagAnnotation = '';
 
 	if (nagcode) {
 		// Annotation code array found, retrieve each symbol to display next to the move
@@ -421,19 +415,19 @@ function annotate() {
 		moveNumber = currentPuzzle.moves[gameMoveIndex - 1].moveNumber;
 	}
 
-	let moveAnnotation = "";
+	let moveAnnotation = '';
 
 	// Normal separator after the move #
-	let separator = ". ";
+	let separator = '. ';
 
 	// Handling the first move depending on who goes first
 	if (gameMoveIndex == 0) {
-		if (currentMoveTurn == "b") {
-			separator = "... ";
+		if (currentMoveTurn == 'b') {
+			separator = '... ';
 		}
 
-		moveAnnotation = moveNumber + separator + moveNotation + nagAnnotation + " ";
-		$("#comment_annotation").append($("<strong></strong>").text(moveAnnotation));
+		moveAnnotation = moveNumber + separator + moveNotation + nagAnnotation + ' ';
+		$('#comment_annotation').append($('<strong></strong>').text(moveAnnotation));
 
 		if (currentPuzzle.moves[gameMoveIndex].commentAfter) {
 			addAnnotationComment(currentPuzzle.moves[gameMoveIndex].commentAfter);
@@ -450,19 +444,19 @@ function annotate() {
 
 	// Special: If the move is black but there was a comment prior, then use the continuation dots instead
 	// (otherwise it would have just been the previous white move)
-	if (currentMoveTurn == "b" && typeof currentPuzzle.moves[gameMoveIndex - 1].commentAfter !== "undefined") {
-		separator = "... ";
+	if (currentMoveTurn == 'b' && typeof currentPuzzle.moves[gameMoveIndex - 1].commentAfter !== 'undefined') {
+		separator = '... ';
 	}
 
 	// Put the move #, separator ,NAG and a space
-	moveAnnotation = moveNumber + separator + moveNotation + nagAnnotation + " ";
+	moveAnnotation = moveNumber + separator + moveNotation + nagAnnotation + ' ';
 
 	// Normal continuation but it is black's move and there wasn't a comment prior so just continue on and don't repeat the move number
-	if (currentMoveTurn == "b" && typeof currentPuzzle.moves[gameMoveIndex - 1].commentAfter === "undefined") {
-		moveAnnotation = moveNotation + nagAnnotation + " ";
+	if (currentMoveTurn == 'b' && typeof currentPuzzle.moves[gameMoveIndex - 1].commentAfter === 'undefined') {
+		moveAnnotation = moveNotation + nagAnnotation + ' ';
 	}
 
-	$("#comment_annotation").append($("<strong></strong>").text(moveAnnotation));
+	$('#comment_annotation').append($('<strong></strong>').text(moveAnnotation));
 
 	// Output the comment after the move is played (if there is a comment)
 	if (currentPuzzle.moves[gameMoveIndex].commentAfter) {
@@ -473,7 +467,7 @@ function annotate() {
 	checkForNullMove(gameMoveIndex);
 
 	// Add scroll here to automatically show the bottom of the column
-	document.getElementById("comment_annotation").scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+	document.getElementById('comment_annotation').scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
 
 	// Draw any shapes that accompany this position
 	annotateShapes();
@@ -571,8 +565,8 @@ function drawAnnotationArrow(ArrowArray) {
 
 	// Create the canvas to draw the arrows
 	createCanvas();
-	const canvas = document.getElementById("myCanvas");
-	const ctx = canvas.getContext("2d");
+	const canvas = document.getElementById('myCanvas');
+	const ctx = canvas.getContext('2d');
 
 	const linewidth = 5;
 	const opacity = 0.5;
@@ -602,21 +596,21 @@ function createCanvas() {
 	// Credit for this function goes to https://stackoverflow.com/questions/10214873/make-canvas-as-wide-and-as-high-as-parent
 	function fitToContainer(canvas) {
 		// Make it visually fill the positioned parent
-		canvas.style.width = "100%";
-		canvas.style.height = "100%";
+		canvas.style.width = '100%';
+		canvas.style.height = '100%';
 		// ...then set the internal size to match
 		canvas.width = canvas.offsetWidth;
 		canvas.height = canvas.offsetHeight;
 	}
 
 	// Create a Div and then a canvas on top of the board
-	if (!$("#myCanvasDiv").length) {
+	if (!$('#myCanvasDiv').length) {
 		// element does not yet exist
 		//$("#myBoard > .chessboard-63f37 > .board-b72b1").append('<div id="myCanvasDiv" class="canvas" style="pointer-events: none;"></div>');
-		$("#myBoard > .chessboard-63f37 > .board-b72b1").append('<div id="myCanvasDiv" class="canvas"></div>');
-		$("#myCanvasDiv").append('<canvas id="myCanvas" style="pointer-events: none;"></canvas>');
+		$('#myBoard > .chessboard-63f37 > .board-b72b1').append('<div id="myCanvasDiv" class="canvas"></div>');
+		$('#myCanvasDiv').append('<canvas id="myCanvas" style="pointer-events: none;"></canvas>');
 	}
 
-	var canvas = document.querySelector("#myCanvas");
+	var canvas = document.querySelector('#myCanvas');
 	fitToContainer(canvas);
 }
