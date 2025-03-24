@@ -23,7 +23,7 @@
 // -----------------------
 
 // Board & Overall configuration-related variables
-const version = '1.12.1';
+const version = '1.12.2';
 let board;
 let blankBoard;
 let pieceThemePath;
