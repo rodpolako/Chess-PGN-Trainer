@@ -900,9 +900,9 @@ function updateAnalysisLink() {
 		$('#analysis_link').removeClass('disabled');
 
 		// Set the image to contrast the theme (light or dark)
-		$('#img_anaylsis').attr('src', './img/magnifier-black.png');
+		$('#img_anaylsis').attr('src', './img/themes/light/magnifier-black.png');
 		if (document.documentElement.getAttribute('data-bs-theme') == 'dark') {
-			$('#img_anaylsis').attr('src', './img/magnifier-white.png');
+			$('#img_anaylsis').attr('src', './img/themes/dark/magnifier-white.png');
 		}
 
 		// Update the link from the magnifying glass
