@@ -2,7 +2,7 @@
 Online tool that opens chess PGN files and allows the user to practice the moves.  This tool is to help with drilling, ***as efficiently as possible***, a set group of puzzles/games in an appropriately configured PGN file. Once the set is complete, the player sees how many errors they made as well as how long the set took to complete.
 
 The original design goal was to help with implementing a learning approach where a player repeatedly completes the same series of puzzles, striving to reduce both errors and time needed with each round.
-The idea for this came from a recommendation by Dan Heisman (https://www.danheisman.com/recommended-books.html) on how to practice tactics puzzles.  In the article, Dan strongly recommends the idea of "repeatedly going through the book faster and faster until you can get 85%+ within 10-15 seconds". You can read about my own results following this approach using this tool [here](https://www.chess.com/forum/view/for-beginners/applying-dan-heismans-guide-to-using-chess-tactics-for-students).
+The idea for this came from a recommendation by Dan Heisman (https://www.danheisman.com/recommended-books.html) on how to practice tactics puzzles.  In the article, Dan strongly recommends the idea of "repeatedly going through the book faster and faster until you can get 85%+ within 10-15 seconds". 
 
 Since then, the tool has grown and can now be used to:
 * Practice puzzles
@@ -15,7 +15,7 @@ Also included is a PGN of a slighly modified [Aman Hambleton's reset mate](https
 
 [A live online copy of tool is available here](https://rodpolako.github.io/)
 
-![screenshot](./screenshots/screenshot.png)
+![screenshot](./public/screenshots/screenshot.png)
 ## Features
 This tool has a number of features that you might find useful:
 * Auto move to next puzzle - Automatically advances to the next puzzle/game upon completion of the current one.  This can be disabled via the use of the "Next button" option.
@@ -41,6 +41,7 @@ This tool has a number of features that you might find useful:
 * Support for variations.  PGN files can have any number of variations within and the tool will treat each one as a separate puzzle.  This is useful for puzzles with multiple responses by the opponent as well as for practicing openings.  See the example PGN files for more information.
 * Sound effects (move, capture, check, checkmate, and error).  By default these are turned off to prevent distraction but can be enabled in the Settings menu
 * **Experimental** text to speech to have the computer say the moves.  It currently has an issue due to the speed of the computer moves where your move won't get said since the computer plays the next move immediately and that will cancel the current speech and start the next one.  Works fine when playing both sides.  By default it is also disabled.  Works best in Chrome.
+* Integration with Lichess studies.  You can access your studies on Lichess and drill a chapter or an entire study directly without the need to download a pgn.
 
 ## Setup Instructions
 If you just want to use the trainer and and not bother hosting the page yourself, you can just use the live link [here](https://rodpolako.github.io/).  The latest version of the trainer will always be hosted there.
@@ -67,7 +68,7 @@ Once a test group is completed, tool displays the following performance informat
 * Average time per puzzle/game (Calculated)
 * Error rate (Calculated)
 
-![screenshot](./screenshots/screenshot2.png)
+![screenshot](./public/screenshots/screenshot2.png)
 
 ## Documentation
 See the [Wiki](https://github.com/rodpolako/Chess-PGN-Trainer/wiki) for a complete documentation.

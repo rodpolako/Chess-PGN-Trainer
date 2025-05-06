@@ -1,0 +1,23 @@
+.italic {
+	font-style: italic;
+}
+
+/* Scale images to 100% of available width */
+img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+}
+
+a.disabled {
+	pointer-events: none;
+}
+
+.settingstextinput {
+	width: 100%;
+}
+
+.body {
+	overscroll-behavior-y: contain !important;
+	overflow: hidden !important;
+}
