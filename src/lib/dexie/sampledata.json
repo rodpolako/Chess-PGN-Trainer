@@ -1,0 +1,667 @@
+{
+	"studyName": "First PGN Course",
+	"studyID": "a",
+	"numOfLines": 7,
+	"lastCompletedStatistics": {
+		"lastCompletedDate": "2025-03-24",
+		"lastCompletedTime": 500,
+		"lastCompletedErrors": 1,
+		"lastCompletedErrorRate": 0.25
+	},
+	"studyOptions": {
+		"randomize": true,
+		"bothSides": false,
+		"oppositeSide": false,
+		"flipped": false,
+		"nextButton": false
+	},
+	"chapters": [
+		{
+			"pgnID": "0",
+			"chapterName": "Chapter 1",
+			"fileName": "file1.pgn",
+			"variations": [
+				{
+					"tags": {
+						"Event": "Variation Test",
+						"FEN": "r1r1k3/5p2/3K4/2Q5/8/8/8/8 w - - 1 1",
+						"messages": [],
+						"Result": "1-0"
+					},
+					"gameComment": null,
+					"moves": [
+						{
+							"moveNumber": 1,
+							"notation": {
+								"fig": "Q",
+								"strike": null,
+								"col": "e",
+								"row": "5",
+								"check": "+",
+								"promotion": null,
+								"notation": "Qe5+"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "w"
+						},
+						{
+							"moveNumber": null,
+							"notation": {
+								"fig": "K",
+								"strike": null,
+								"col": "f",
+								"row": "8",
+								"check": null,
+								"promotion": null,
+								"notation": "Kf8"
+							},
+							"variations": [
+								[
+									{
+										"moveNumber": 1,
+										"notation": {
+											"fig": "K",
+											"strike": null,
+											"col": "d",
+											"row": "8",
+											"check": null,
+											"promotion": null,
+											"notation": "Kd8"
+										},
+										"variations": [],
+										"nag": null,
+										"commentDiag": null,
+										"turn": "b"
+									},
+									{
+										"moveNumber": 2,
+										"notation": {
+											"fig": "Q",
+											"strike": null,
+											"col": "e",
+											"row": "7",
+											"check": "#",
+											"promotion": null,
+											"notation": "Qe7#"
+										},
+										"variations": [],
+										"nag": null,
+										"commentDiag": null,
+										"turn": "w"
+									}
+								]
+							],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "b"
+						},
+						{
+							"moveNumber": 2,
+							"notation": {
+								"fig": "Q",
+								"strike": null,
+								"col": "h",
+								"row": "8",
+								"check": "#",
+								"promotion": null,
+								"notation": "Qh8#"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "w"
+						}
+					],
+					"messages": []
+				},
+				{
+					"tags": {
+						"Event": "Variation Test",
+						"FEN": "r1r1k3/5p2/3K4/2Q5/8/8/8/8 w - - 1 1",
+						"messages": [],
+						"Result": "1-0"
+					},
+					"gameComment": null,
+					"moves": [
+						{
+							"moveNumber": 1,
+							"notation": {
+								"fig": "Q",
+								"strike": null,
+								"col": "e",
+								"row": "5",
+								"check": "+",
+								"promotion": null,
+								"notation": "Qe5+"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "w"
+						},
+						{
+							"moveNumber": 1,
+							"notation": {
+								"fig": "K",
+								"strike": null,
+								"col": "d",
+								"row": "8",
+								"check": null,
+								"promotion": null,
+								"notation": "Kd8"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "b"
+						},
+						{
+							"moveNumber": 2,
+							"notation": {
+								"fig": "Q",
+								"strike": null,
+								"col": "e",
+								"row": "7",
+								"check": "#",
+								"promotion": null,
+								"notation": "Qe7#"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "w"
+						}
+					],
+					"messages": []
+				}
+			],
+			"performanceData": [
+				{
+					"dateTimeStamp": 1742865699784,
+					"round": 0,
+					"mode": "random",
+					"totalTime": 600,
+					"errors": 1
+				},
+				{
+					"dateTimeStamp": 1742865996317,
+					"round": 1,
+					"mode": "random",
+					"totalTime": 400,
+					"errors": 0
+				}
+			],
+			"chapterOptions": {
+				"randomize": true,
+				"bothSides": false,
+				"oppositeSide": false,
+				"flipped": false,
+				"nextButton": false
+			}
+		},
+		{
+			"pgnID": "1",
+			"chapterName": "Chapter 2",
+			"fileName": "file2.pgn",
+			"variations": [
+				{
+					"tags": {
+						"PGNTrainerRandomize": "1",
+						"Event": "Pins",
+						"Site": "?",
+						"Date": {
+							"value": "????.??.??",
+							"year": "????",
+							"month": "??",
+							"day": "??"
+						},
+						"Round": "?",
+						"White": "?",
+						"Black": "?",
+						"Result": "*",
+						"SetUp": "1",
+						"FEN": "r3k2r/ppp2ppp/8/8/4q3/8/PPP2PPP/R2QR1K1 b kq - 0 1",
+						"PlyCount": 2,
+						"messages": [
+							{
+								"key": "PGNTrainerRandomize",
+								"value": "1",
+								"message": "Tag: \"PGNTrainerRandomize\" not known: \"1\"",
+								"start": {
+									"offset": 1,
+									"line": 1,
+									"column": 2
+								},
+								"end": {
+									"offset": 24,
+									"line": 1,
+									"column": 25
+								}
+							}
+						]
+					},
+					"gameComment": null,
+					"moves": [
+						{
+							"moveNumber": 1,
+							"notation": {
+								"notation": "O-O",
+								"check": null
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "b"
+						},
+						{
+							"moveNumber": 2,
+							"notation": {
+								"fig": "R",
+								"strike": "x",
+								"col": "e",
+								"row": "4",
+								"check": null,
+								"promotion": null,
+								"notation": "Rxe4"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "w"
+						}
+					],
+					"messages": [
+						{
+							"key": "PGNTrainerRandomize",
+							"value": "1",
+							"message": "Tag: \"PGNTrainerRandomize\" not known: \"1\"",
+							"start": {
+								"offset": 1,
+								"line": 1,
+								"column": 2
+							},
+							"end": {
+								"offset": 24,
+								"line": 1,
+								"column": 25
+							}
+						}
+					]
+				},
+				{
+					"tags": {
+						"Event": "Pins",
+						"Site": "?",
+						"Date": {
+							"value": "????.??.??",
+							"year": "????",
+							"month": "??",
+							"day": "??"
+						},
+						"Round": "?",
+						"White": "?",
+						"Black": "?",
+						"Result": "*",
+						"SetUp": "1",
+						"FEN": "r3k2r/ppp2ppp/8/8/4q3/8/PPP2PPP/R2Q1RK1 w kq - 0 1",
+						"PlyCount": 3,
+						"messages": []
+					},
+					"gameComment": null,
+					"moves": [
+						{
+							"moveNumber": 1,
+							"notation": {
+								"fig": "R",
+								"strike": null,
+								"col": "e",
+								"row": "1",
+								"check": null,
+								"promotion": null,
+								"notation": "Re1"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "w"
+						},
+						{
+							"moveNumber": null,
+							"notation": {
+								"fig": "Q",
+								"strike": "x",
+								"col": "e",
+								"row": "1",
+								"check": "+",
+								"promotion": null,
+								"notation": "Qxe1+"
+							},
+							"variations": [
+								[
+									{
+										"moveNumber": 1,
+										"notation": {
+											"notation": "O-O",
+											"check": null
+										},
+										"variations": [],
+										"nag": null,
+										"commentDiag": null,
+										"turn": "b"
+									},
+									{
+										"moveNumber": 2,
+										"notation": {
+											"fig": "R",
+											"strike": "x",
+											"col": "e",
+											"row": "4",
+											"check": null,
+											"promotion": null,
+											"notation": "Rxe4"
+										},
+										"variations": [],
+										"nag": null,
+										"commentDiag": null,
+										"turn": "w"
+									}
+								]
+							],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "b"
+						},
+						{
+							"moveNumber": 2,
+							"notation": {
+								"fig": "Q",
+								"strike": "x",
+								"col": "e",
+								"row": "1",
+								"check": "+",
+								"promotion": null,
+								"notation": "Qxe1+"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "w"
+						}
+					],
+					"messages": []
+				},
+				{
+					"tags": {
+						"Event": "Pins",
+						"Site": "?",
+						"Date": {
+							"value": "????.??.??",
+							"year": "????",
+							"month": "??",
+							"day": "??"
+						},
+						"Round": "?",
+						"White": "?",
+						"Black": "?",
+						"Result": "*",
+						"SetUp": "1",
+						"FEN": "r3k2r/ppp2ppp/8/8/4q3/8/PPP2PPP/R2Q1RK1 w kq - 0 1",
+						"PlyCount": 3,
+						"messages": []
+					},
+					"gameComment": null,
+					"moves": [
+						{
+							"moveNumber": 1,
+							"notation": {
+								"fig": "R",
+								"strike": null,
+								"col": "e",
+								"row": "1",
+								"check": null,
+								"promotion": null,
+								"notation": "Re1"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "w"
+						},
+						{
+							"moveNumber": 1,
+							"notation": {
+								"notation": "O-O",
+								"check": null
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "b"
+						},
+						{
+							"moveNumber": 2,
+							"notation": {
+								"fig": "R",
+								"strike": "x",
+								"col": "e",
+								"row": "4",
+								"check": null,
+								"promotion": null,
+								"notation": "Rxe4"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "w"
+						}
+					],
+					"messages": []
+				},
+				{
+					"tags": {
+						"Event": "Pins",
+						"Site": "?",
+						"Date": {
+							"value": "????.??.??",
+							"year": "????",
+							"month": "??",
+							"day": "??"
+						},
+						"Round": "?",
+						"White": "?",
+						"Black": "?",
+						"Result": "*",
+						"SetUp": "1",
+						"FEN": "8/5bp1/5k2/8/4R3/8/7P/7K b - - 0 1",
+						"PlyCount": 3,
+						"messages": []
+					},
+					"gameComment": null,
+					"moves": [
+						{
+							"moveNumber": 1,
+							"notation": {
+								"fig": "B",
+								"strike": null,
+								"col": "d",
+								"row": "5",
+								"check": null,
+								"promotion": null,
+								"notation": "Bd5"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "b"
+						},
+						{
+							"moveNumber": 2,
+							"notation": {
+								"fig": "K",
+								"strike": null,
+								"col": "g",
+								"row": "1",
+								"check": null,
+								"promotion": null,
+								"notation": "Kg1"
+							},
+							"variations": [
+								[
+									{
+										"moveNumber": 2,
+										"notation": {
+											"fig": null,
+											"strike": null,
+											"col": "h",
+											"row": "3",
+											"check": null,
+											"promotion": null,
+											"notation": "h3"
+										},
+										"variations": [],
+										"nag": null,
+										"commentDiag": null,
+										"turn": "w"
+									},
+									{
+										"moveNumber": null,
+										"notation": {
+											"fig": "B",
+											"strike": "x",
+											"col": "e",
+											"row": "4",
+											"check": "+",
+											"promotion": null,
+											"notation": "Bxe4+"
+										},
+										"variations": [],
+										"nag": null,
+										"commentDiag": null,
+										"turn": "b"
+									}
+								]
+							],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "w"
+						},
+						{
+							"moveNumber": 2,
+							"notation": {
+								"fig": "B",
+								"strike": "x",
+								"col": "e",
+								"row": "4",
+								"check": null,
+								"promotion": null,
+								"notation": "Bxe4"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "b"
+						}
+					],
+					"messages": []
+				},
+				{
+					"tags": {
+						"Event": "Pins",
+						"Site": "?",
+						"Date": {
+							"value": "????.??.??",
+							"year": "????",
+							"month": "??",
+							"day": "??"
+						},
+						"Round": "?",
+						"White": "?",
+						"Black": "?",
+						"Result": "*",
+						"SetUp": "1",
+						"FEN": "8/5bp1/5k2/8/4R3/8/7P/7K b - - 0 1",
+						"PlyCount": 3,
+						"messages": []
+					},
+					"gameComment": null,
+					"moves": [
+						{
+							"moveNumber": 1,
+							"notation": {
+								"fig": "B",
+								"strike": null,
+								"col": "d",
+								"row": "5",
+								"check": null,
+								"promotion": null,
+								"notation": "Bd5"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "b"
+						},
+						{
+							"moveNumber": 2,
+							"notation": {
+								"fig": null,
+								"strike": null,
+								"col": "h",
+								"row": "3",
+								"check": null,
+								"promotion": null,
+								"notation": "h3"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "w"
+						},
+						{
+							"moveNumber": null,
+							"notation": {
+								"fig": "B",
+								"strike": "x",
+								"col": "e",
+								"row": "4",
+								"check": "+",
+								"promotion": null,
+								"notation": "Bxe4+"
+							},
+							"variations": [],
+							"nag": null,
+							"commentDiag": null,
+							"turn": "b"
+						}
+					],
+					"messages": []
+				}
+			],
+			"performanceData": [
+				{
+					"dateTimeStamp": 1742866013458,
+					"round": 0,
+					"mode": "random",
+					"totalTime": 600,
+					"errors": 1
+				},
+				{
+					"dateTimeStamp": 1742866020027,
+					"round": 1,
+					"mode": "random",
+					"totalTime": 400,
+					"errors": 0
+				}
+			],
+			"chapterOptions": {
+				"randomize": true,
+				"bothSides": false,
+				"oppositeSide": false,
+				"flipped": false,
+				"nextButton": false
+			}
+		}
+	]
+}

@@ -4,88 +4,44 @@
 <head>
 	<title>Chess PGN Trainer</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-16" />
-	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+	<link rel="shortcut icon" type="image/x-icon" href="./src/app/favicon.ico?v=2" />
+
+	<!-- JQuery (https://jquery.com/) -->
+	<script src="./src/lib/jquery/jquery-3.7.1.min.js"></script>
 
 
-	<!-- CSS Scheme for application overall (everything except the chessboard itself) -->
-	<link rel="stylesheet" href="./assets/chess-pgn-trainer.css">
+	<!-- Bootstrap (https://getbootstrap.com/docs/5.3/getting-started/download/) -->
+	<link rel="stylesheet" href="./src/lib/bootstrap/bootstrap-5.3.5.min.css">
+	<script src="./src/lib/bootstrap/bootstrap-5.3.5.bundle.min.js"></script>
 
 
-	<!-- JQuery 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"
-	integrity="sha384-1H217gwSVyLSIfaLxHbE7dRb3v4mYCKbpQvzx0cegeju1MVsGrX5xXxAvs/HgeFs"
-	crossorigin="anonymous"></script>-->
-	<script src="./assets/jquery-3.7.1.min.js"></script>
-
-	<!-- Bootstrap 
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-		integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-		integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-		crossorigin="anonymous"></script>-->
-	<link rel="stylesheet" href="./assets/bootstrap.min.css">
-	<script src="./assets/bootstrap.bundle.min.js"></script>
-
-
-
-	<!-- Chessboard.css 
-	<link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css"
-	integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU" crossorigin="anonymous" /> -->
-	<link rel="stylesheet" href="./assets/chessboard-1.0.0.css">
-	<!-- Chessboard.js -->
+	<!-- Chessboardjs -->
 	<!-- Modified copy of chessboardJS in order to handle resizing on width AND height so that the board never gets larger than the vertical space -->
-	<script src="./assets/chessboard-1.0.0-modified.js"></script>
+	<!-- <link rel="stylesheet" href="./src/lib/chessboardjs/chessboard-1.0.0.css"> -->
+	<script src="./src/lib/chessboardjs/chessboard-1.0.0-modified.js"></script>
 
 
-	<!-- Pawn Promo Handling -->
-	<script src="./assets/pawn-promo.js"></script>
+	<!-- MiniColors (https://github.com/claviska/jquery-minicolors) 
+	<link rel="stylesheet" href="./src/lib/jquery-minicolors/jquery.minicolors.css">-->
+	<script src="./src/lib/jquery-minicolors/jquery.minicolors.min.js"></script>
 
 
-	<!-- chess.js 
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"
-		integrity="sha384-s3XgLpvmHyscVpijnseAmye819Ee3yaGa8NxstkJVyA6nuDFjt59u1QvuEl/mecz"
-		crossorigin="anonymous"></script> -->
-	<script src="./assets/chess-min.js"></script>
+	<!-- Core Application -->
+	<!-- <link rel="stylesheet" href="./src/app/chess-pgn-trainer.css"> -->
+	<script type="module" src="./src/app/chess-pgn-trainer.js"></script>
 
-
-	<!-- PGN Parser library 
-	<script src="https://cdn.jsdelivr.net/npm/@mliebelt/pgn-parser"
-		integrity="sha384-7iGTh2nf8NwqiRFpm+Ubqueq44r1co6Bz1VfhIorLB+ndjkkEOBWV2f8DMZEj7M0"
-		crossorigin="anonymous"></script> -->
-	<script src="./assets/pgn-parser-min.js"></script>
-
-
-	<!-- Additional PGN Handling Functions -->
-	<script src="./assets/pgn-handling.js"></script>
-
-
-	<!-- MiniColors -->
-	<script src="./assets/jquery.minicolors.min.js"></script>
-	<link rel="stylesheet" href="./assets/jquery.minicolors.css">
-
-
-	<!-- Annotation -->
-	<script src="./assets/annotate.js"></script>
-	<link rel="stylesheet" href="./assets/annotate.css">
-
-	<!-- Audio -->
-	<script src="./assets/audio.js"></script>
-
-	<!-- Theme information -->
-	<script src="./img/themes/themeDetails.js"></script>
 
 </head>
 
-<body onresize="resizeBoards();" style="overscroll-behavior-y: contain;overflow: hidden;">
-
+<body style="overscroll-behavior-y: contain;overflow: hidden;">
 
 	<!-- Layout for Desktops and Tablets -->
 	<div id="application" class="container-fluid p-0" style="overflow: hidden;">
 		<div id="main_content" class="row mx-0">
 
 			<!-- Content Panel-->
-			<div class="col-sm-12 order-sm-1 col-lg-3 order-lg-1">
-				<div class="d-none d-lg-block">
+			<div class="col-12 order-1 col-lg-3 order-lg-1">
+				<div class="d-block d-sm-none d-lg-block">
 
 					<div id="comment_panel" class="container p-1 fs-6" style="overflow-y: auto; max-height: 90vh; ">
 						<div id="comment_event_name" class="fs-3" style="padding-top: 10px;"></div>
@@ -133,11 +89,11 @@
 
 
 			<!-- Menu Panel-->
-			<div class="col-sm-5 order-sm-3 col-lg-3 order-lg-3"
+			<div id="status_area" class="col-sm-5 order-sm-3 col-lg-3 order-lg-3"
 				style="display: flex;flex-direction: column; overflow-y: auto; max-height: 95vh;">
 				<div class="container">
 
-					<div>
+					<div id="mainAppContainer">
 						<!-- Title -->
 						<div class="p-3 d-none d-sm-block h1 fs-2">Chess PGN Trainer</div>
 
@@ -155,7 +111,8 @@
 
 								<div class="row fs-4">
 
-									<div class="container align-items-center col-12" style="text-align:center">
+									<div class="container align-items-center col-12 p-2" style="text-align:center">
+
 										<button type="button" id="openPGN_button" class="btn btn-primary fs-5"
 											style="display: inline-block">Open PGN File</button>
 
@@ -164,6 +121,11 @@
 										<button id="btn_reset" class="btn btn-primary fs-5"
 											style="display: inline-block">Reset</button>
 
+									</div>
+
+									<div class="d-flex justify-content-center">
+										<button id="btn_lichessStudies" class="btn btn-primary fs-5"
+										style="display: none">Lichess Studies</button>
 									</div>
 
 
@@ -178,13 +140,14 @@
 
 										<div class="form-check form-switch">
 											<input class="form-check-input" type="checkbox" role="switch"
-												id="playbothsides" onchange="confirmOnlyOneOption();" />
+												id="playbothsides" />
+
 											<label class="form-check-label" for="playbothsides">Play both sides</label>
 										</div>
 
 										<div class="form-check form-switch">
 											<input class="form-check-input" type="checkbox" role="switch"
-												id="playoppositeside" onchange="confirmOnlyOneOption();setFlipped();" />
+												id="playoppositeside" />
 											<label class="form-check-label" for="playoppositeside">Play opposite
 												side</label>
 										</div>
@@ -209,12 +172,12 @@
 										<div class="list-group">
 											<a class="list-group-item list-group-item-action border-0"
 												data-bs-toggle="modal" data-bs-target="#settings-dialog"
-												onclick="setColorPickers();">Settings &#x26ED;</a>
-
+												id="btn_SettingsSidebar">Settings &#x26ED;</a>
 											<a href="https://github.com/rodpolako/Chess-PGN-Trainer" target="_blank"
 												class="list-group-item list-group-item-action d-flex  border-0">Github
 												Page
-												<img id="img_logo" src="./img/themes/light/github-mark-black.svg"
+												<img id="img_logo"
+													src="./src/components/themes/light/github-mark-black.svg"
 													class="img-fluid"
 													style="width: 20px; height: 20px;margin-left: 10px;" /></a>
 
@@ -260,10 +223,6 @@
 								</div>
 							</div>
 
-							<div class="container d-md-none"><span id="puzzlename" style="font-weight: bold"></span>
-							</div>
-
-
 
 							<div class="container align-items-center p-3" style="text-align:center">
 
@@ -275,8 +234,7 @@
 									style="display: none">Hint</button>
 								<button id="btn_pause" class="btn btn-primary fs-5" style="display: none">Pause</button>
 
-								<button id="btn_next" class="btn btn-success fs-5" style="display: none"
-									onclick="goToNextPuzzle();">Next</button>
+								<button id="btn_next" class="btn btn-success fs-5" style="display: none">Next</button>
 
 								<button id="btn_restart" class="btn btn-primary fs-5"
 									style="display: none">Restart</button>
@@ -293,13 +251,14 @@
 						<div class="container">
 
 							<div class="modal fade" id="settings-dialog" tabindex="-1" role="dialog"
-								aria-labelledby="settings-dialog" aria-hidden="inert">
-								<div class="modal-dialog modal-dialog-centered" role="document">
+								aria-labelledby="settings-dialog">
+								<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
 									<div class="modal-content">
 
 										<div class="modal-header">
 											<div class="modal-title fs-4" id="settings-label">Settings</div>
-											<button type="button" class="btn-close position-absolute top-0 end-0 m-2"
+											<button id="settings_modal_close" type="button"
+												class="btn-close position-absolute top-0 end-0 m-2"
 												data-bs-dismiss="modal" aria-label="Close"></button>
 										</div>
 
@@ -316,8 +275,9 @@
 															<div class="col">
 																<input type="text" id="Light-Color"
 																	class="form-control colorpicker fs-6"
-																	data-control="wheel" value="" size="7" maxlength="7"
-																	onchange="changecolor();setColorPickers();">
+																	data-control="wheel" value="" size="7"
+																	maxlength="7">
+
 															</div>
 														</div>
 
@@ -330,40 +290,43 @@
 															<div class="col">
 																<input type="text" id="Dark-Color"
 																	class="form-control colorpicker fs-6"
-																	data-control="wheel" value="" size="7" maxlength="7"
-																	onchange="changecolor();setColorPickers();">
+																	data-control="wheel" value="" size="7"
+																	maxlength="7">
 															</div>
 														</div>
 
 													</div>
 
 												</div>
+												<hr>
 											</div>
 
-											<hr>
 
-											<div class="row">
 
-												<div class="container text-center">
+											<div class="container text-center">
+												<div class="row">
+
+
 													<div class="row">
 														<div class="col-6">
 															<label for="piece-select">Piece Style</label>
 														</div>
 														<div class="col-6">
 															<select name="pieces" class="light-mode-control"
-																id="piece-select" onchange="changePieces();"></select>
-
+																id="piece-select"></select>
 														</div>
 
 													</div>
 												</div>
+												<hr>
+
 											</div>
 
-											<hr>
+
 											<div class="container text-center">
 												<div class="row">
 
-													<label for="speedRange" class="form-label">Piece Movement
+													<label for="pieceSpeed" class="form-label">Piece Movement
 														Speed</label>
 
 												</div>
@@ -375,7 +338,7 @@
 													</div>
 													<div class="col-8">
 														<input type="range" class="form-range" step="50" min="0"
-															max="500" value="200" id="speedRange"
+															max="500" value="200" id="pieceSpeed"
 															style="direction: rtl">
 													</div>
 													<div class="col-2">
@@ -384,9 +347,48 @@
 
 												</div>
 
+												<hr>
 											</div>
 
-											<hr>
+
+											<!-- Lichess settings for access to Studies -->
+											<div class="container text-center" id="setting_Lichess"
+												style="display: none;">
+												<div class="row">
+
+													<div class="col-6">
+
+														<div class="form-group">
+															<label for="lichess_user_ID">Lichess UserID</label>
+
+															<div class="col">
+																<input type="text" id="lichess_user_ID"
+																	class="form-control fs-6 settingstextinput" value=""
+																	onchange="">
+															</div>
+														</div>
+
+													</div>
+
+													<div class="col-6">
+
+														<div class="form-group">
+															<label for="lichess_app_key">Lichess API token</label>
+															<div class="col">
+																<input type="password" id="lichess_app_key"
+																	class="form-control fs-6 settingstextinput" value=""
+																	onchange="">
+															</div>
+														</div>
+
+													</div>
+
+												</div>
+
+												<hr>
+											</div>
+
+
 
 											<div class="row">
 												<div class="container">
@@ -396,8 +398,7 @@
 															<label class="form-check-label" for="chk_darkmode">Dark
 																Mode</label>
 															<input class="form-check-input" type="checkbox"
-																role="switch" id="chk_darkmode"
-																onclick="toggleDarkMode();">
+																role="switch" id="chk_darkmode">
 
 														</div>
 													</div>
@@ -405,8 +406,7 @@
 													<div class="col">
 														<div class="form-check form-switch">
 															<input class="form-check-input" type="checkbox"
-																role="switch" id="chk_legalMoves"
-																onclick="toggleSetting('#chk_legalMoves','legalmoves');">
+																role="switch" id="chk_legalMoves">
 															<label class="form-check-label" for="chk_legalMoves">Show
 																legal moves</label>
 														</div>
@@ -415,8 +415,8 @@
 													<div class="col">
 														<div class="form-check form-switch">
 															<input class="form-check-input" type="checkbox"
-																role="switch" id="chk_circlesarrows"
-																onclick="toggleSetting('#chk_circlesarrows','circlesarrows');">
+																role="switch" id="chk_circlesarrows">
+
 															<label class="form-check-label" for="chk_circlesarrows">Show
 																circles & arrows</label>
 														</div>
@@ -425,8 +425,8 @@
 													<div class="col">
 														<div class="form-check form-switch">
 															<input class="form-check-input" type="checkbox"
-																role="switch" id="chk_playAudio"
-																onclick="toggleSetting('#chk_playAudio','playAudio');">
+																role="switch" id="chk_playAudio">
+
 															<label class="form-check-label" for="chk_playAudio">Play
 																Sounds</label>
 														</div>
@@ -435,8 +435,8 @@
 													<div class="col">
 														<div class="form-check form-switch">
 															<input class="form-check-input" type="checkbox"
-																role="switch" id="chk_playSpeech"
-																onclick="toggleSetting('#chk_playSpeech','playSpeech');">
+																role="switch" id="chk_playSpeech">
+
 															<label class="form-check-label" for="chk_playSpeech">Say
 																Moves</label>
 														</div>
@@ -455,8 +455,8 @@
 															<a href="#" data-toggle="tooltip"
 																title="Can't turn this on? You need to enable clipboard access in your browser and then refresh.">
 																<input class="form-check-input" type="checkbox"
-																	role="switch" id="chk_clipboard"
-																	onclick="testClipboard();"></a>
+																	role="switch" id="chk_clipboard"></a>
+
 															<label class="form-check-label" for="chk_clipboard">Auto
 																copy results to clipboard</label>
 														</div>
@@ -468,11 +468,10 @@
 													<div class="col">
 														<div class="form-check form-switch">
 															<input class="form-check-input" type="checkbox"
-																role="switch" id="chk_csvheaders"
-																onclick="toggleSetting('#chk_csvheaders','csvheaders');">
+																role="switch" id="chk_csvheaders">
+
 															<label class="form-check-label" for="chk_csvheaders">Add
-																headers to
-																CSV file & Clipboard</label>
+																headers to CSV file & Clipboard</label>
 														</div>
 													</div>
 
@@ -486,37 +485,36 @@
 											<div class="row col-12">
 
 												<div class="col-auto me-auto">
-													<button type="button" class="btn btn-secondary fs-5"
-														onclick="resetSettings();">Reset</button>
+													<button type="button" id="btn_defaults"
+														class="btn btn-secondary fs-5">Reset</button>
 
 												</div>
 												<div class="col-auto">
-													<button type="button" class="btn btn-primary fs-5"
+													<button type="button" id="btn_settingsClose"
+														class="btn btn-primary fs-5"
 														data-bs-dismiss="modal">Close</button>
 
 												</div>
 											</div>
 										</div>
-
-
 									</div>
 								</div>
 							</div>
-
 						</div>
 
 						<!-- Results Modal -->
 						<div class="container">
 
 							<!-- Modal -->
-							<div class="modal fade" id="resmodal" tabindex="-1" role="dialog" aria-labelledby="resmodal"
-								aria-hidden="inert">
+							<div class="modal fade" id="resmodal" tabindex="-1" role="dialog"
+								aria-labelledby="resmodal">
 								<div class="modal-dialog modal-dialog-centered" role="document">
 									<div class="modal-content align-items-center">
 
 										<div class="modal-header">
 											<h5 class="modal-title" id="resmodal-label">Set Complete</h5>
-											<button type="button" class="btn-close position-absolute top-0 end-0 m-2"
+											<button id="resmodal_close" type="button"
+												class="btn-close position-absolute top-0 end-0 m-2"
 												data-bs-dismiss="modal" aria-label="Close"></button>
 										</div>
 
@@ -529,17 +527,14 @@
 
 
 										<div class="modal-footer">
-											<button id="copyToClipboard" type="button" class="btn btn-primary"
-												onclick="outputStats2Clipboard();">Copy results to
-												clipboard</button>
-											<button id="downloadToCSV" type="button" class="btn btn-primary"
-												onclick="outputStats2CSV();">Download to CSV</button>
+											<button id="copyToClipboard" type="button" class="btn btn-primary">Copy
+												results to clipboard</button>
+											<button id="downloadToCSV" type="button" class="btn btn-primary">Download to
+												CSV</button>
 										</div>
-
 									</div>
 								</div>
 							</div>
-
 						</div>
 
 
@@ -547,7 +542,7 @@
 						<!-- Modal -->
 						<!-- Pawn promotion screen -->
 						<div class="modal" id="pawnPromotion" data-bs-backdrop="static" data-bs-keyboard="false"
-							tabindex="-1" aria-labelledby="pawnPromotionLabel" aria-hidden="inert">
+							tabindex="-1" aria-labelledby="pawnPromotionLabel">
 							<div class="modal-dialog">
 								<div class="modal-content">
 									<div class="modal-body">
@@ -576,6 +571,65 @@
 						</div>
 
 
+						<div class="container">
+							<!-- Library Scrollable modal -->
+							<div class="modal" id="lichessStudiesmodal" data-bs-backdrop="static"
+								data-bs-keyboard="false" tabindex="-1" aria-labelledby="lichessStudiesmodal">
+
+								<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+
+									<div class="modal-content">
+										<div class="modal-header">
+											<div class="modal-title fs-4" id="settings-label">Lichess Studies<span id="study_owner"></span></div>
+											<button type="button" class="btn-close position-absolute top-0 end-0 m-2"
+												data-bs-dismiss="modal" aria-label="Close" id="lichess_close"></button>
+										</div>
+										<div class="modal-body fs-5">
+											<div class="accordion" id="lichessStudyList">
+												<!-- Lichess Studies go here -->
+											</div>
+										</div>
+
+
+										<div class="modal-footer ">
+											<div class="row col-12">
+
+												<div class="col-auto me-auto">
+													<button type="button" class="btn btn-secondary fs-5"
+														id="ĺoad_lichess_studies">Load Studies</button>
+
+												</div>
+
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
+						<!-- Error Modal -->
+						<div class="modal fade" id="errorModal" data-bs-backdrop="static" data-bs-keyboard="false"
+							tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h1 class="modal-title fs-5" id="errorModalLabel">Error</h1>
+										<button type="button" class="btn-close" data-bs-dismiss="modal"
+											aria-label="Close"></button>
+									</div>
+									<div class="modal-body" id="errorText">
+										...
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-primary"
+											data-bs-dismiss="modal">Close</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
 					</div>
 
 				</div>
@@ -585,12 +639,12 @@
 
 					<div class="list-group">
 						<a class="list-group-item list-group-item-action border-0" data-bs-toggle="modal"
-							data-bs-target="#settings-dialog" onclick="setColorPickers();">Settings &#x26ED;</a>
+							data-bs-target="#settings-dialog" id="btn_Settings">Settings &#x26ED;</a>
 
 						<a href="https://github.com/rodpolako/Chess-PGN-Trainer" target="_blank"
 							class="list-group-item list-group-item-action d-flex  border-0">Github Page
-							<img id="img_logo2" src="./img/themes/light/github-mark-black.svg" class="img-fluid"
-								style="width: 20px; height: 20px;margin-left: 10px;" /> </a>
+							<img id="img_logo2" src="./src/components/themes/light/github-mark-black.svg"
+								class="img-fluid" style="width: 20px; height: 20px;margin-left: 10px;" /> </a>
 
 						<div class="fs-6" style="text-align: right" id="versionnumber"></div>
 
@@ -601,10 +655,6 @@
 
 		</div>
 	</div>
-
-	<!-- Custom code for this project (needs to be here AFTER elements are built & labelled)-->
-	<script src="./assets/chess-pgn-trainer.js"></script>
-	<script src="./assets/piece-list.js"></script>
 
 </body>
 

@@ -1,0 +1,16 @@
+[PGNTrainerNextButton "1"]
+[Event "Aman Hambleton's Reset Mate"]
+[FEN "8/2k5/8/8/8/8/8/RNBQKBNR w KQ - 0 1"]
+
+{ This is a ridiculous chekmate performed by GM Aman Hambleton. Check it out below:
+
+<div class="video-container" style="width:100%; aspect-ratio: 16 / 9;"><iframe style="width:100%;height: 100%;" src="https://www.youtube.com/embed/XAlcDWQ6iTM" frameborder="0" allowfullscreen></iframe></div>
+Assuming you can get enough pieces promoted and placed back in their starting positions, this is a disgusting way to checkmate your opponent. } { [%csl Bd2][%cal Bd1d2] }
+
+1. Qd2 { This is the only deviation from the original as Aman indicated that Qe2 can trigger stalemate if the king is on g3. Instead, having the Queen step forward one square instead of in front of the king prevents this. } Kc6 2. Qg2+ Kb6 3. Rh3 Kc7 4. Rf3 Kb6 5. Qg4 Kc7 6. Rf5 Kd8 7. Qg6 Ke7 8. Rf6 Kd8 9. Qg7 Ke8 10. Qf8+ Kd7 11. Rd6+ Kc7 12. Rd8 Kb6 13. Qe7 Kc6 14. Rd6+ Kc5 15. Qc7+ Kb4 16. Rd2 Kb3 17. Rh2 Kb4 18. Rh1 Kb3 19. Qd6 Kc2 { And now for the coup de grâce... } 20. Qd1# { [%csl Rc2][%cal Gd1c2,Bh1h3,Bh3f3,Bf3f5,Bf5f6,Bf6d6,Gd1d2,Gd2g2,Gg2g4,Gg4g6,Gg6g7,Gg7f8,Bd6d8,Gf8e7,Bd7d6,Ge7c7,Bd6d2,Bd2h2,Bh2h1,Gc7d6,Gd6d1] } *
+
+[Event "Aman Hambleton's Reset Mate"]
+[FEN "rnbqkbnr/8/6K1/8/8/8/8/8 b kq - 0 1"]
+
+{ Now the same thing for black } { [%csl Bd7][%cal Bd8d7] } 1... Qd7 2. Kg5 Qg7+ 3. Kf4 Rh6 4. Ke3 Rf6 5. Kd3 Qg5 6. Ke2 Rf4 7. Kd1 Qg3 8. Kc1 Rf3 9. Kd1 Qg2 10. Ke1 Qf1+ 11. Kd2 Rd3+ 12. Kc2 Rd1 13. Kc3 Qe2 14. Kb3 Rd3+ 15. Kc4 Qc2+ 16. Kb5 Rd7 17. Kb6 Rh7 18. Kb5 Rh8 19. Kb6 Qd3 20. Kc7 Qd8#
+
