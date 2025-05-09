@@ -1,0 +1,7 @@
+services:
+    chess-pgn-trainer:
+        image: chess-pgn-trainer
+        container_name: chess-pgn-trainer
+        ports:
+            - '3000:80'
+        restart: unless-stopped
