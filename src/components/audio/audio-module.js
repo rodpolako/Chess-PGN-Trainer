@@ -69,9 +69,9 @@ function preloadAudio() {
 
 /**
  * Convert a move in SAN notation into text suitable for text-to-speech
- * 
+ *
  * @param {text} sanMove The move to be spoken
- * @returns 
+ * @returns
  */
 function SAN2SpeechText(sanMove) {
 	let ttsText = sanMove;
@@ -85,7 +85,7 @@ function SAN2SpeechText(sanMove) {
 
 /**
  * Speak the provided text
- * 
+ *
  * @param {text} speechText The text to convert to sound
  */
 async function speakNow(speechText) {
@@ -135,7 +135,7 @@ async function playRelevantSound(SANMove, self = true, sounds = true, speech = t
 
 /**
  * Plays an error sound
- * 
+ *
  * @param {boolean} sounds Flag indicates if the sound should be played
  */
 function errorSound(sounds = false) {

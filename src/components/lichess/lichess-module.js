@@ -10,7 +10,7 @@
 /* exported */
 
 // Required imports
-import { parse } from '../../lib/pgn-parser/pgn-parser-min-1.4.16-esm.js';
+import { parse } from '../../lib/pgn-parser/pgn-parser-1.4.18-esm-min.js';
 import * as sharedTools from '../../util/shared-tools-module.js';
 import * as dataTools from '../../util/datatools-module.js';
 import configuration from '../../app/config.js';
@@ -155,7 +155,7 @@ async function getStudiesListing(userID) {
 		sharedTools.showErrorModal(errorMessage);
 		$('#lichess_close').click();
 		removeLoadingSpinner();
-		return false;
+		return [];
 	}
 
 	// Adapted from https://gist.github.com/yaggytter/f74feeede736c8161bd0eee225a161b4 to convert NDJSON to Array of JSON
@@ -217,13 +217,12 @@ async function accessLichessAPI() {
 
 	// Get the list of studies available for this user (First call)
 	let studyListing = await getStudiesListing(userID);
-	if (studyListing === false) {
-		return;
-	}
 
 	// Show message in case there are no studies for this user
 	if (studyListing.length === 0) {
 		createAccordianEntry('#lichessStudyList', 'No studies available', '');
+		removeLoadingSpinner();
+		return;
 	}
 
 	// Sort the list alphabetically

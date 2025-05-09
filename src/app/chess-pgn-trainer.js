@@ -60,7 +60,7 @@ import configuration from './config.js';
 import PieceList from '../components/piece-list/piece-list-module.js';
 
 // Library Imports
-import { Chess } from '../lib/chess/chess1.20.0-esm.js';
+import { Chess } from '../lib/chess/chess1.20.0-esm-customised.js';
 /*
 	Source: https://github.com/jhlywa/chess.js
 
@@ -82,12 +82,14 @@ import * as dataTools from '../util/datatools-module.js';
 import * as colorTools from '../util/color-tools.js';
 
 // CSS Imports
+/*
 import annotationStyles from '../components/annotation/annotate.css' with { type: 'css' };
 import chessboardJSStyles from '../lib/chessboardjs/chessboard-1.0.0.css' with { type: 'css' };
 import minicolorsStyles from '../lib/jquery-minicolors/jquery.minicolors.css' with { type: 'css' };
 import coreAppStyles from '../../src/app/chess-pgn-trainer.css' with { type: 'css' };
 
 document.adoptedStyleSheets = [coreAppStyles, chessboardJSStyles, annotationStyles, minicolorsStyles];
+*/
 
 // Version number of the app
 $('#versionnumber').text(`${configuration.app.version}`);
@@ -353,6 +355,11 @@ function setStartupOptions() {
 		if (puzzleset[0].tags[setting.PGNTagName] === '1') {
 			$(setting.switchname).prop('checked', true);
 		}
+		if (puzzleset[0].gameComment !== null) {
+			if (puzzleset[0].gameComment[setting.PGNTagName] === '1') {
+				$(setting.switchname).prop('checked', true);
+			}
+		}
 	});
 
 	// Make sure that both "Play both sides" and "Play opposite side" are not selected (if yes, clear both)
@@ -478,23 +485,6 @@ function goToNextPuzzle() {
 	// Load the next puzzle
 	loadPuzzle(puzzleset[puzzleOrder[increment]]);
 	dataTools.saveItem('puzzleIndex', increment);
-}
-
-/**
- * Go through the file and if a null move is encountered, delete it (assumes the null move is the last one)
- * This will make the pgn object match with the chess.js object so that the completion conditions will be satisfied.
- *
- * @param {object} pgnFile The truncated PGN object terminated at (but not including) the null move
- */
-function checkForNullMove(pgnFile) {
-	pgnFile.moves.forEach((move) => {
-		if (move.notation.notation == 'Z0') {
-			if (pgnFile.moves.length > 0) {
-				pgnFile.moves.pop();
-			}
-			return;
-		}
-	});
 }
 
 /**
@@ -1035,7 +1025,7 @@ async function loadPuzzle(PGNPuzzle) {
 	game = new Chess(PGNPuzzle.tags.FEN);
 
 	// Remove null move from parsed PGN data
-	checkForNullMove(PGNPuzzle);
+	//checkForNullMove(PGNPuzzle);
 
 	// Load the moves of the PGN into memory
 	PGNPuzzle.moves.forEach((move) => {
@@ -1047,6 +1037,11 @@ async function loadPuzzle(PGNPuzzle) {
 
 	// Enable the next button if there are no moves to play at all, regardless of the Next button setting
 	if (PGNPuzzle.moves.length == 0) {
+		sharedTools.setDisplayAndDisabled(['#btn_next'], 'inline-block', false);
+	}
+
+	// Enable the next button if the first move is also a null move, regardless of the Next button setting
+	if (PGNPuzzle.moves.length == 1 && PGNPuzzle.moves[0].notation.notation === 'Z0') {
 		sharedTools.setDisplayAndDisabled(['#btn_next'], 'inline-block', false);
 	}
 
@@ -1073,6 +1068,12 @@ async function loadPuzzle(PGNPuzzle) {
 		boardOrientation = PGNPuzzle.tags.MoveColor;
 	}
 
+	// Check for presense of MoveColor tag as an embedded command and if available use that instead
+	// TODO confirm this way of checking for null is safe
+	if (PGNPuzzle.gameComment?.MoveColor) {
+		boardOrientation = PGNPuzzle.gameComment.MoveColor;
+	}
+
 	// Get the current status of the board.  Use it to determine if the board needs to be flipped based on the puzzle.
 	let currentBoardOrientation = board.orientation().substring(0, 1).toLowerCase();
 
@@ -1087,7 +1088,7 @@ async function loadPuzzle(PGNPuzzle) {
 	$('#comment_annotation').append('<br>');
 
 	// If there is commentary before the first move, show it in the annotation panel
-	if (PGNPuzzle.gameComment != null) {
+	if (PGNPuzzle.gameComment) {
 		$('#comment_annotation').prop('innerHTML', annotation.stripNewLine(PGNPuzzle.gameComment.comment));
 		$('#comment_annotation').append('<br><br>');
 
@@ -1102,7 +1103,11 @@ async function loadPuzzle(PGNPuzzle) {
 	checkKing();
 
 	// Check to see if the computer needs to play the first move due to the conflict between the FEN and the MoveColor tag (unless player is playing both sides)
-	if (PGNPuzzle.tags.MoveColor != game.turn() && typeof PGNPuzzle.tags.MoveColor !== 'undefined' && !$('#playbothsides').is(':checked')) {
+	if (
+		((PGNPuzzle.tags.MoveColor != game.turn() && typeof PGNPuzzle.tags.MoveColor !== 'undefined') ||
+			(PGNPuzzle.gameComment?.MoveColor != game.turn() && typeof PGNPuzzle.gameComment?.MoveColor !== 'undefined')) &&
+		!$('#playbothsides').is(':checked')
+	) {
 		// There is a discrepency, make the first move
 		game.move(moveHistory[moveindex]);
 

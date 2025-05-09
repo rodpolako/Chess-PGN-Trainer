@@ -1,24 +1,24 @@
 # Changes in this version:
 
 ## New features ##
-* Support for drilling directly from Lichess studies!  Add your Lichess user ID and API token and you will be able to load a chapter or even an entire study for drilling. **Note: An API token is required for loading unlisted and private studies.  If you are only using public studies, then you don't need a token, just your Lichess user ID.** See the [Wiki](https://github.com/rodpolako/Chess-PGN-Trainer/wiki) for details on how to get a Lichess API token.
-* Added an indicator on the board which will add color to the squares involved in the last played move.
-* Added an indicator (Large grey circle) for any captures available when "Show legal moves" is enabled.
-* Added the comment panel to display below the board and progress area and fit in the available space when using phones in portrait mode.  Depending on your mobile device, you may not have a lot of visible area.
-* Enhanced the error handling when the pgn parser encounters an issue with a file.  It will now show approximately where in the pgn the issue is originating from which should make troubleshooting a pgn much easier.
-* Improved handling of null moves and pgns with no moves.
+* Update to the Lichess studies feature.  You can now put the same commands used to pre-select trainer options into the study itself and the trainer will use them.  See the wiki on how exactly to use this feature.
+* Graphical annotation symbols have been added.  Any moves marked with any of the standard notation symbols (like ?? or !!) will now show in a little circle by the piece.  Due the ability to choose any combination of board colors, the different types of symbols will not have unique colors.  Rather they will use a complementary color based on the board color setup (similar to the color system used for showing the squares of the last moved piece).
 
 ## Bug fixes ##
-* Fixed issue where the analysis button (magnifying glass) would remain active while paused. 
-* Fixed issue where scrolling would re-enable on mobile devices in portrait mode if the user goes into settings. 
-* Fixed issue with the color pickers not updating the board if you copy/paste a color value that doesn't start with a #.  It will now accept either format.
-* Fixed issue with the legal move dots where the opacity was 100% when a pawn was able to promote.
-* Fixed issue where modals would trigger an aria-hidden warning when closed.
-* Fixed issue with audio not playing for first move after turning on the feature (if it was previously disabled).
+* Fixed issue with both Safari and Firefox that arose from the refactor due to unsupported functionality.  Reverted the problematic code.
+* Fixed issue with comments accompanying a null move not displaying in the annotation panel.
 
 ## Maintenance ##
-* ***Massive*** code cleanup and refactoring.  This is to increase maintainability as well as setting the base infrastructure to add new features in the future in a modular way.
-* Replaced the favicon with a simpler version that matches the color scheme.
-* Incorporated the newest version of the pgn-parser (1.4.16) which improved support for null moves in PGN files.
-* Incorporated the newest version of chess.js (1.20.0) which replaces the absolutely ***ancient*** version (0.10.2) that was running previously.
-* Incorporated the newest version of Bootstrap (5.3.5) which included a large number of fixes from 5.3.3.
+* More code cleanup and refactoring.
+* Customized local copy of chess.js to address issues flagged CodeQL.
+* Incorporated the newest version of the pgn-parser (1.4.18) which provides detailed information on where in a PGN an error was encountered. Loading a PGN with an issue will now present a message showing the line and column number where the error occurred.  It will also show the exact character preceeded with a double-asterisk along with some of the surrounding content of the PGN.  
+As an example, if you had a PGN with a typo for a move (in this case Kq1), attempting to load the file will return the following:
+```
+SyntaxError: Expected "@", "x", or [a-h] but "q" found.
+
+Error at line 38, column 14:
+36: [PlyCount "3"]
+37: 
+38: 1... Bd5 2. K**q1 (2. h3 Bxe4+) 2... Bxe4 *
+```
+<ul><li style="list-style-type: none;">To fix your PGN, all you need to do is open the file in a file editor and do a search for ** and that should take you straight to the problem.  In this example, the error tells me that the issue was on the 38th line of this file at the 14th character</li></ul>

@@ -3,7 +3,7 @@
 
 <head>
 	<title>Chess PGN Trainer</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-16" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8" />
 	<link rel="shortcut icon" type="image/x-icon" href="./src/app/favicon.ico?v=2" />
 
 	<!-- JQuery (https://jquery.com/) -->
@@ -17,19 +17,21 @@
 
 	<!-- Chessboardjs -->
 	<!-- Modified copy of chessboardJS in order to handle resizing on width AND height so that the board never gets larger than the vertical space -->
-	<!-- <link rel="stylesheet" href="./src/lib/chessboardjs/chessboard-1.0.0.css"> -->
+	<link rel="stylesheet" href="./src/lib/chessboardjs/chessboard-1.0.0.css">
 	<script src="./src/lib/chessboardjs/chessboard-1.0.0-modified.js"></script>
 
 
-	<!-- MiniColors (https://github.com/claviska/jquery-minicolors) 
-	<link rel="stylesheet" href="./src/lib/jquery-minicolors/jquery.minicolors.css">-->
+	<!-- MiniColors (https://github.com/claviska/jquery-minicolors) -->
+	<link rel="stylesheet" href="./src/lib/jquery-minicolors/jquery.minicolors.css">
 	<script src="./src/lib/jquery-minicolors/jquery.minicolors.min.js"></script>
 
 
 	<!-- Core Application -->
-	<!-- <link rel="stylesheet" href="./src/app/chess-pgn-trainer.css"> -->
+	<link rel="stylesheet" href="./src/app/chess-pgn-trainer.css"> 
 	<script type="module" src="./src/app/chess-pgn-trainer.js"></script>
 
+	<!-- Annotation -->
+	<link rel="stylesheet" href="./src/components/annotation/annotate.css"> 
 
 </head>
 
@@ -618,7 +620,7 @@
 										<button type="button" class="btn-close" data-bs-dismiss="modal"
 											aria-label="Close"></button>
 									</div>
-									<div class="modal-body" id="errorText">
+									<div class="modal-body" id="errorText" style="overflow-x: auto;">
 										...
 									</div>
 									<div class="modal-footer">

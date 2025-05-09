@@ -19,7 +19,7 @@
 
 /**
  * Convert HEX color to HSL
- * 
+ *
  * @param {string} hex The HEX color representation of the color to convert
  * @returns {object} Object with the HSL values
  */
@@ -37,7 +37,7 @@ function HEX2HSL(hex) {
 
 /**
  * Conver HEX to RGB
- * 
+ *
  * @param {string} hex The HEX color representation of the color to convert
  * @returns {object} Object with the RGB values
  */
@@ -59,7 +59,7 @@ function HEX2RGB(hex) {
 
 /**
  * Converts color in RGB format into HSL equivalent
- * 
+ *
  * @param {int} r The red value (0-255)
  * @param {int} g The green value (0-255)
  * @param {int} b The blue value (0-255)
@@ -116,7 +116,7 @@ function RBG2HSL(r, g, b) {
 
 /**
  * Converts color in RGB format into HEX equivalent
- * 
+ *
  * @param {int} r The red value (0-255)
  * @param {int} g The green value (0-255)
  * @param {int} b The blue value (0-255)
@@ -134,7 +134,7 @@ function RGB2HEX(r, g, b) {
 
 /**
  * Converts color in RGB format from CSS styling into HEX equivalent
- * 
+ *
  * @param {string} rgb CSS styling of color in RGB format
  * @returns {string} Textual representation of the color in hex format
  */
@@ -155,7 +155,7 @@ function CSSRGB2HEX(rgb) {
 
 /**
  * Converts color in HSL format into RGB equivalent
- * 
+ *
  * @param {float} h The Hue of the color
  * @param {float} s The Saturation of the color
  * @param {float} l The Luminence of the color
@@ -213,7 +213,7 @@ function HSL2RGB(h, s, l) {
 
 /**
  * Converts color in HSL format into HEX equivalent
- * 
+ *
  * @param {float} h The Hue of the color
  * @param {float} s The Saturation of the color
  * @param {float} l The Luminence of the color
@@ -239,7 +239,7 @@ function HSL2HEX(h, s, l) {
 
 /**
  * Validate that the input is a color in HEX format
- * 
+ *
  * @param {string} colorvalue The color to validate. If invalid, a default grey color is returned.
  * @returns A properly formatted hex color
  */
@@ -263,7 +263,7 @@ function validateHexColor(colorvalue) {
 
 /**
  * Takes a color in HEX format and returns an object in a standard format with RGB, HSL, CSS, and HEX values
- * 
+ *
  * @param {string} hex The color to be processed in HEX format
  * @returns The rendered color object
  */
@@ -281,7 +281,7 @@ function renderHEXColor(hex) {
 
 /**
  * Takes a color in RGB format and returns an object in a standard format with RGB, HSL, CSS, and HEX values
- * 
+ *
  * @param {int} r The red value (0-255)
  * @param {int} g The green value (0-255)
  * @param {int} b The blue value (0-255)
@@ -301,10 +301,10 @@ function renderRGBColor(r, g, b) {
 
 /**
  * Takes a color in HSL format and returns an object in a standard format with RGB, HSL, CSS, and HEX values
- * 
+ *
  * @param {float} h The Hue of the color
  * @param {float} s The Saturation of the color
- * @param {float} l The Luminence of the color 
+ * @param {float} l The Luminence of the color
  * @returns The rendered color object
  */
 function renderHSLColor(h, s, l) {
@@ -321,7 +321,7 @@ function renderHSLColor(h, s, l) {
 
 /**
  * Get the color midway between to source colors
- * 
+ *
  * @param {*} color1 The HEX color value of the first color to blend
  * @param {*} color2 The HEX color value of the second color to blend
  * @returns The blended color object
@@ -342,7 +342,7 @@ function mixTwoColors(color1, color2) {
 
 /**
  * Returns the complementary color of the provided color
- * 
+ *
  * @param {string} originalColor The source color in HEX format
  * @returns The color object of the complementary color
  */

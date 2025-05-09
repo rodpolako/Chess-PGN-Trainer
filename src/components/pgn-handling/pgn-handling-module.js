@@ -13,8 +13,8 @@
 /* eslint no-unused-vars: "error"*/
 /* exported */
 
-//import { parse } from '../../lib/pgn-parser/pgn-parser-min-1.4.16-esm.js';
-import { parse } from '../../lib/pgn-parser/pgn-parser-1.4.16-esm-un-minified.js';
+import { parse } from '../../lib/pgn-parser/pgn-parser-1.4.18-esm-min.js';
+//import { parse } from '../../lib/pgn-parser/pgn-parser-1.4.16-esm-un-minified.js';
 
 /*
 	Source: https://github.com/mliebelt/pgn-parser
@@ -22,16 +22,15 @@ import { parse } from '../../lib/pgn-parser/pgn-parser-1.4.16-esm-un-minified.js
 	Component download:
 	https://www.npmjs.com/package/@mliebelt/pgn-parser 
 
-	https://unpkg.com/@mliebelt/pgn-parser@1.4.16/lib/index.umd.js // Original
-	https://cdn.jsdelivr.net/npm/@mliebelt/pgn-parser@1.4.16/lib/index.umd.min.js // Minified
-	https://cdn.jsdelivr.net/npm/@mliebelt/pgn-parser@1.4.16/+esm // Minified ESM version
+	https://unpkg.com/@mliebelt/pgn-parser@1.4.18/lib/index.umd.js // Original
+	https://cdn.jsdelivr.net/npm/@mliebelt/pgn-parser@1.4.18/lib/index.umd.min.js // Minified
+	https://cdn.jsdelivr.net/npm/@mliebelt/pgn-parser@1.4.18/+esm // Minified ESM version
 
 */
 
-
 /**
  * Split the PGN data into unique games based on presense of variants
- * 
+ *
  * @param {json} PGNData The JSON formatted data parsed from the PGN parser
  */
 function splitvariants(PGNData) {
@@ -39,7 +38,7 @@ function splitvariants(PGNData) {
 
 	/**
 	 * Recursive function to follow a variation path
-	 * 
+	 *
 	 * @param {*} myObject The object to pathfind
 	 * @param {*} pathlist The current path to get to the object
 	 */
@@ -112,7 +111,7 @@ function cleanPGNFile(PGNData) {
 
 /**
  * Feed the PGN file provided by the user here to the PGN Parser
- * 
+ *
  * @param {text} PGNFile The text of the PGN file to parse
  * @returns {object} The parsed JSON object of the PGN file
  */
@@ -123,9 +122,8 @@ function loadPGNFile(PGNFile) {
 	PGNFile = cleanPGNFile(PGNFile);
 	// Try to parse the file.  Display error if issue discovered.
 	try {
-
 		// Get original set of puzzles from the PGN
-		let puzzlesetOriginal = parse(PGNFile, { startRule: 'games'});
+		let puzzlesetOriginal = parse(PGNFile, { startRule: 'games' });
 
 		// Split the variants out and add each puzzle to the final testing set.
 		puzzlesetOriginal.forEach((puzzle) => {
@@ -134,7 +132,6 @@ function loadPGNFile(PGNFile) {
 
 		return puzzleset;
 	} catch (err) {
-
 		$('#errorText').empty();
 		$('#errorText').append('<div id="errorConent">There is an issue with the PGN file.  Error message is as follows:</div><br>');
 		$('#errorText').append('<div id="errorConent">' + `${err.name}: ${err.message}` + '</div><br>');
@@ -143,7 +140,6 @@ function loadPGNFile(PGNFile) {
 
 		return [];
 	}
-
 }
 
 export { loadPGNFile };

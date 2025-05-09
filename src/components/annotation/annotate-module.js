@@ -103,6 +103,45 @@ function drawDot(square, pieceCapture = false) {
 	}
 }
 
+function createNAGSymbol(targetelement, text) {
+	// Clear any currently displaying NAGs
+	$('.nag').remove();
+
+	let element = $('<div/>', {
+		id: 'nag_circle',
+		class: 'nag',
+	});
+	$(targetelement).append(element);
+
+	element = $('<div/>', {
+		id: 'nag_textbox',
+		class: 'nagtext',
+	});
+	$('#nag_circle').append(element);
+
+	element = $('<div/>', {
+		id: 'nag_symbol',
+	});
+	$('#nag_textbox').append(element);
+
+	// Add the notation to the element
+	$('#nag_symbol').text(text);
+
+	// Resize the text to fix the size of the text box
+	$('#nag_symbol').css('font-weight', 'bold');
+
+	// For some reason I have to set the font size to 87%. This is needed only for NAG 19. Any larger and it wraps.
+	// All others are fine at 100%.
+	$('#nag_symbol').css('font-size', $('.nagtext').width() * 0.87 + 'px');
+
+	// Get complementary color of moved color
+	let movedColor = colorTools.renderHEXColor(dataTools.readItem('movecolor'));
+	let complementaryColor = colorTools.getComplementaryColor(movedColor.hex);
+
+	// Set the color to the previously calculated and stored value
+	$('#nag_circle').css('background-color', complementaryColor.hex);
+}
+
 /**
  * Clear all drawn dots for legal moves
  */
@@ -152,34 +191,38 @@ function annotateShapes(offset) {
 	}
 
 	offset = offset || 0;
+
 	let gameMoveIndex = game.history().length - 1 + offset; // Last move played
 
-	try {
+	if (currentPuzzle.moves[gameMoveIndex]?.commentDiag?.colorFields) {
 		drawAnnotationCircle(currentPuzzle.moves[gameMoveIndex].commentDiag.colorFields);
-	} catch (e) {
-		// Object doesn't exist yet, therefore don't draw
 	}
 
-	try {
+	if (currentPuzzle.moves[gameMoveIndex]?.commentDiag?.colorArrows) {
 		drawAnnotationArrow(currentPuzzle.moves[gameMoveIndex].commentDiag.colorArrows);
-	} catch (e) {
-		// Object doesn't exist yet, therefore don't draw
 	}
 
-	try {
-		if (gameMoveIndex === -1) {
-			drawAnnotationCircle(currentPuzzle.gameComment.colorFields);
-		}
-	} catch (e) {
-		// Object doesn't exist yet, therefore don't draw
+	if (gameMoveIndex === -1 && currentPuzzle.gameComment?.colorFields) {
+		drawAnnotationCircle(currentPuzzle.gameComment.colorFields);
 	}
 
-	try {
-		if (gameMoveIndex === -1) {
-			drawAnnotationArrow(currentPuzzle.gameComment.colorArrows);
-		}
-	} catch (e) {
-		// Object doesn't exist yet, therefore don't draw
+	if (gameMoveIndex === -1 && currentPuzzle.gameComment?.colorArrows) {
+		drawAnnotationArrow(currentPuzzle.gameComment.colorArrows);
+	}
+
+	// Can't have a NAG before any move has been played. Leave now.
+	if (gameMoveIndex < 0) {
+		return;
+	}
+
+	let nagcode = currentPuzzle.moves[gameMoveIndex].nag; // NAG of move
+	let square = currentPuzzle.moves[gameMoveIndex].notation.col + currentPuzzle.moves[gameMoveIndex].notation.row;
+
+	if (nagcode) {
+		// Annotation code array found, retrieve each symbol to display next to the move
+		nagcode.forEach((code) => {
+			createNAGSymbol($('div[data-square="' + square + '"]'), translateNAG(code));
+		});
 	}
 }
 
@@ -368,6 +411,9 @@ function deleteAllShapeAnnotations() {
 	// Delete the circles
 	$('.circleannotation').remove();
 
+	// Clear any currently displaying NAGs
+	$('.nag').remove();
+
 	// Delete the arrows
 	createCanvas();
 }
@@ -454,10 +500,8 @@ function checkForNullMove(moveindex) {
 		// If it does, this means that the parser found a null move and has recorded it AFTER the last move of the game.
 		if (currentPuzzle.moves.length > game.history().length) {
 			// Add any annotations if present
-			try {
-				addAnnotationComment(currentPuzzle.moves[moveindex + 1].commentAfter);
-			} catch (e) {
-				// Object doesn't exist, therefore don't do anything
+			if (currentPuzzle.moves[moveindex + 1]?.commentAfter) {
+				$('#comment_annotation').append($('<i></i>').text('( ' + currentPuzzle.moves[moveindex + 1].commentAfter + ' )'));
 			}
 
 			// If the null move has any shape data as well, draw it.
@@ -536,7 +580,7 @@ function annotate() {
 		separator = '... ';
 	}
 
-	// Put the move #, separator ,NAG and a space
+	// Put the move #, separator, NAG and a space
 	moveAnnotation = moveNumber + separator + moveNotation + nagAnnotation + ' ';
 
 	// Normal continuation but it is black's move and there wasn't a comment prior so just continue on and don't repeat the move number
