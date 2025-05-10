@@ -11,7 +11,7 @@ Since then, the tool has grown and can now be used to:
 
 See the sample PGN files in the /examples folder for more information.  The samples include puzzles, openings for both white and black, as well as some famous games to practice.  
 
-Also included is a PGN of a slighly modified [Aman Hambleton's reset mate](https://www.youtube.com/watch?v=XAlcDWQ6iTM) for those who want to practice that sequence along with the same sequence mirrored for black pieces.  The PGN also highlights some of the annotation features available including embedding a YouTube video as well as comments during the move sequence.
+Also included is a PGN of a slightly modified [Aman Hambleton's reset mate](https://www.youtube.com/watch?v=XAlcDWQ6iTM) for those who want to practice that sequence along with the same sequence mirrored for black pieces.  The PGN also highlights some of the annotation features available including embedding a YouTube video as well as comments during the move sequence.
 
 [A live online copy of tool is available here](https://rodpolako.github.io/)
 
