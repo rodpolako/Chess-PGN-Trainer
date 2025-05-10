@@ -50,6 +50,24 @@ If you want to host a copy on your own environment and/or make changes:
 1. Download & extract the zip into a folder and start a web server from there.
 2. In a browser, point to ```index.html```.  On my own setup, the URL is ```localhost:8000/index.html``` but may be different for your setup.  Refer to your web server for details.
 
+### Docker
+
+To build the Docker image locally using the example Dockerfile, pull the git repository and use the following command:
+
+```sh
+docker build --no-cache -t chess-pgn-trainer -f ./docker/Dockerfile ./docker
+```
+
+This will build the Docker image with the latest version of the repository.
+
+Once the image is built, you can run the container using the example docker-compose.yml file in the repository:
+
+```sh
+docker compose -f ./docker/docker-compose.yml up -d
+```
+
+Then navigate to http://your-server-ip:3000 in your browser to access the page.
+
 ## Usage
 1. Click on "Open PGN File"
 2. Navigate to the desired PGN file and then click on OK
