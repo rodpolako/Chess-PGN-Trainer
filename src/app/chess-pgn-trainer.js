@@ -81,15 +81,10 @@ import * as audio from '../components/audio/audio-module.js';
 import * as dataTools from '../util/datatools-module.js';
 import * as colorTools from '../util/color-tools.js';
 
-// CSS Imports
-/*
-import annotationStyles from '../components/annotation/annotate.css' with { type: 'css' };
-import chessboardJSStyles from '../lib/chessboardjs/chessboard-1.0.0.css' with { type: 'css' };
-import minicolorsStyles from '../lib/jquery-minicolors/jquery.minicolors.css' with { type: 'css' };
-import coreAppStyles from '../../src/app/chess-pgn-trainer.css' with { type: 'css' };
-
-document.adoptedStyleSheets = [coreAppStyles, chessboardJSStyles, annotationStyles, minicolorsStyles];
-*/
+// Name the app
+$('title').text(`${configuration.app.name}`);
+$('#title_sidebar').text(`${configuration.app.name}`);
+$('#title_topbar').text(`${configuration.app.name}`);
 
 // Version number of the app
 $('#versionnumber').text(`${configuration.app.version}`);
@@ -227,6 +222,16 @@ function setCommentAreaAvailableHeight() {
 
 	let availableHeight;
 	availableHeight = window.innerHeight - $('#playingarea').innerHeight() - $('#status_area').innerHeight();
+	$('#annotation_col').removeClass('d-none');
+	$('#annotation_col').addClass('d-block');
+
+	if (availableHeight < 80) {
+		availableHeight = 0;
+
+		$('#annotation_col').removeClass('d-block');
+		$('#annotation_col').addClass('d-none');
+	}
+
 	$('#comment_panel').css('max-height', Math.round(availableHeight) * 0.7);
 }
 
@@ -267,7 +272,7 @@ function updateBoard(animate) {
 /**
  * Initializes the application upon load
  */
-function initalize() {
+function initialize() {
 	loadSettings();
 	addPieceSetNames();
 	changePieces();
@@ -291,7 +296,7 @@ function writeDefaultSettings() {
 function resetSettings() {
 	// Set all the settings to their default values
 	writeDefaultSettings();
-	initalize();
+	initialize();
 
 	// Check to see if dark mode is active currently which is not the default and change back to light mode if that is the case
 	if (document.documentElement.getAttribute('data-bs-theme') == 'dark' && dataTools.readItem('darkmode') === 'false') {
@@ -463,7 +468,7 @@ function goToNextPuzzle() {
 	}
 
 	//console.log('puzzlecomplete', puzzlecomplete);
-	// Check to see if the set is complete
+	// Check to see if the set is completeinitalize
 
 	//console.log('puzzleset.length', puzzleset.length);
 	if (increment + 1 === puzzleset.length) {
@@ -491,9 +496,8 @@ function goToNextPuzzle() {
  * End-of-game procedure (stats, buttons, etc.)
  */
 function gameOver() {
-	// Show the stats
-	generateStats();
-	showStats();
+	// Clear the move indicator
+	indicateMove(true);
 
 	// Hide & disable the "Start" and "Pause" buttons
 	sharedTools.setDisplayAndDisabled(['#btn_starttest', '#btn_pause', '#btn_next'], 'none', true);
@@ -501,8 +505,9 @@ function gameOver() {
 	// Show "Restart" button
 	sharedTools.setDisplayAndDisabled(['#btn_restart'], 'inline-block', false);
 
-	// Clear the move indicator
-	$('#moveturn').text('');
+	// Show the stats
+	generateStats();
+	showStats();
 }
 
 /**
@@ -552,12 +557,18 @@ async function checkAndPlayNext(target) {
 		}
 	}
 
+	// Indicate the color to move
+	indicateMove();
+
 	// Check if all the expected moves have been played
 	if (game.history().length === moveHistory.length) {
 		puzzlecomplete = true;
 
 		// Turn on the next button
 		$('#btn_next').prop('disabled', false);
+
+		// Clear the move turn indicator
+		indicateMove(true);
 
 		// Check to see if this is the last puzzle
 		if (increment + 1 === puzzleset.length) {
@@ -577,6 +588,7 @@ async function checkAndPlayNext(target) {
 
 	// Stop once all the puzzles in the set are done
 	if (setcomplete && puzzlecomplete) {
+		//console.log('Puzzle and set complete, game over');
 		gameOver();
 	}
 }
@@ -593,11 +605,18 @@ function clearMessages() {
 /**
  * Indicate who's turn it is to move
  */
-function indicateMove() {
+function indicateMove(nullMove = false) {
 	$('#moveturn').text('White to move');
 
 	if (game.turn() === 'b') {
 		$('#moveturn').text('Black to move');
+	}
+
+	// By default the move is not null
+	// In case it is (ie: true was passed as an argument)
+	// Clear the move indicator
+	if (nullMove) {
+		$('#moveturn').text('');
 	}
 }
 
@@ -625,6 +644,7 @@ function pauseGame() {
 			$('#btn_reset').prop('disabled', true);
 			$('#openPGN_button').prop('disabled', true);
 			$('#btn_hint').prop('disabled', true);
+			$('#btn_library').prop('disabled', true);
 			$('#analysis_link').addClass('disabled');
 
 			break;
@@ -649,6 +669,7 @@ function pauseGame() {
 			$('#btn_reset').prop('disabled', false);
 			$('#openPGN_button').prop('disabled', false);
 			$('#btn_hint').prop('disabled', false);
+			$('#btn_library').prop('disabled', false);
 			$('#analysis_link').removeClass('disabled');
 
 			break;
@@ -688,7 +709,7 @@ function setBoardConfig() {
 function initialButtonSetup() {
 	// Show Start button and hide "Pause" and "Restart" buttons
 	sharedTools.setDisplayAndDisabled(['#btn_starttest'], 'inline-block', true);
-	sharedTools.setDisplayAndDisabled(['#btn_pause', '#btn_restart', '#btn_next'], 'none', false);
+	sharedTools.setDisplayAndDisabled(['#btn_pause', '#btn_restart', '#btn_next'], 'none', true);
 
 	// Hide & disable the "Hint" and the "Show Results" buttons
 	sharedTools.setDisplayAndDisabled(['#btn_hint', '#btn_showresults'], 'none', true);
@@ -737,6 +758,7 @@ function resetGame() {
 	// Show the full board (in case the reset happened during a pause)
 	$('#myBoard').css('display', 'block');
 	$('#blankBoard').css('display', 'none');
+	$('#blankBoard').addClass('pausedBoard');
 
 	// Reset the progress bar
 	$('#progressbar').width('0%');
@@ -769,7 +791,7 @@ function resetGame() {
 	$('#img_anaylsis').attr('src', configuration.theme.themeImgRootPath + 'magnifier-grey.png');
 
 	// Clear the move indicator
-	$('#moveturn').text('');
+	indicateMove(true);
 
 	// Close the sidebar
 	$('#close_sidebar').click();
@@ -853,6 +875,9 @@ function startTest() {
 	pauseDateTimeTotal = 0;
 	increment = 0;
 	setcomplete = false;
+
+	// Clear the move turn indicator
+	indicateMove(true);
 
 	// Neat bit here from https://www.freecodecamp.org/news/javascript-range-create-an-array-of-numbers-with-the-from-method/
 	const arrayRange = (start, stop, step) => Array.from({ length: (stop - start) / step + 1 }, (value, index) => start + index * step);
@@ -990,9 +1015,10 @@ function makeMove(game, cfg) {
  *
  * @param {object} PGNPuzzle The object representing a specific position and move sequence
  */
-async function loadPuzzle(PGNPuzzle) {
+function loadPuzzle(PGNPuzzle) {
 	//console.log(PGNPuzzle);
 	let moveindex = 0;
+	let nullMove = false;
 
 	// Clear the content title and window
 	$('#comment_event_name').prop('innerHTML', '');
@@ -1022,10 +1048,14 @@ async function loadPuzzle(PGNPuzzle) {
 	$('.movedpiece').remove();
 
 	// Load the board position into memory
-	game = new Chess(PGNPuzzle.tags.FEN);
-
-	// Remove null move from parsed PGN data
-	//checkForNullMove(PGNPuzzle);
+	try {
+		game = new Chess(PGNPuzzle.tags.FEN);
+	} catch (error) {
+		// Exception handling in case of an invalid FEN, output the error to the console but try to continue
+		console.log(error.message);
+		game = new Chess(PGNPuzzle.tags.FEN, { skipValidation: true });
+		board.position(PGNPuzzle.tags.FEN);
+	}
 
 	// Load the moves of the PGN into memory
 	PGNPuzzle.moves.forEach((move) => {
@@ -1035,14 +1065,12 @@ async function loadPuzzle(PGNPuzzle) {
 		}
 	});
 
-	// Enable the next button if there are no moves to play at all, regardless of the Next button setting
-	if (PGNPuzzle.moves.length == 0) {
+	// Enable the next button if there are no moves to play at all or if the first move is also a null move, regardless of the Next button setting
+	if (PGNPuzzle.moves.length == 0 || (PGNPuzzle.moves.length == 1 && PGNPuzzle.moves[0].notation.notation === 'Z0')) {
 		sharedTools.setDisplayAndDisabled(['#btn_next'], 'inline-block', false);
-	}
-
-	// Enable the next button if the first move is also a null move, regardless of the Next button setting
-	if (PGNPuzzle.moves.length == 1 && PGNPuzzle.moves[0].notation.notation === 'Z0') {
-		sharedTools.setDisplayAndDisabled(['#btn_next'], 'inline-block', false);
+		// Clear the move turn indicator (since it is nobody's move)
+		nullMove = true;
+		indicateMove(nullMove);
 	}
 
 	// Copy the move order from the PGN into memory
@@ -1088,7 +1116,7 @@ async function loadPuzzle(PGNPuzzle) {
 	$('#comment_annotation').append('<br>');
 
 	// If there is commentary before the first move, show it in the annotation panel
-	if (PGNPuzzle.gameComment) {
+	if (PGNPuzzle.gameComment?.comment) {
 		$('#comment_annotation').prop('innerHTML', annotation.stripNewLine(PGNPuzzle.gameComment.comment));
 		$('#comment_annotation').append('<br><br>');
 
@@ -1141,7 +1169,7 @@ async function loadPuzzle(PGNPuzzle) {
 	}
 
 	// Update the status of the game in memory with the new data
-	indicateMove();
+	indicateMove(nullMove);
 
 	changecolor();
 
@@ -1285,20 +1313,17 @@ function dropPiece(source, target) {
 	makeMove(game, moveCfg);
 
 	// Check if the move played is the expected one and play the next one if it was
-	/*(async () => {
+	(async () => {
 		await checkAndPlayNext(target);
-	})();*/
-	checkAndPlayNext(target);
-
-	// Indicate the player to move
-	indicateMove();
+	})();
+	//checkAndPlayNext(target);
 
 	// Check on the status of the King for check or checkmate
 	checkKing();
 
 	// Clear the move indicator if everything is done
 	if (setcomplete || puzzlecomplete) {
-		$('#moveturn').text('');
+		indicateMove(true);
 	}
 
 	// Clear the hint if used
@@ -1691,14 +1716,29 @@ $(() => {
 		// Use API connection to Lichess
 		(async () => {
 			await loadLichessData();
+
+			// Expand the study list with the refreshed data if currently collapsed
+			if ($('#lichess_studies_button').hasClass('collapsed') === true) {
+				$('#lichess_studies_button').click();
+			}
 		})();
 	});
 
-	$('#btn_lichessStudies').on('click', async function () {
-		await $('#lichessStudiesmodal').modal('show');
+	$('#btn_library').on('click', async function () {
+		await $('#librarymodal').modal('show');
 
-		// Add check here to only do this IF the modal is empty (resue data where possible)
-		if ($('#lichessStudyList').children().length === 0) {
+		// Add check here to only do this IF the modal is empty (reuse data where possible)
+		if ($('#lichess_studies_list').children().length === 0) {
+			$('#ĺoad_lichess_studies').click();
+		}
+	});
+
+	$('#lichess_studies_header').on('click', async function () {
+		// Add check here to only do this IF the modal is empty (reuse data where possible)
+		// Realistically, this should never trigger since you shouldn't have the option to
+		// click this while the listing is empty since it would have been already populated
+		// when the modal was opened.  Nevertheless, keeping it here just in case.
+		if ($('#lichess_studies_list').children().length === 0) {
 			$('#ĺoad_lichess_studies').click();
 		}
 	});
@@ -1759,6 +1799,17 @@ $(() => {
 	$('button').on('click', function () {
 		$(this).blur();
 	});
+
+	// Pause game if user switched tabs, apps or turned off the screen
+	$(document).on('visibilitychange', function () {
+		if (document.hidden) {
+			// Pause the game if the pause button is not disabled (ie: able to pause the game) AND the game is not already paused
+			if (!$('#btn_pause').prop('disabled') && pauseflag === false) {
+				pauseGame();
+			}
+		}
+	});
+
 });
 
 /**
@@ -1767,7 +1818,7 @@ $(() => {
  */
 document.onreadystatechange = () => {
 	if (document.readyState === 'complete') {
-		initalize();
+		initialize();
 	}
 };
 

@@ -68,13 +68,22 @@ function hashJSON(obj) {
  *
  * @param {*} array The array containing the objects to sort
  * @param {*} key The key to use for the sort
+ * @param {boolean} ascending Determines the sort order. By default it is ascending.  Set it to false to go in descending order.
  * @returns
  */
-function sort_by_key(array, key) {
+function sort_by_key(array, key, ascending = true) {
 	return array.sort(function (a, b) {
-		//var x = a[key]; var y = b[key];
-		var x = a[key].toLowerCase();
-		var y = b[key].toLowerCase();
+		var x = a[key];
+		var y = b[key];
+
+		if (typeof a[key] === 'string') {
+			x = a[key].toLowerCase();
+			y = b[key].toLowerCase();
+		}
+
+		if (!ascending) {
+			return x > y ? -1 : x < y ? 1 : 0;
+		}
 		return x < y ? -1 : x > y ? 1 : 0;
 	});
 }

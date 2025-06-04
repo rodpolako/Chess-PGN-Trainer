@@ -14,7 +14,6 @@
 /* exported */
 
 import { parse } from '../../lib/pgn-parser/pgn-parser-1.4.18-esm-min.js';
-//import { parse } from '../../lib/pgn-parser/pgn-parser-1.4.16-esm-un-minified.js';
 
 /*
 	Source: https://github.com/mliebelt/pgn-parser
@@ -53,6 +52,7 @@ function splitvariants(PGNData) {
 				// alternate steps found...
 				tempObj.pop(); // remove the current step that was added (since we are adding more inside)
 				element.variations.forEach((child) => createPGNVariant(child, tempObj)); // Explore that alternate path
+				element.variations.length = 0; // Clear this variation branch now that it has been traversed
 				tempObj.push(element); // Add back the current step to continue in the current path
 			}
 		});

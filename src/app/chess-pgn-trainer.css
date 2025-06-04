@@ -20,4 +20,26 @@ a.disabled {
 .body {
 	overscroll-behavior-y: contain !important;
 	overflow: hidden !important;
+	-webkit-overflow-scrolling: touch; /* iOS fix for scrolling*/
+
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    touch-action: none;
+}
+
+html, body {
+  overscroll-behavior: none; /* iOS fix for scrolling*/
+}
+
+.prevent-select {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
+}
+
+.pausedBoard {
+	opacity:50%;
 }

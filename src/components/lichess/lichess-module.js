@@ -44,7 +44,8 @@ async function checkUserIDExists() {
  * @param {boolean} usePAT Indicates whether or not to use a PAT (as part of the authorization header)
  * @returns
  */
-async function fetchLichessData(fetchURL, usePAT = true) {
+async function fetchLichessData(fetchURL, studyID) {
+	//, usePAT = true
 	const headers = {
 		Authorization: 'Bearer ' + lichessToken,
 	};
@@ -52,21 +53,23 @@ async function fetchLichessData(fetchURL, usePAT = true) {
 	let response;
 
 	try {
-		if (usePAT) {
-			response = await fetch(fetchURL, { headers: headers, cache: 'no-store' });
-		} else {
-			response = await fetch(fetchURL, { cache: 'no-store' });
-		}
-
-		//console.log(response);
+		response = await fetch(fetchURL, { headers: headers, cache: 'no-store' });
 
 		// This will happen if the study permission for "Share and Export" is set to "Nobody"
 		if (response.status === 403) {
+			forbidden(studyID);
 			return false;
 		}
 
 		// Wrong PAT supplied - Returns 401 (Unauthorized)
 		if (response.status === 401) {
+			incorrectPAT();
+			return false;
+		}
+
+		// Too many Requests - Returns 429 (Too Many Requests)
+		if (response.status === 429) {
+			tooManyRequests();
 			return false;
 		}
 
@@ -121,15 +124,47 @@ function extractStudyChapterData(PGNData) {
  */
 async function fetchStudyChapterListing(studyID) {
 	let studyURL = 'https://lichess.org/api/study/' + studyID + '.pgn?comments=false&variations=false&clocks=false&source=true';
-	let studayData = await fetchLichessData(studyURL);
+	let studayData = await fetchLichessData(studyURL, studyID);
 
-	//console.log(studayData)
 	if (studayData === false) {
-		return;
+		return false;
 	}
+
 	let pgndata = parse(studayData);
 
 	return extractStudyChapterData(pgndata);
+}
+
+function incorrectPAT() {
+	let errorMessage = 'Lichess Personal Access Token (PAT) incorrect<br><br>';
+	errorMessage += "If you haven't created a token yet, please visit this page to generate a token:<br>";
+	errorMessage +=
+		'<a href="https://lichess.org/account/oauth/token/create?scopes[]=study:read&description=Chess+PGN+Trainer+Token" target="_blank">https://lichess.org/account/oauth/token/create</a> ';
+	errorMessage += '<br><br>';
+	errorMessage += 'Make sure you have "Read private studies and broadcasts" enabled when you generate the token.<br><br>';
+	errorMessage += '<img src="./src/components/lichess/pat.png">';
+	errorMessage += '<br>Once you have the token, copy & paste it into settings and then try again.';
+	errorMessage +=
+		'<br><br>Note: This is only required to access unlisted and private studies. Leave this field blank if you only are accessing public studies.';
+
+	sharedTools.showErrorModal(errorMessage);
+}
+
+function forbidden(studyID) {
+	// 403 error - Export permission on the study is set to Nobody
+
+	let errorNotification =
+		'Access to this study is denied. In Lichess, go to the options for this study and make sure that "Share & export" is NOT set to "Nobody"';
+
+	$('#' + studyID + '_list').empty();
+
+	createAccordianEntry('#' + studyID + '_list', errorNotification, '');
+}
+
+function tooManyRequests() {
+	let errorMessage = 'Too many requests.  Please wait 60 seconds and then try again.';
+
+	sharedTools.showErrorModal(errorMessage);
 }
 
 /**
@@ -139,21 +174,14 @@ async function fetchStudyChapterListing(studyID) {
  * @returns {object} The list of studies for this user
  */
 async function getStudiesListing(userID) {
+	// Add the user ID to the modal title
+	$('#lichess_study_owner').empty();
+	$('#lichess_study_owner').append(': ' + userID);
+
 	var ndjson = await fetchLichessData('https://lichess.org/api/study/by/' + userID);
 
 	if (ndjson === false) {
-		let errorMessage = 'Lichess Personal Access Token (PAT) incorrect<br><br>';
-		errorMessage += "If you haven't created a token yet, please visit this page to generate a token:<br>";
-		errorMessage += '<a href="https://lichess.org/account/oauth/token/create" target="_blank">https://lichess.org/account/oauth/token/create</a> ';
-		errorMessage += '<br><br>';
-		errorMessage += 'Make sure you have "Read private studies and broadcasts" enabled when you generate the token.<br><br>';
-		errorMessage += '<img src="./src/components/lichess/pat.png">';
-		errorMessage += '<br>Once you have the token, copy & paste it into settings and then try again.';
-		errorMessage +=
-			'<br><br>Note: This is only required to access unlisted and private studies. Leave this field blank if you only are accessing public studies.';
-
-		sharedTools.showErrorModal(errorMessage);
-		$('#lichess_close').click();
+		//$('#lichess_close').click();
 		removeLoadingSpinner();
 		return [];
 	}
@@ -177,7 +205,7 @@ async function validateUserAccess() {
 	}
 
 	// Exit if userID is blank
-	if (userID === '') {
+	if (userID === '' || userID === undefined) {
 		return false;
 	}
 
@@ -186,8 +214,10 @@ async function validateUserAccess() {
 
 	// Determine if user exists, exit early if not present
 	if (userDetails.status === 404) {
-		sharedTools.showErrorModal('Lichess user not found. Please check your entry in settings and try again.');
-		$('#lichess_close').click();
+		//sharedTools.showErrorModal('Lichess user not found. Please check your entry in settings and try again.');
+		//$('#lichess_close').click();
+		$('#lichess_study_owner').empty();
+		$('#lichess_study_owner').append(': ' + userID + ' not found');
 		removeLoadingSpinner();
 		return false;
 	}
@@ -201,32 +231,41 @@ async function validateUserAccess() {
  * @returns
  */
 async function accessLichessAPI() {
-	if (validateUserAccess() === false) {
+	var validUser = await validateUserAccess();
+
+	if (!validUser) {
 		return;
 	}
 
 	// Add the user ID to the modal title
-	$('#study_owner').empty();
-	$('#study_owner').append(': ' + userID);
+	$('#lichess_study_owner').empty();
+	$('#lichess_study_owner').append(': ' + userID);
 
 	// clear the existing list first
-	$('#lichessStudyList').empty();
+	$('#lichess_studies_list').empty();
 
 	// Add a loading message
-	showLoadingSpinner('#ĺoad_lichess_studies');
+	showLoadingSpinner('#lichess_studies_div');
 
 	// Get the list of studies available for this user (First call)
 	let studyListing = await getStudiesListing(userID);
 
 	// Show message in case there are no studies for this user
 	if (studyListing.length === 0) {
-		createAccordianEntry('#lichessStudyList', 'No studies available', '');
+		createAccordianEntry('#lichess_studies_list', 'No studies available', '');
 		removeLoadingSpinner();
 		return;
 	}
 
 	// Sort the list alphabetically
-	sharedTools.sort_by_key(studyListing, 'name');
+	sharedTools.sort_by_key(studyListing, 'name'); // This is the default
+
+	// Other options
+	//sharedTools.sort_by_key(studyListing, 'name', false); Reverse alphabetical
+	//sharedTools.sort_by_key(studyListing, 'createdAt');
+	//sharedTools.sort_by_key(studyListing, 'createdAt', false);
+	//sharedTools.sort_by_key(studyListing, 'updatedAt');
+	//sharedTools.sort_by_key(studyListing, 'updatedAt', false);
 
 	// Populate the list (studies only)
 	await studyListing.forEach(async (workspace) => {
@@ -247,7 +286,7 @@ function createListOfStudies(entryName) {
 		id: entryName.id + '_accordianItem',
 	});
 
-	$('#lichessStudyList').append(element);
+	$('#lichess_studies_list').append(element);
 
 	element = $('<h2/>', {
 		class: 'accordion-header',
@@ -276,7 +315,7 @@ function createListOfStudies(entryName) {
 	element = $('<div/>', {
 		id: entryName.id + '_study',
 		class: 'accordion-collapse collapse',
-		'data-bs-target': '#lichessStudyList',
+		'data-bs-target': '#lichess_studies_list',
 	});
 	$('#' + entryName.id + '_accordianItem').append(element);
 
@@ -381,15 +420,9 @@ async function addChaptersToStudyList(studyID) {
 	// Get list of chapters for indicated study
 	let workspaceDetails = await fetchStudyChapterListing(studyID);
 
-	if (workspaceDetails === undefined) {
-		// 403 error - Export permission on the study is set to Nobody
-		$('#' + studyID + '_list').empty();
-		let errorNotification =
-			'Access to this study is denied. In Lichess, go to the options for this study and make sure that "Share & export" is NOT set to "Nobody"';
-		createAccordianEntry('#' + studyID + '_list', errorNotification, '');
+	if (workspaceDetails === false) {
 		return;
 	}
-	//console.log(workspaceDetails);
 
 	// Empty the current list of studies
 	$('#' + studyID + '_list').empty();
@@ -438,11 +471,18 @@ function initalizeLichess() {
 	userID = dataTools.readItem('lichess_userID');
 	lichessToken = dataTools.readItem('lichess_accesstoken');
 
-	// Hide lichess button by default
-	sharedTools.setDisplayAndDisabled(['#btn_lichessStudies'], 'none', true);
+	// Disable load studies button by default
+	$('#ĺoad_lichess_studies').prop('disabled', true);
 
 	// Exit if userID is blank
 	if (userID === '' || userID === undefined || userID === null) {
+		console.log('no user found, stopping init');
+		// clear the existing list first
+		$('#lichess_studies_list').empty();
+		$('#lichess_study_owner').empty();
+
+		// Disable the accordion item (will hang browser otherwise)
+		$('#lichess_studies_button').prop('disabled', true);
 		return;
 	}
 
@@ -450,10 +490,11 @@ function initalizeLichess() {
 	removeLoadingSpinner();
 
 	// Update the UI based on values being provided for Lichess access
-	sharedTools.setDisplayAndDisabled(['#btn_lichessStudies'], 'inline-block', false);
+	$('#ĺoad_lichess_studies').prop('disabled', false);
+	$('#lichess_studies_button').prop('disabled', false);
 
 	// Clear any already loaded content
-	$('#lichessStudyList').empty();
+	$('#lichess_studies_list').empty();
 }
 
 /**

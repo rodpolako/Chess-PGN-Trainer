@@ -3,8 +3,13 @@
 
 <head>
 	<title>Chess PGN Trainer</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1.0" charset="UTF-8" />
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Expires" content="0">
+
 	<link rel="shortcut icon" type="image/x-icon" href="./src/app/favicon.ico?v=2" />
+	<link rel="manifest" href="./src/app/manifest.json">
 
 	<!-- JQuery (https://jquery.com/) -->
 	<script src="./src/lib/jquery/jquery-3.7.1.min.js"></script>
@@ -27,15 +32,15 @@
 
 
 	<!-- Core Application -->
-	<link rel="stylesheet" href="./src/app/chess-pgn-trainer.css"> 
+	<link rel="stylesheet" href="./src/app/chess-pgn-trainer.css">
 	<script type="module" src="./src/app/chess-pgn-trainer.js"></script>
 
 	<!-- Annotation -->
-	<link rel="stylesheet" href="./src/components/annotation/annotate.css"> 
+	<link rel="stylesheet" href="./src/components/annotation/annotate.css">
 
 </head>
 
-<body style="overscroll-behavior-y: contain;overflow: hidden;">
+<body style="overscroll-behavior-y: none;overflow: hidden;">
 
 	<!-- Layout for Desktops and Tablets -->
 	<div id="application" class="container-fluid p-0" style="overflow: hidden;">
@@ -43,7 +48,7 @@
 
 			<!-- Content Panel-->
 			<div class="col-12 order-1 col-lg-3 order-lg-1">
-				<div class="d-block d-sm-none d-lg-block">
+				<div id="annotation_col" class="d-block d-sm-none d-lg-block">
 
 					<div id="comment_panel" class="container p-1 fs-6" style="overflow-y: auto; max-height: 90vh; ">
 						<div id="comment_event_name" class="fs-3" style="padding-top: 10px;"></div>
@@ -55,7 +60,7 @@
 
 			<!-- Board -->
 			<div class="col-sm-7 order-sm-2 col-lg-6 order-lg-2 align-items-center g-0" id="playingarea">
-				<div class="container-fluid g-0">
+				<div class="container-fluid g-0 prevent-select">
 
 					<!-- Title -->
 					<div class="p-3 g-0 d-sm-none text-bg-primary"
@@ -63,7 +68,7 @@
 
 						<div class="row justify-content-between align-items-center">
 
-							<div class="h2 col-8" style="margin-bottom: 0;">Chess PGN Trainer</div>
+							<div id="title_sidebar" class="h2 col-8" style="margin-bottom: 0;">Chess PGN Trainer</div>
 							<div class="col-2">
 								<button class="btn btn-primary d-lg-none text-end fs-2" type="button"
 									data-bs-toggle="offcanvas" data-bs-target="#offcanvasResponsive"
@@ -91,13 +96,13 @@
 
 
 			<!-- Menu Panel-->
-			<div id="status_area" class="col-sm-5 order-sm-3 col-lg-3 order-lg-3"
+			<div id="status_area" class="col-sm-5 order-sm-3 col-lg-3 order-lg-3 prevent-select"
 				style="display: flex;flex-direction: column; overflow-y: auto; max-height: 95vh;">
 				<div class="container">
 
 					<div id="mainAppContainer">
 						<!-- Title -->
-						<div class="p-3 d-none d-sm-block h1 fs-2">Chess PGN Trainer</div>
+						<div id="title_topbar" class="p-3 d-none d-sm-block h1 fs-2">Chess PGN Trainer</div>
 
 						<!-- Options -->
 						<div class="offcanvas-sm offcanvas-end p-0" tabindex="-1" id="offcanvasResponsive"
@@ -126,8 +131,8 @@
 									</div>
 
 									<div class="d-flex justify-content-center">
-										<button id="btn_lichessStudies" class="btn btn-primary fs-5"
-										style="display: none">Lichess Studies</button>
+										<button id="btn_library" class="btn btn-primary fs-5"
+											style="display: inline-block">Library</button>
 									</div>
 
 
@@ -365,8 +370,8 @@
 
 															<div class="col">
 																<input type="text" id="lichess_user_ID"
-																	class="form-control fs-6 settingstextinput" value=""
-																	onchange="">
+																	class="form-control fs-6 settingstextinput"
+																	value="" onchange="">
 															</div>
 														</div>
 
@@ -575,20 +580,44 @@
 
 						<div class="container">
 							<!-- Library Scrollable modal -->
-							<div class="modal" id="lichessStudiesmodal" data-bs-backdrop="static"
-								data-bs-keyboard="false" tabindex="-1" aria-labelledby="lichessStudiesmodal">
+							<div class="modal" id="librarymodal" data-bs-backdrop="static" data-bs-keyboard="false"
+								tabindex="-1" aria-labelledby="librarymodal">
 
 								<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
 
 									<div class="modal-content">
 										<div class="modal-header">
-											<div class="modal-title fs-4" id="settings-label">Lichess Studies<span id="study_owner"></span></div>
+											<div class="modal-title fs-4" id="settings-label">Library</div>
 											<button type="button" class="btn-close position-absolute top-0 end-0 m-2"
 												data-bs-dismiss="modal" aria-label="Close" id="lichess_close"></button>
 										</div>
 										<div class="modal-body fs-5">
-											<div class="accordion" id="lichessStudyList">
-												<!-- Lichess Studies go here -->
+											<div class="accordion" id="data_library">
+
+												<div class="accordion-item" id="lichess_studies_accordianItem">
+													<h2 class="accordion-header" id="lichess_studies_header">
+														<button id="lichess_studies_button" class="accordion-button"
+															type="button" data-bs-toggle="collapse"
+															data-bs-target="#lichess_studies_study"
+															aria-expanded="false" aria-controls="lichess_studies_study">
+															<div id="lichess_studies_div">
+																Lichess Studies<span id="lichess_study_owner"></span>
+															</div>
+														</button>
+													</h2>
+													<div id="lichess_studies_study"
+														class="accordion-collapse collapse show"
+														data-bs-parent="#data_library">
+														<div class="accordion-body" id="lichess_studies_body">
+
+															<div class="accordion" id="lichess_studies_list">
+																<!-- Lichess Studies go here -->
+															</div>
+
+														</div>
+													</div>
+												</div>
+
 											</div>
 										</div>
 
@@ -599,7 +628,12 @@
 												<div class="col-auto me-auto">
 													<button type="button" class="btn btn-secondary fs-5"
 														id="ĺoad_lichess_studies">Load Studies</button>
-
+													<!--
+														<button type="button" class="btn btn-secondary fs-5"
+														id="btn_sort"><img id="btn_img_sort"
+															src="./src/components/themes/dark/sort-asc-white.png"
+															style="width: 30px; height: 30px;" /></button>
+													-->
 												</div>
 
 											</div>

@@ -22,12 +22,16 @@ This tool has a number of features that you might find useful:
 * Play both sides - Allows the player to play both sides of the puzzle/game
 * Randomize - Presents the puzzles/games in the set in a random order
 * Flipped - Allows you to play the puzzle/game from the other side of the board.  May help to develop sense when a given tactic is being used on you.
-* Play Opposite Side - Allows the player to go second instead and makes the computer play the first move from the PGN.  Useful for when you want to practice opening defenses instead of puzzles.  For example, if you wanted to practice a defense as black, load a PGN with the move order you want to practice and this feature will play as white and play the moves in the PGN while you play the response.  Recommended that you use the Flipped option in conjunction with this one.
+* Play Opposite Side - Allows the player to go second instead and makes the computer play the first move from the PGN.  There are two use cases for this feature: 
+
+<div style="padding-left: 2em;"><ol><li>When the puzzles you have all include the move prior to the puzzle position.  This will make the app play the first move and then you finish it from there.</li>
+<li>When you want to practice opening defenses instead of puzzles.  For example, if you wanted to practice a defense as black, load a PGN with the move order you want to practice and this feature will play as white and play the moves in the PGN while you play the response.  Recommended that you use the Flipped option in conjunction with this one.</li></ol></div>
+
 * Analysis board - More useful for puzzles, this option generates a link to a Lichess analysis board of the currently displayed position. Useful when you want to analyze a specific puzzle during a run in order to analyze or troubleshoot.  This link will always be available via the magnifying glass next to the progress bar which if clicked will open an analysis board in Lichess in a new tab.
 * Pause - Useful if you are doing a large number of puzzles/games and need to step away.  Click on the pause button and the board will clear and the timer will stop.  Click Resume in order to continue.  Your elapsed time will not include the paused time.
 * Hints - You can press the hint button at any time during a puzzle/game to see the next expected move.  Just know that if a hint is used, it will be counted as an error in your performance.
 * Restart/replay - You can repeat the current puzzle/game set upon completion with a single click. Useful if you want to try again with the same settings.  When the current set is complete, just click on "Restart" to try the current PGN file again.  If you want, you can choose different settings like random, flipped, etc. before restarting.
-* Feature settings via PGN Tags - You can configure a PGN to set a default combination of features by adding the relevant tag to the top of the PGN.  Details below.
+* Feature settings via PGN Tags - You can configure a PGN to set a default combination of features by adding the relevant tag to the top of the PGN.  See the [wiki](https://github.com/rodpolako/Chess-PGN-Trainer/wiki#default-settings-via-pgn-tags) for details.
 * Responsive design allows the app to be used in either portrait or landscape mode which means that it is able to be used on phones and tablets along with desktop.
 * Choice of multiple piece designs - Note this will reset the board so don't change sets while in the middle of puzzle set.
 * Ability to specify custom board colors either by manual entry or color picking 
@@ -35,8 +39,8 @@ This tool has a number of features that you might find useful:
 * Ability to copy results to clipboard ready to paste into a spreadsheet such as Google Sheets or Microsoft Excel. 
 * Ability to export results to CSV file along with setting to include the headers
 * Ability to add additional piece sets (either PNG for SVG) for hosted instances only.  Not available on github.io page.
-* Support for annotations - Comments in PGN files will display in the annotation panel to the left of the board.  Annotations can use HTML tags so the PGN comments can be fully featured with things like headings, bullets, bold, italics, links, thumbnails, video, etc. If present, annotations will display while completing the puzzle.  Board-level annotations, like circles and arrows is included and can be disabled via settings.  
-**Note:** The annotation panel will only be available on screens wider than 992 pixels (1024 or higher recommended).
+* Support for annotations - Comments in PGN files will display in the annotation panel to the left of the board (or underneath in portrait mode).  Annotations can use HTML tags so the PGN comments can be fully featured with things like headings, bullets, bold, italics, links, thumbnails, video, etc. If present, annotations will display while completing the puzzle.  Board-level annotations, like circles and arrows is included and can be disabled via settings.  
+**Note:** Annotations are best seen in a desktop environment with a standard display. The visible space for comments may be constrained when using the app in portrait mode (such as when on a phone).
 * Ability to set the piece movement speed
 * Support for variations.  PGN files can have any number of variations within and the tool will treat each one as a separate puzzle.  This is useful for puzzles with multiple responses by the opponent as well as for practicing openings.  See the example PGN files for more information.
 * Sound effects (move, capture, check, checkmate, and error).  By default these are turned off to prevent distraction but can be enabled in the Settings menu
@@ -90,3 +94,4 @@ Once a test group is completed, tool displays the following performance informat
 
 ## Documentation
 See the [Wiki](https://github.com/rodpolako/Chess-PGN-Trainer/wiki) for a complete documentation.
+

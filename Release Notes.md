@@ -1,24 +1,25 @@
 # Changes in this version:
 
 ## New features ##
-* Update to the Lichess studies feature.  You can now put the same commands used to pre-select trainer options into the study itself and the trainer will use them.  See the wiki on how exactly to use this feature.
-* Graphical annotation symbols have been added.  Any moves marked with any of the standard notation symbols (like ?? or !!) will now show in a little circle by the piece.  Due the ability to choose any combination of board colors, the different types of symbols will not have unique colors.  Rather they will use a complementary color based on the board color setup (similar to the color system used for showing the squares of the last moved piece).
+* Chess PGN Trainer is now a Progressive Web App.  This will allow you to "install" the app to your computer or phone and have it behave like any other application. This is especially useful in mobile devices when there isn't sufficient vertical space to show the application due to the browser elements such as the address bar and other menus.  
+To install the application, use the following steps:
+    * On iOS devices: Tap ![Share button](/public/screenshots/share-iOS.png?raw=true) in the menu bar, scroll down the list of options, and then tap **Add to Home Screen**. See [here](https://support.apple.com/en-ca/guide/iphone/iph42ab2f3a7/ios) under *"Add a website icon to your Home Screen"* for more information.
+    * On Chrome devices: At the top right, select **More** and then **Cast, save, and share** and then **Install page as app....**
+    (On some browsers, at the top right of the address bar, click on ![Install](/public/screenshots/install-Android.png?raw=true)).  See [here](https://support.google.com/chrome/answer/9658361?hl=en&co=GENIE.Platform%3DDesktop) for more information.
+
+* Update to the Lichess studies feature.  The link provided in the error message when an incorrect PAT is supplied will now take you to the Lichess token creation screen with the needed elements pre-selected and filled.
+* The app will now automatically pause if the user clicks away to another tab/window or turns off the screen on mobile devices.  
+* Renamed the Lichess button to "Library" and made Lichess studies one of the items in that library. Eventually this library area will house additional sources of data (including multiple Lichess studies). Aside from a minor UI change at this point, there is no difference in functionality.  More significant updates to come in a future release.
+* Thanks to PvtTwinkle for submitting this app's first [pull request](https://github.com/rodpolako/Chess-PGN-Trainer/issues/19) to add docker support.
 
 ## Bug fixes ##
-* Fixed issue with both Safari and Firefox that arose from the refactor due to unsupported functionality.  Reverted the problematic code.
-* Fixed issue with comments accompanying a null move not displaying in the annotation panel.
+* Fixed an issue with extra spacing between the annotation header and the content when working with Lichess studies with embedded commands.
+* Fixed bug where the app would not allow you to move to next puzzle if the PGN had an invalid FEN.  In the event that an invalid FEN is used, the next button will automatically show and allow proceeding to the next puzzle, effectively skipping the current puzzle.
+* Fixed an issue with the move indicator not always showing the correct value when dealing with null moves and other corner cases.
 
 ## Maintenance ##
-* More code cleanup and refactoring.
-* Customized local copy of chess.js to address issues flagged CodeQL.
-* Incorporated the newest version of the pgn-parser (1.4.18) which provides detailed information on where in a PGN an error was encountered. Loading a PGN with an issue will now present a message showing the line and column number where the error occurred.  It will also show the exact character preceeded with a double-asterisk along with some of the surrounding content of the PGN.  
-As an example, if you had a PGN with a typo for a move (in this case Kq1), attempting to load the file will return the following:
-```
-SyntaxError: Expected "@", "x", or [a-h] but "q" found.
-
-Error at line 38, column 14:
-36: [PlyCount "3"]
-37: 
-38: 1... Bd5 2. K**q1 (2. h3 Bxe4+) 2... Bxe4 *
-```
-<ul><li style="list-style-type: none;">To fix your PGN, all you need to do is open the file in a file editor and do a search for ** and that should take you straight to the problem.  In this example, the error tells me that the issue was on the 38th line of this file at the 14th character</li></ul>
+* Minor code cleanup.
+* Added additional error-handling functionality to the Lichess API feature.
+* Documentation updates to the wiki.
+* Made a change to the annotation panel where the panel will be disabled on small mobile displays due to insufficient space to properly render.
+* Made a change to prevent text selecting anything other than the annotation panel.  This fixes issues where components of the UI would sometimes get accidentally selected via drag-and-drop while doing a puzzle.
