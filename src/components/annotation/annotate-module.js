@@ -8,7 +8,7 @@
 /* eslint semi: ["error"] */
 
 /* eslint no-undef: "error"*/
-/* global $, document */
+/* global $, document, URLSearchParams */
 
 /* eslint no-unused-vars: "error"*/
 /* exported */
@@ -16,6 +16,9 @@
 import * as dataTools from '../../util/datatools-module.js';
 import * as colorTools from '../../util/color-tools.js';
 import configuration from '../../app/config.js';
+//import * as linkify from '../../lib/linkify/linkify.js';
+import linkifyHtml from '../../lib/linkify/linkify-html.js';
+//import linkifyStr from '../../lib/linkify/linkify-string.js';
 
 // Annotation Color-related data
 // -----------------------------
@@ -418,6 +421,57 @@ function deleteAllShapeAnnotations() {
 	createCanvas();
 }
 
+
+function formatLinks(inputString) {
+
+	var returnlink = linkifyHtml(inputString, {
+		target: 'blank',
+		render: ({ tagName, attributes, content }) => {
+			//console.log({ tagName, attributes, content });
+
+			var attributesBuilder = '';
+
+			for (const attr in attributes) {
+				attributesBuilder += ` ${attr}=${attributes[attr]}`;
+			}
+
+			if (
+				attributes.href &&
+				dataTools.readItem('embedYoutube') === 'true' &&
+				(attributes.href.indexOf('youtu.be') >= 0 || attributes.href.indexOf('www.youtube.com') >= 0)
+			) {
+				// Youtube URL detected
+				var query = attributes.href.substring(attributes.href.indexOf('?'));
+				//console.log(query);
+
+				const urlSearchParams = new URLSearchParams(query);
+				const params = Object.fromEntries(urlSearchParams.entries());
+				//console.log(params);
+
+				if (params.v && params.v.length == 11) {
+					var IDandTime = params.v;
+
+					if (params.t) {
+						IDandTime += '?start=' + params.t.replaceAll('s', ''); // Removes the seconds letter in case it still is present (if copy/pasted from a browser URL bar)
+					}
+
+					return (
+						'<div class="video-container d-none d-md-block" style="width:100%; aspect-ratio: 16 / 9;"><iframe style="width:100%;height: 100%;" src="https://www.youtube.com/embed/' +
+						IDandTime +
+						'" frameborder="0" allowfullscreen></iframe></div>'
+					);
+				}
+			}
+
+			// Not a full Youtube address (or disabled via setting), return the normal linkify content
+			return `<${tagName}${attributesBuilder}>${content}</${tagName}>`;
+		},
+	});
+
+	// Return the link
+	return stripNewLine(returnlink);
+}
+
 /**
  * Update the annotation panel with the supplied text.  Helper function for annotate()
  * @param {string} annotationText - The content to be added to the annotation panel
@@ -425,7 +479,7 @@ function deleteAllShapeAnnotations() {
 function addAnnotationComment(annotationText) {
 	if (annotationText) {
 		$('#comment_annotation').append('<br><br>');
-		$('#comment_annotation').append(stripNewLine(annotationText));
+		$('#comment_annotation').append(formatLinks(annotationText));
 		$('#comment_annotation').append('<br><br>');
 	}
 }
@@ -525,6 +579,11 @@ function annotate() {
 	let gameMoveIndex = game.history().length - 1; // Last move played
 	if (game.history().length - 1 < 0) {
 		gameMoveIndex = 0;
+	}
+
+	// Don't attempt annotation if there is no move
+	if (currentPuzzle.moves.length === 0){
+		return;
 	}
 
 	let currentMoveTurn = currentPuzzle.moves[gameMoveIndex].turn; // Color of move
@@ -758,4 +817,5 @@ export {
 	initializeAnnotation,
 	stripNewLine,
 	markMovedSquare,
+	formatLinks,
 };

@@ -353,6 +353,15 @@
 													</div>
 
 												</div>
+												<hr>
+												<div class="row">
+
+													<label for="maxPly" class="form-label">Maximum depth (ply):
+														<span id="maxPlyValue"></span></label>
+													<input type="range" class="form-range" min="3" max="50" step="1"
+														id="maxPly">
+
+												</div>
 
 												<hr>
 											</div>
@@ -370,8 +379,8 @@
 
 															<div class="col">
 																<input type="text" id="lichess_user_ID"
-																	class="form-control fs-6 settingstextinput"
-																	value="" onchange="">
+																	class="form-control fs-6 settingstextinput" value=""
+																	onchange="">
 															</div>
 														</div>
 
@@ -482,6 +491,17 @@
 														</div>
 													</div>
 
+													<div class="col">
+														<div class="form-check form-switch">
+															<input class="form-check-input" type="checkbox"
+																role="switch" id="chk_embedYoutube">
+
+															<label class="form-check-label"
+																for="chk_embedYoutube">Display YouTube video in
+																annotation panel</label>
+														</div>
+													</div>
+
 												</div>
 											</div>
 
@@ -516,7 +536,7 @@
 							<div class="modal fade" id="resmodal" tabindex="-1" role="dialog"
 								aria-labelledby="resmodal">
 								<div class="modal-dialog modal-dialog-centered" role="document">
-									<div class="modal-content align-items-center">
+									<div class="modal-content align-items-center" >
 
 										<div class="modal-header">
 											<h5 class="modal-title" id="resmodal-label">Set Complete</h5>
@@ -533,10 +553,15 @@
 										</div>
 
 
-										<div class="modal-footer">
+										<div class="modal-footer" style="display: none; align-items: center; justify-content: center;" id="modal_failedVariations" >
+											<button id="retryFailed" type="button" class="btn btn-primary">Retry failed lines</button>
+											<button id="downloadFailed" type="button" class="btn btn-primary">Download failed lines to PGN</button>
+										</div>
+
+										<div class="modal-footer" style="display: flex; align-items: center; justify-content: center;">
 											<button id="copyToClipboard" type="button" class="btn btn-primary">Copy
 												results to clipboard</button>
-											<button id="downloadToCSV" type="button" class="btn btn-primary">Download to
+											<button id="downloadToCSV" type="button" class="btn btn-primary">Download results to
 												CSV</button>
 										</div>
 									</div>

@@ -37,7 +37,7 @@ This tool has a number of features that you might find useful:
 * Ability to specify custom board colors either by manual entry or color picking 
 * Dark mode  
 * Ability to copy results to clipboard ready to paste into a spreadsheet such as Google Sheets or Microsoft Excel. 
-* Ability to export results to CSV file along with setting to include the headers
+* Ability to export results to CSV file
 * Ability to add additional piece sets (either PNG for SVG) for hosted instances only.  Not available on github.io page.
 * Support for annotations - Comments in PGN files will display in the annotation panel to the left of the board (or underneath in portrait mode).  Annotations can use HTML tags so the PGN comments can be fully featured with things like headings, bullets, bold, italics, links, thumbnails, video, etc. If present, annotations will display while completing the puzzle.  Board-level annotations, like circles and arrows is included and can be disabled via settings.  
 **Note:** Annotations are best seen in a desktop environment with a standard display. The visible space for comments may be constrained when using the app in portrait mode (such as when on a phone).
@@ -46,6 +46,7 @@ This tool has a number of features that you might find useful:
 * Sound effects (move, capture, check, checkmate, and error).  By default these are turned off to prevent distraction but can be enabled in the Settings menu
 * **Experimental** text to speech to have the computer say the moves.  It currently has an issue due to the speed of the computer moves where your move won't get said since the computer plays the next move immediately and that will cancel the current speech and start the next one.  Works fine when playing both sides.  By default it is also disabled.  Works best in Chrome.
 * Integration with Lichess studies.  You can access your studies on Lichess and drill a chapter or an entire study directly without the need to download a pgn. See the [Wiki](https://github.com/rodpolako/Chess-PGN-Trainer/wiki#lichess-study-integration) on how exactly to use this feature.
+* Ability to set a maximium move depth (ply)
 
 ## Setup Instructions
 If you just want to use the trainer and and not bother hosting the page yourself, you can just use the live link [here](https://rodpolako.github.io/).  The latest version of the trainer will always be hosted there.

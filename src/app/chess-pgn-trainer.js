@@ -9,7 +9,7 @@
 /* eslint semi: ["error"] */
 
 /* eslint no-undef: "error"*/
-/* global $, document, navigator, window, console,  */
+/* global $, document, navigator, window, console, location */
 /* global Chessboard */
 
 /* eslint no-unused-vars: "error"*/
@@ -41,6 +41,10 @@ let puzzlecomplete = false;
 let pauseflag = false;
 let increment = 0;
 let puzzleOrder = [];
+let failedVariations = new Set();
+let currentPuzzle = {};
+let resultsStats = [];
+let currentFileName = '';
 
 // Time-related variables
 let pauseStartDateTime;
@@ -87,8 +91,13 @@ $('#title_sidebar').text(`${configuration.app.name}`);
 $('#title_topbar').text(`${configuration.app.name}`);
 
 // Version number of the app
-$('#versionnumber').text(`${configuration.app.version}`);
-$('#versionnumber_sidebar').text(`${configuration.app.version}`);
+var versionNumber = configuration.app.version;
+if ($(location).prop('href').indexOf('beta') >= 0) {
+	versionNumber += ' Beta';
+}
+
+$('#versionnumber').text(`${versionNumber}`);
+$('#versionnumber_sidebar').text(`${versionNumber}`);
 
 // -----------------------------------
 // Functions for related to appearance
@@ -343,6 +352,12 @@ function loadSettings() {
 	if (sharedTools.isSettingEnabled('darkmode')) {
 		toggleDarkMode();
 	}
+
+	$('#maxPly').val(dataTools.readItem('maxDepth'));
+	$('#maxPlyValue').text(dataTools.readItem('maxDepth'));
+	if (parseInt(dataTools.readItem('maxDepth')) === 50) {
+		$('#maxPlyValue').text('∞');
+	}
 }
 
 /**
@@ -387,6 +402,12 @@ function adjustspeedslider() {
 	configuration.collection.sliderList.forEach((setting) => {
 		dataTools.saveItem(setting.settingname, $(setting.fieldName).val());
 	});
+
+	var maxiumDepth = parseInt($('#maxPly').val());
+	$('#maxPlyValue').text(maxiumDepth);
+	if (maxiumDepth === 50) {
+		$('#maxPlyValue').text('∞');
+	}
 
 	// Reset the game
 	resetGame();
@@ -492,6 +513,57 @@ function goToNextPuzzle() {
 	dataTools.saveItem('puzzleIndex', increment);
 }
 
+function createMistakesPGN() {
+	var PGNText = '';
+
+	// Get the status of the options in order to set the temp PGN to the same things
+	if ($('#randomizeSet').is(':checked')) {
+		PGNText += '[PGNTrainerRandomize "1"]' + '\n';
+	}
+	if ($('#playbothsides').is(':checked')) {
+		PGNText += '[PGNTrainerBothSides "1"]' + '\n';
+	}
+	if ($('#playoppositeside').is(':checked')) {
+		PGNText += '[PGNTrainerOppositeSide "1"]' + '\n';
+	}
+	if ($('#flipped').is(':checked')) {
+		PGNText += '[PGNTrainerFlipped "1"]' + '\n';
+	}
+	if ($('#manualadvance').is(':checked')) {
+		PGNText += '[PGNTrainerNextButton "1"]' + '\n';
+	}
+
+	failedVariations.forEach((variation) => {
+		PGNText += variation + '\n\n';
+	});
+
+	failedVariations.clear(); // Clear the current failures in order to make a new failures file next time
+
+	return PGNText;
+}
+
+function downloadMistakes() {
+	// Generate and download mistakes pgn (if any)
+	if (failedVariations.size > 0) {
+		var mistakesPGN = createMistakesPGN();
+		var hiddenElement = document.createElement('a');
+		hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(mistakesPGN);
+		hiddenElement.target = '_blank';
+		hiddenElement.download = 'mistakes.pgn';
+		hiddenElement.click();
+	}
+}
+
+function retryFailed() {
+	// Generate and download mistakes pgn (if any)
+	if (failedVariations.size > 0) {
+		var mistakesPGN = createMistakesPGN();
+		$('#resmodal_close').click();
+		postPGNReadSetup(mistakesPGN, 'retry');
+		startTest();
+	}
+}
+
 /**
  * End-of-game procedure (stats, buttons, etc.)
  */
@@ -536,6 +608,11 @@ async function checkAndPlayNext(target) {
 
 		// Undo that move from the game
 		game.undo();
+
+		// Add this variation to the collection of failures if not already there
+		if (!failedVariations.has(currentPuzzle)) {
+			failedVariations.add(currentPuzzle);
+		}
 
 		// Snap the bad piece back
 		return 'snapback';
@@ -644,6 +721,7 @@ function pauseGame() {
 			$('#btn_reset').prop('disabled', true);
 			$('#openPGN_button').prop('disabled', true);
 			$('#btn_hint').prop('disabled', true);
+			$('#btn_next').prop('disabled', true);
 			$('#btn_library').prop('disabled', true);
 			$('#analysis_link').addClass('disabled');
 
@@ -665,10 +743,11 @@ function pauseGame() {
 			// Remove focus on the pause/resume button
 			$('#btn_pause').blur();
 
-			// Re-enable the Hint, Reset and Open PGN buttons
+			// Re-enable the Hint, Reset, Next and Open PGN buttons
 			$('#btn_reset').prop('disabled', false);
 			$('#openPGN_button').prop('disabled', false);
 			$('#btn_hint').prop('disabled', false);
+			$('#btn_next').prop('disabled', false);
 			$('#btn_library').prop('disabled', false);
 			$('#analysis_link').removeClass('disabled');
 
@@ -729,9 +808,15 @@ function resetGame() {
 	pauseDateTimeTotal = 0;
 	error = false;
 	setcomplete = false;
-
 	puzzlecomplete = false;
+	failedVariations = new Set();
+
+	// Unpause any currently running game before resetting
+	if (pauseflag === true) {
+		pauseGame();
+	}
 	pauseflag = false;
+
 	increment = 0;
 	puzzleOrder = [];
 
@@ -1057,6 +1142,20 @@ function loadPuzzle(PGNPuzzle) {
 		board.position(PGNPuzzle.tags.FEN);
 	}
 
+	// Load the Tags into chess.js instance
+	delete PGNPuzzle.tags.messages; // Delete these as these are generated by the PGN-parser and shouldn't be added back to the PGN
+	for (const tag in PGNPuzzle.tags) {
+		// Exclude any PGNTrainer specific tags
+		if (tag.indexOf('PGNTrainer') < 0) {
+			game.setHeader(tag, PGNPuzzle.tags[tag]);
+		}
+
+		// Special handling for tags that are objects (like UTCDate and UTCTime from Lichess - again from the parser)
+		if (typeof PGNPuzzle.tags[tag] === 'object' && PGNPuzzle.tags[tag] !== null) {
+			game.setHeader(tag, PGNPuzzle.tags[tag].value);
+		}
+	}
+
 	// Load the moves of the PGN into memory
 	PGNPuzzle.moves.forEach((move) => {
 		// Check to make sure the move to make is not a null move
@@ -1079,6 +1178,9 @@ function loadPuzzle(PGNPuzzle) {
 	// Use this information to initialize the annotation components.
 	// Clear any current drawings on the board
 	annotation.initializeAnnotation(game, PGNPuzzle, moveHistory);
+
+	// Copy the complete game to a PGN (for inclusion in PGN of failed lines)
+	currentPuzzle = game.pgn();
 
 	// Set the board position to the opening in the puzzle (ie: undo all steps in the PGN)
 	while (game.undo() !== null) {
@@ -1117,8 +1219,9 @@ function loadPuzzle(PGNPuzzle) {
 
 	// If there is commentary before the first move, show it in the annotation panel
 	if (PGNPuzzle.gameComment?.comment) {
-		$('#comment_annotation').prop('innerHTML', annotation.stripNewLine(PGNPuzzle.gameComment.comment));
-		$('#comment_annotation').append('<br><br>');
+		$('#comment_annotation').prop('innerHTML', annotation.formatLinks(PGNPuzzle.gameComment.comment));
+		$('#comment_annotation').append('<br>');
+		//$('#comment_annotation').append('<br><br>');
 
 		// Scroll to the bottom of the content
 		$('#comment_panel').scrollTop($('#comment_panel').prop('scrollHeight'));
@@ -1376,21 +1479,30 @@ function testClipboard() {
 	return true;
 }
 
+function generateReportOutput(separator) {
+	let csvHeader = '';
+	var outputSet = '';
+
+	// add the header row if option is selected
+	if (sharedTools.isSettingEnabled('csvheaders')) {
+		csvHeader = Object.keys(stats).join(separator) + '\n';
+	}
+
+	resultsStats.forEach((stat) => {
+		let csvBody = Object.values(stat).join(separator);
+		outputSet += csvBody + '\n';
+	});
+
+	return csvHeader + outputSet;
+}
+
 /**
  * Output the stats to the clipboard
  */
 function outputStats2Clipboard() {
 	// Copy Tab-delimited version to clipboard for easy pasting to spreadsheets
-
 	if (testClipboard()) {
-		let csvHeader = '';
-
-		// add the header row if option is selected
-		if (sharedTools.isSettingEnabled('csvheaders')) {
-			csvHeader = Object.keys(stats).join('\t') + '\n';
-		}
-
-		navigator.clipboard.writeText(csvHeader + Object.values(stats).join('\t'));
+		navigator.clipboard.writeText(generateReportOutput('\t'));
 	}
 }
 
@@ -1398,21 +1510,13 @@ function outputStats2Clipboard() {
  * Output the stats to a csv file
  */
 function outputStats2CSV() {
-	// Adapted from https://stackoverflow.com/questions/61339206/how-to-export-data-to-csv-using-javascript
-	let csvHeader = '';
-	let csvBody = Object.values(stats).join(',') + '\n';
 	let datetimestamp = new Date()
 		.toISOString()
 		.replace(/[^0-9]/g, '')
 		.slice(0, -3);
 	var hiddenElement = document.createElement('a');
 
-	// add the header row if option is selected
-	if (sharedTools.isSettingEnabled('csvheaders')) {
-		csvHeader = Object.keys(stats).join(',') + '\n';
-	}
-
-	hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvHeader + csvBody);
+	hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(generateReportOutput(','));
 	hiddenElement.target = '_blank';
 	hiddenElement.download = datetimestamp + '.csv';
 	hiddenElement.click();
@@ -1431,18 +1535,6 @@ function generateStats() {
 	avgTimeHHMMSS = new Date(AvgTimeSeconds * 1000).toISOString().slice(11, 19);
 	errorRate = errorcount / puzzleset.length;
 
-	// Get the filename of the PGN file
-	// Adapted from https://stackoverflow.com/questions/857618/javascript-how-to-extract-filename-from-a-file-input-control
-	var fullPath = $('#openPGN').val();
-	var startIndex = fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/');
-	var filename = fullPath.substring(startIndex);
-
-	if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
-		filename = filename.substring(1);
-	}
-
-	filename = filename.substring(0, filename.lastIndexOf('.'));
-
 	// Get the mode (random or sequential)
 	var mode = 'Sequential';
 	if ($('#randomizeSet').is(':checked')) {
@@ -1453,15 +1545,18 @@ function generateStats() {
 	stats = {};
 
 	stats.date = currentDate;
-	stats.filename = filename;
+	stats.filename = currentFileName;
 	stats.round = '';
-	stats.series = puzzleset[0].Series;
+	stats.series = puzzleset[0].tags.Event;
 	stats.mode = mode;
 	stats.setlength = puzzleset.length;
 	stats.errors = errorcount;
 	stats.totaltime = elapsedTimeHHMMSS;
 	stats.avgtime = avgTimeHHMMSS;
-	stats.errorrate = errorRate;
+	stats.errorrate = (errorRate * 100).toFixed(1) + '%';
+
+	// add this object to the collection
+	resultsStats.push(stats);
 }
 
 /**
@@ -1469,7 +1564,7 @@ function generateStats() {
  */
 function showStats() {
 	// Format the error rate to 1 decimal place
-	const errorRate1Dec = stats.errorrate.toFixed(3) * 100;
+	//const errorRate1Dec = stats.errorrate.toFixed(3) * 100;
 
 	// Show 100% on the progress bar
 	updateProgressBar(1, 1);
@@ -1484,10 +1579,18 @@ function showStats() {
 	$('#elapsedTime').text(`Elapsed time (hh:mm:ss): ${stats.totaltime}`);
 	$('#avgTime').text(`Average time/puzzle (hh:mm:ss): ${stats.avgtime}`);
 	$('#errors').text(`Number of errors: ${stats.errors}`);
-	$('#errorRate').text(`Error Rate: ${errorRate1Dec.toFixed(1)}%`);
+	//$('#errorRate').text(`Error Rate: ${errorRate1Dec.toFixed(1)}%`);
+	$('#errorRate').text(`Error Rate: ${stats.errorrate}`);
 
 	// Display the modal
 	showresults();
+
+	// Show the failed options if there were any errors in this run
+	if (stats.errors > 0) {
+		$('#modal_failedVariations').css('display', 'flex');
+	} else {
+		$('#modal_failedVariations').css('display', 'none');
+	}
 
 	// Copy results to clipboard for pasting into spreadsheet
 	if ($('#chk_clipboard').is(':checked')) {
@@ -1497,6 +1600,24 @@ function showStats() {
 	// Re-enable options checkboxes
 	sharedTools.setCheckboxSelectability(true);
 	confirmOnlyOneOption();
+}
+
+function validateMaxDepth(maxDepthNumber) {
+	// Validate max depth to be a number between 3 and 50
+
+	var maxDepth = parseInt(maxDepthNumber);
+
+	if (maxDepth < 3 || maxDepth > 50 || Number.isNaN(maxDepth)) {
+		maxDepth = 50; // Sets to unlimited in case of bad value
+	}
+
+	return maxDepth;
+}
+
+function removeDuplicateVariations(puzzlearray) {
+	const uniqueArray = puzzlearray.filter((obj, index, self) => index === self.findIndex((o) => JSON.stringify(o.moves) === JSON.stringify(obj.moves)));
+
+	return uniqueArray;
 }
 
 // ---------------------
@@ -1509,21 +1630,43 @@ function showStats() {
  * @param {text} PGNDataFile The text representation of the PGN data
  * @returns
  */
-function postPGNReadSetup(PGNDataFile) {
-	//console.log(PGNDataFile);
+function postPGNReadSetup(PGNDataFile, PGNFileName) {
+	currentFileName = PGNFileName;
 	puzzleset = loadPGNFile(PGNDataFile);
-	//console.log(puzzleset);
 
 	if (puzzleset.length > 0) {
 		// File is now loaded
-		// Update the range of the puzzle counters to the size of the puzzleset
-		$('#puzzleNumber').text('1');
-		$('#puzzleNumbertotal').text(puzzleset.length);
 
 		// Set any startup options found in the PGN
 		setStartupOptions();
 
 		initialButtonSetup();
+
+		// Limit the PGN to max number of moves (if not unlimited)
+		var maxDepth = parseInt(dataTools.readItem('maxDepth'));
+
+		// Check for presense of PGNTrainerMaxDepth tag and if available use that instead
+		if (typeof puzzleset[0].tags.PGNTrainerMaxDepth !== 'undefined') {
+			maxDepth = validateMaxDepth(puzzleset[0].tags.PGNTrainerMaxDepth);
+		}
+
+		if (puzzleset[0].gameComment?.PGNTrainerMaxDepth) {
+			maxDepth = validateMaxDepth(puzzleset[0].gameComment.PGNTrainerMaxDepth);
+		}
+
+		// Prune all lines to the max depth
+		if (maxDepth < 50) {
+			puzzleset.forEach((PGNPuzzle) => {
+				PGNPuzzle.moves = PGNPuzzle.moves.slice(0, maxDepth);
+			});
+
+			// Remove any duplicate lines
+			puzzleset = removeDuplicateVariations(puzzleset);
+		}
+
+		// Update the range of the puzzle counters to the size of the puzzleset
+		$('#puzzleNumber').text('1');
+		$('#puzzleNumbertotal').text(puzzleset.length);
 
 		// Enable the start button
 		sharedTools.setDisplayAndDisabled(['#btn_starttest'], 'inline-block', false);
@@ -1537,6 +1680,11 @@ function postPGNReadSetup(PGNDataFile) {
 
 		// Close the sidebar
 		$('#close_sidebar').click();
+
+		// Automatically start if the tag is present
+		if (puzzleset[0].tags?.PGNTrainerAutoStart === '1' || puzzleset[0].gameComment?.PGNTrainerAutoStart === '1') {
+			startTest();
+		}
 
 		return;
 	}
@@ -1556,7 +1704,7 @@ function readFile(filedata) {
 	fileReader.readAsText(file);
 	fileReader.onload = function (data) {
 		resetGame();
-		postPGNReadSetup(data.target.result);
+		postPGNReadSetup(data.target.result, file.name);
 	};
 }
 
@@ -1636,6 +1784,10 @@ $(() => {
 		sharedTools.toggleSetting('#chk_legalMoves', 'legalmoves');
 	});
 
+	$('#chk_embedYoutube').on('change', function () {
+		sharedTools.toggleSetting('#chk_embedYoutube', 'embedYoutube');
+	});
+
 	$('#chk_circlesarrows').on('change', function () {
 		sharedTools.toggleSetting('#chk_circlesarrows', 'circlesarrows');
 	});
@@ -1684,6 +1836,10 @@ $(() => {
 		adjustspeedslider();
 	});
 
+	$('#maxPly').on('change', function () {
+		adjustspeedslider();
+	});
+
 	$('.settingstextinput').on('change', function () {
 		saveTextEntries();
 		lichess.initalizeLichess();
@@ -1710,6 +1866,14 @@ $(() => {
 
 	$('#Dark-Color').on('click', function () {
 		$(this).select();
+	});
+
+	$('#downloadFailed').on('click', function () {
+		downloadMistakes();
+	});
+
+	$('#retryFailed').on('click', function () {
+		retryFailed();
 	});
 
 	$('#ĺoad_lichess_studies').on('click', function () {
@@ -1809,7 +1973,6 @@ $(() => {
 			}
 		}
 	});
-
 });
 
 /**

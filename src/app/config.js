@@ -2,7 +2,7 @@ const configuration = {
 	// Application Information
 	app: {
 		name: 'Chess PGN Trainer',
-		version: '1.13.2',
+		version: '1.13.3',
 	},
 
 	// Application defaults (referenced when the "Reset" button is used)
@@ -19,6 +19,8 @@ const configuration = {
 		circlesarrows: true,
 		playAudio: false,
 		playSpeech: false,
+		maxDepth: 50,
+		embedYoutube: true,
 	},
 
 	// Feature flags for components
@@ -73,10 +75,14 @@ const configuration = {
 			{ settingname: 'circlesarrows', switchname: '#chk_circlesarrows' },
 			{ settingname: 'playAudio', switchname: '#chk_playAudio' },
 			{ settingname: 'playSpeech', switchname: '#chk_playSpeech' },
+			{ settingname: 'embedYoutube', switchname: '#chk_embedYoutube' },
 		],
 
 		// Collection of slider settings and their associated sliders
-		sliderList: [{ settingname: 'speed', fieldName: '#pieceSpeed' }],
+		sliderList: [
+			{ settingname: 'speed', fieldName: '#pieceSpeed' },
+			{ settingname: 'maxDepth', fieldName: '#maxPly' },
+		],
 	},
 
 	// Theme details for light/dark modes
