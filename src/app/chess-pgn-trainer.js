@@ -358,6 +358,13 @@ function loadSettings() {
 	if (parseInt(dataTools.readItem('maxDepth')) === 50) {
 		$('#maxPlyValue').text('∞');
 	}
+
+	$('#sortMethod').val(dataTools.readItem('sortMethod'));
+
+	$('#chk_sort_desc').prop('checked', true);
+	if (dataTools.readItem('sortDirection') === 'false') {
+		$('#chk_sort_desc').prop('checked', false);
+	}
 }
 
 /**
@@ -513,6 +520,12 @@ function goToNextPuzzle() {
 	dataTools.saveItem('puzzleIndex', increment);
 }
 
+
+/**
+ * Create a PGN of the failures into memory
+ * 
+ * @returns A modified version of the PGN to add back any current option tags along with each variation that failed
+ */
 function createMistakesPGN() {
 	var PGNText = '';
 
@@ -542,6 +555,9 @@ function createMistakesPGN() {
 	return PGNText;
 }
 
+/**
+ * Download the CSV of mistakes
+ */
 function downloadMistakes() {
 	// Generate and download mistakes pgn (if any)
 	if (failedVariations.size > 0) {
@@ -554,6 +570,9 @@ function downloadMistakes() {
 	}
 }
 
+/**
+ * Create an in-memory PGN of the failures and then immediately start a test on those
+ */
 function retryFailed() {
 	// Generate and download mistakes pgn (if any)
 	if (failedVariations.size > 0) {
@@ -1479,6 +1498,13 @@ function testClipboard() {
 	return true;
 }
 
+/**
+ * Generate the performance data to be used in the CSV/Clipboard output
+ * 
+ * @param {*} separator -   The value to use to separate the individual values. 
+ * 							Can include things like '\t' (for tab-separated) or ',' for comma-separated
+ * @returns String-formatted data to be used in the output
+ */
 function generateReportOutput(separator) {
 	let csvHeader = '';
 	var outputSet = '';
@@ -1602,6 +1628,12 @@ function showStats() {
 	confirmOnlyOneOption();
 }
 
+/**
+ * Validates the max depth input and resets it if invalid
+ * 
+ * @param {*} maxDepthNumber 
+ * @returns A valid maximum depth value for variation pruning
+ */
 function validateMaxDepth(maxDepthNumber) {
 	// Validate max depth to be a number between 3 and 50
 
@@ -1614,6 +1646,12 @@ function validateMaxDepth(maxDepthNumber) {
 	return maxDepth;
 }
 
+/**
+ * Remove variations from array that are identical.  Used when variations are pruned due to max depth being shorter than variation length
+ * 
+ * @param {*} puzzlearray - The array of puzzles/variations to de-duplicate
+ * @returns A de-duplicated copy of the array
+ */
 function removeDuplicateVariations(puzzlearray) {
 	const uniqueArray = puzzlearray.filter((obj, index, self) => index === self.findIndex((o) => JSON.stringify(o.moves) === JSON.stringify(obj.moves)));
 
@@ -1931,6 +1969,16 @@ $(() => {
 		$('#dark-color-preview').css('background-color', color);
 		$('#Dark-Color').val(color);
 		changecolor();
+	});
+
+	$('#sortMethod').on('change', function () {
+		dataTools.saveItem('sortMethod', $('#sortMethod').val());
+		lichess.LichessStudySort();
+	});
+
+	$('#chk_sort_desc').on('click', function () {
+		dataTools.saveItem('sortDirection', $('#chk_sort_desc').is(':checked'));
+		lichess.LichessStudySort();
 	});
 
 	// Tooltip

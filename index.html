@@ -536,7 +536,7 @@
 							<div class="modal fade" id="resmodal" tabindex="-1" role="dialog"
 								aria-labelledby="resmodal">
 								<div class="modal-dialog modal-dialog-centered" role="document">
-									<div class="modal-content align-items-center" >
+									<div class="modal-content align-items-center">
 
 										<div class="modal-header">
 											<h5 class="modal-title" id="resmodal-label">Set Complete</h5>
@@ -553,15 +553,21 @@
 										</div>
 
 
-										<div class="modal-footer" style="display: none; align-items: center; justify-content: center;" id="modal_failedVariations" >
-											<button id="retryFailed" type="button" class="btn btn-primary">Retry failed lines</button>
-											<button id="downloadFailed" type="button" class="btn btn-primary">Download failed lines to PGN</button>
+										<div class="modal-footer"
+											style="display: none; align-items: center; justify-content: center;"
+											id="modal_failedVariations">
+											<button id="retryFailed" type="button" class="btn btn-primary">Retry failed
+												lines</button>
+											<button id="downloadFailed" type="button" class="btn btn-primary">Download
+												failed lines to PGN</button>
 										</div>
 
-										<div class="modal-footer" style="display: flex; align-items: center; justify-content: center;">
+										<div class="modal-footer"
+											style="display: flex; align-items: center; justify-content: center;">
 											<button id="copyToClipboard" type="button" class="btn btn-primary">Copy
 												results to clipboard</button>
-											<button id="downloadToCSV" type="button" class="btn btn-primary">Download results to
+											<button id="downloadToCSV" type="button" class="btn btn-primary">Download
+												results to
 												CSV</button>
 										</div>
 									</div>
@@ -630,6 +636,33 @@
 															</div>
 														</button>
 													</h2>
+
+													<div class="accordion-body row" style="padding-bottom: 0px;"
+														id="sort_options">
+														<div class="row align-items-center">
+															<div class="col-7 align-items-left">
+																<select name="sortMethod" class="light-mode-control"
+																	id="sortMethod">
+																	<option value="name">Alphabetical</option>
+																	<option value="createdAt">Creation date</option>
+																	<option value="updatedAt">Modified date</option>
+																</select>
+															</div>
+															<div class="col-5 align-items-right">
+																<div class="form-check form-switch">
+																	<input class="form-check-input" type="checkbox"
+																		role="switch" id="chk_sort_desc">
+
+																	<label class="form-check-label d-block d-sm-none"
+																		for="chk_sort_desc">Desc.</label>
+																	<label class="form-check-label d-none d-sm-block"
+																		for="chk_sort_desc">Descending</label>
+																</div>
+															</div>
+														</div>
+													</div>
+
+
 													<div id="lichess_studies_study"
 														class="accordion-collapse collapse show"
 														data-bs-parent="#data_library">
@@ -652,15 +685,8 @@
 
 												<div class="col-auto me-auto">
 													<button type="button" class="btn btn-secondary fs-5"
-														id="ĺoad_lichess_studies">Load Studies</button>
-													<!--
-														<button type="button" class="btn btn-secondary fs-5"
-														id="btn_sort"><img id="btn_img_sort"
-															src="./src/components/themes/dark/sort-asc-white.png"
-															style="width: 30px; height: 30px;" /></button>
-													-->
+														id="ĺoad_lichess_studies">Load/Refresh Studies</button>
 												</div>
-
 											</div>
 										</div>
 									</div>
