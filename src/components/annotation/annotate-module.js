@@ -421,13 +421,24 @@ function deleteAllShapeAnnotations() {
 	createCanvas();
 }
 
+/**
+ * Get the hostname from a given URL
+ * Used to prevent security issue possible when using substring check instead
+ * 
+ * @param {string} url - The URL to process
+ * @returns The hostname of the URL
+ */
+
+function getHostName(url) {
+	const urlObject = new URL(url);
+	const hostnameFromUrl = urlObject.hostname;
+	return hostnameFromUrl;
+}
 
 function formatLinks(inputString) {
-
 	var returnlink = linkifyHtml(inputString, {
 		target: 'blank',
 		render: ({ tagName, attributes, content }) => {
-			//console.log({ tagName, attributes, content });
 
 			var attributesBuilder = '';
 
@@ -438,7 +449,7 @@ function formatLinks(inputString) {
 			if (
 				attributes.href &&
 				dataTools.readItem('embedYoutube') === 'true' &&
-				(attributes.href.indexOf('youtu.be') >= 0 || attributes.href.indexOf('www.youtube.com') >= 0)
+				(getHostName(attributes.href) === 'youtu.be' || getHostName(attributes.href) === 'www.youtube.com')
 			) {
 				// Youtube URL detected
 				var query = attributes.href.substring(attributes.href.indexOf('?'));
@@ -582,7 +593,7 @@ function annotate() {
 	}
 
 	// Don't attempt annotation if there is no move
-	if (currentPuzzle.moves.length === 0){
+	if (currentPuzzle.moves.length === 0) {
 		return;
 	}
 
