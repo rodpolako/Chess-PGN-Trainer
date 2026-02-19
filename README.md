@@ -24,8 +24,8 @@ This tool has a number of features that you might find useful:
 * Flipped - Allows you to play the puzzle/game from the other side of the board.  May help to develop sense when a given tactic is being used on you.
 * Play Opposite Side - Allows the player to go second instead and makes the computer play the first move from the PGN.  There are two use cases for this feature: 
 
-<div style="padding-left: 2em;"><ol><li>When the puzzles you have all include the move prior to the puzzle position.  This will make the app play the first move and then you finish it from there.</li>
-<li>When you want to practice opening defenses instead of puzzles.  For example, if you wanted to practice a defense as black, load a PGN with the move order you want to practice and this feature will play as white and play the moves in the PGN while you play the response.  Recommended that you use the Flipped option in conjunction with this one.</li></ol></div>
+  <div style="padding-left: 2em;"><ol><li>When the puzzles you have all include the move prior to the puzzle position.  This will make the app play the first move and then you finish it from there.</li>
+  <li>When you want to practice opening defenses instead of puzzles.  For example, if you wanted to practice a defense as black, load a PGN with the move order you want to practice and this feature will play as white and play the moves in the PGN while you play the response.  Recommended that you use the Flipped option in conjunction with this one.</li></ol></div>
 
 * Analysis board - More useful for puzzles, this option generates a link to a Lichess analysis board of the currently displayed position. Useful when you want to analyze a specific puzzle during a run in order to analyze or troubleshoot.  This link will always be available via the magnifying glass next to the progress bar which if clicked will open an analysis board in Lichess in a new tab.
 * Pause - Useful if you are doing a large number of puzzles/games and need to step away.  Click on the pause button and the board will clear and the timer will stop.  Click Resume in order to continue.  Your elapsed time will not include the paused time.
@@ -95,4 +95,5 @@ Once a test group is completed, tool displays the following performance informat
 
 ## Documentation
 See the [Wiki](https://github.com/rodpolako/Chess-PGN-Trainer/wiki) for a complete documentation.
+
 
