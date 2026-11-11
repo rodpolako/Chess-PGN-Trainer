@@ -47,6 +47,7 @@ This tool has a number of features that you might find useful:
 * **Experimental** text to speech to have the computer say the moves.  It currently has an issue due to the speed of the computer moves where your move won't get said since the computer plays the next move immediately and that will cancel the current speech and start the next one.  Works fine when playing both sides.  By default it is also disabled.  Works best in Chrome.
 * Integration with Lichess studies.  You can access your studies on Lichess and drill a chapter or an entire study directly without the need to download a pgn. See the [Wiki](https://github.com/rodpolako/Chess-PGN-Trainer/wiki#lichess-study-integration) on how exactly to use this feature.
 * Ability to set a maximium move depth (ply)
+* Ability to have the tool just test you on failed puzzles after a run. Included is a setting where it will continue a run until all puzzles are successful. Useful when you want to drill a set rapidly until 100%.
 
 ## Setup Instructions
 If you just want to use the trainer and and not bother hosting the page yourself, you can just use the live link [here](https://rodpolako.github.io/).  The latest version of the trainer will always be hosted there.
@@ -94,6 +95,5 @@ Once a test group is completed, tool displays the following performance informat
 ![screenshot](./public/screenshots/screenshot2.png)
 
 ## Documentation
-See the [Wiki](https://github.com/rodpolako/Chess-PGN-Trainer/wiki) for a complete documentation.
-
+See the [Wiki](https://github.com/rodpolako/Chess-PGN-Trainer/wiki) for complete documentation.
 

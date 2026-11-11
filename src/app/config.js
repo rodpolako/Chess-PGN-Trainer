@@ -2,7 +2,7 @@ const configuration = {
 	// Application Information
 	app: {
 		name: 'Chess PGN Trainer',
-		version: '1.13.5',
+		version: '1.13.6',
 	},
 
 	// Application defaults (referenced when the "Reset" button is used)
@@ -23,6 +23,7 @@ const configuration = {
 		embedYoutube: true,
 		sortMethod: 'name',
 		sortDirection: false,
+		autoRetryFailures: false,
 	},
 
 	// Feature flags for components
@@ -79,6 +80,7 @@ const configuration = {
 			{ settingname: 'playSpeech', switchname: '#chk_playSpeech' },
 			{ settingname: 'embedYoutube', switchname: '#chk_embedYoutube' },
 			{ settingname: 'sortDirection', switchname: '#chk_sort_desc' },
+			{ settingname: 'autoRetryFailures', switchname: '#chk_autoRetryFails' },
 		],
 
 		// Collection of slider settings and their associated sliders

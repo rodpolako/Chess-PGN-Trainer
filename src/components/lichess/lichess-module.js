@@ -154,8 +154,8 @@ function incorrectPAT() {
 
 /**
  * Return error message if study permissions are set incorrectly
- * 
- * @param {*} studyID 
+ *
+ * @param {*} studyID
  */
 function forbidden(studyID) {
 	// 403 error - Export permission on the study is set to Nobody
@@ -305,9 +305,7 @@ async function accessLichessAPI() {
 	// Sort the list by settings
 	LichessStudySort();
 
-	// Save a copy of the data to the cache for future reloads
-	dataTools.saveItem('StudyListing', JSON.stringify(studyListing));
-
+	// Remove the Spinner once load is complete
 	removeLoadingSpinner();
 }
 
@@ -536,15 +534,23 @@ function initalizeLichess() {
 	if (dataTools.readItem('StudyListing') !== null) {
 		let studyListing = JSON.parse(dataTools.readItem('StudyListing'));
 
-		// Populate the list (studies only)
-		studyListing.forEach(async (workspace) => {
-			createListOfStudies(workspace);
-		});
+		// Populate the list (studies only) if there are any
+		if (studyListing.length > 0) {
+			studyListing.forEach(async (workspace) => {
+				createListOfStudies(workspace);
+			});
+		}
 
 		// Add the user ID to the modal title
 		$('#lichess_study_owner').empty();
 		$('#lichess_study_owner').append(': ' + userID);
 	}
+
+	// Wipe out any existing studies listed if the lichess user ID changes
+	$('#lichess_user_ID').on('change', function () {
+		$('#lichess_studies_list').empty();
+		dataTools.saveItem('StudyListing', JSON.stringify(''));
+	});
 }
 
 /**
